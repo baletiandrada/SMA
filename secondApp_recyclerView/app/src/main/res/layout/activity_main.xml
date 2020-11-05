@@ -14,7 +14,7 @@
         android:id="@+id/tv_first_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Welcome to recycler view app!"
+        android:text="Welcome to my app!"
         android:textColor="@android:color/black"
         android:textAlignment="center"
         android:textSize="22sp"
@@ -26,9 +26,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:text="Go to this activity"
+        android:text="Go to list operations"
         android:background="#612937"
         android:textColor="@android:color/white"
         android:padding="10dp" />
+
+    <Button
+        android:id="@+id/btn_preferedReferences_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="Go to shared preferences activity"
+        android:background="#612937"
+        android:textColor="@android:color/white"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/btn_fileManagement_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="Go to files activity"
+        android:background="#612937"
+        android:textColor="@android:color/white"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/btn_room_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="Go to room activity"
+        android:background="#612937"
+        android:textColor="@android:color/white"
+        android:padding="10dp" />
+
 
 </LinearLayout>

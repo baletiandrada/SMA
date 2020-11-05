@@ -1,34 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    tools:context=".PreferedRefActivity"
     android:orientation="vertical"
-    android:background="@drawable/background_image1">
-
-    <TextView
-        android:id="@+id/tv_show_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
-        android:textAlignment="center"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_margin="20dp"
-        android:layout_marginBottom="20dp"/>
+    android:background="@drawable/background_image1"
+    tools:context=".FourthActivity">
 
     <Button
-        android:id="@+id/btn_changeContent"
+        android:id="@+id/add_item_first_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:text="Change data"
+        android:text="Add new person"
         android:background="#612937"
-        android:textColor="@android:color/white"
-        android:padding="10dp" />
+        android:layout_margin="20dp"/>
 
     <EditText
         android:id="@+id/et_name"
@@ -51,12 +37,18 @@
         android:textAlignment="center"/>
 
     <Button
-        android:id="@+id/add_button"
+        android:id="@+id/add_item_second_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Show shared preferences data"
+        android:text="Add new person"
         android:background="#612937"
-        android:textColor="@android:color/white"
         android:layout_margin="20dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_my_first_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="40dp"
+        android:orientation="horizontal"/>
 
 </LinearLayout>

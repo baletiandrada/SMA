@@ -16,6 +16,9 @@
         <activity
             android:name=".SecondActivity"
             android:label="Activity 2" />
+        <activity
+            android:name=".FourthActivity"
+            android:label="Activity Recycler View"/>
     </application>
 
 </manifest>

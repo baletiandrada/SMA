@@ -1,4 +1,4 @@
-package com.example.secondapp_recyclerview;
+package com.example.firstapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,7 +15,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SecondActivity extends AppCompatActivity {
+public class FourthActivity extends AppCompatActivity {
 
     private EditText edit_name, edit_firstName;
     private Button add_item_first_button, add_item_second_button;
@@ -26,7 +26,7 @@ public class SecondActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_second);
+        setContentView(R.layout.activity_fourth);
         initializeViews();
         setRecyclerView();
         setOnclickListener();
@@ -78,25 +78,25 @@ public class SecondActivity extends AppCompatActivity {
 
         if(name_entered.isEmpty())
         {
-            Toast toast = Toast.makeText(this, "Please enter a name", Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.CENTER_VERTICAL, 0, -220);
+            Toast toast = Toast.makeText(this, "Please enter your name", Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER_VERTICAL, 0, -200);
             toast.show();
             return;
         }
         else if(firstName_entered.isEmpty()) {
-            Toast toast = Toast.makeText(this, "Please enter a first name", Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.CENTER_VERTICAL, 0, -220);
-            toast.show();
-            return;
-        }
-        else {
-            exampleModelList.add(new ListModel(name_entered, firstName_entered));
-            setRecyclerView();
-            edit_name.setText(null);
-            edit_firstName.setText(null);
-            setAddingUIsGone();
-            add_item_first_button.setVisibility(View.VISIBLE);
-        }
+                 Toast toast = Toast.makeText(this, "Please enter your first name", Toast.LENGTH_LONG);
+                 toast.setGravity(Gravity.CENTER_VERTICAL, 0, -200);
+                 toast.show();
+                 return;
+              }
+              else {
+                      exampleModelList.add(new ListModel(name_entered, firstName_entered, 21));
+                      setRecyclerView();
+                      edit_name.setText(null);
+                      edit_firstName.setText(null);
+                      setAddingUIsGone();
+                      add_item_first_button.setVisibility(View.VISIBLE);
+              }
     }
 
     private void setRecyclerView() {
@@ -104,4 +104,5 @@ public class SecondActivity extends AppCompatActivity {
         exampleListRv.setLayoutManager(new LinearLayoutManager(this));
         exampleListRv.setAdapter(listExampleAdapter);
     }
+
 }

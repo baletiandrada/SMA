@@ -1,20 +1,19 @@
-package com.example.secondapp_recyclerview;
+package com.example.firstapp;
 
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class RoomViewHolder extends RecyclerView.ViewHolder{
+public class ListViewHolder extends RecyclerView.ViewHolder{
     private TextView nameTv;
     private TextView firstnameTv;
-    private ImageView delete_item;
+    private Button delete_button;
 
-    public RoomViewHolder(@NonNull View itemView){
+    public ListViewHolder(@NonNull View itemView){
         super(itemView);
         initializeView();
     }
@@ -22,7 +21,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder{
     private void initializeView(){
         nameTv = itemView.findViewById(R.id.tv_row_name);
         firstnameTv = itemView.findViewById(R.id.tv_row_firstname);
-        delete_item = itemView.findViewById(R.id.iv_delete_imageView);
+        delete_button = itemView.findViewById(R.id.btn_delete_button);
     }
 
     public void setValues(String name, String firstname){

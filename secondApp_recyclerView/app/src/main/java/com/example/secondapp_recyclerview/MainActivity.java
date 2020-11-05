@@ -3,6 +3,7 @@ package com.example.secondapp_recyclerview;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,7 +14,7 @@ import com.example.secondapp_recyclerview.R;
 public class MainActivity extends AppCompatActivity {
 
     private TextView firstTextView;
-    private Button firstButton;
+    private Button firstButton, secondButton, thirdButton, roomButton;
 
     public MainActivity() {
     }
@@ -30,6 +31,27 @@ public class MainActivity extends AppCompatActivity {
                 openActivity4();
             }
         });
+
+        secondButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openActivityPR();
+            }
+        });
+
+        thirdButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openActivityReadFromFile();
+            }
+        });
+
+        roomButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openRoomActivity();
+            }
+        });
     }
 
     public void openActivity4()
@@ -38,9 +60,30 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void openActivityPR()
+    {
+        Intent intent = new Intent(this, PreferedRefActivity.class);
+        startActivity(intent);
+    }
+
+    public void openActivityReadFromFile()
+    {
+        Intent intent = new Intent(this, FilesActivity.class);
+        startActivity(intent);
+    }
+
+    public void openRoomActivity()
+    {
+        Intent intent = new Intent(this, RoomActivity.class);
+        startActivity(intent);
+    }
+
     private void initializeViews()
     {
         firstTextView = findViewById(R.id.tv_first_text);
         firstButton = findViewById(R.id.btn_first_button);
+        secondButton = findViewById(R.id.btn_preferedReferences_button);
+        thirdButton = findViewById(R.id.btn_fileManagement_button);
+        roomButton = findViewById(R.id.btn_room_button);
     }
 }

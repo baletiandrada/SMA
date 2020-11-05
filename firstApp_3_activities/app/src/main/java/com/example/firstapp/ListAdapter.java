@@ -1,4 +1,4 @@
-package com.example.secondapp_recyclerview;
+package com.example.firstapp;
 
 import android.content.Context;
 import android.content.Intent;
@@ -35,12 +35,12 @@ public class ListAdapter extends RecyclerView.Adapter<ListViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull final ListViewHolder holder, final int position) {
         final ListModel personalDataModel = choicesList.get(position);
-        holder.setValues(personalDataModel.getName(), personalDataModel.getFirstName());
-        holder.itemView.findViewById(R.id.iv_delete_imageView).setOnClickListener(new View.OnClickListener() {
+        holder.setValues(personalDataModel.getFirstName(), personalDataModel.getName());
+        holder.itemView.findViewById(R.id.btn_delete_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
-                choicesList.remove(position);
-                notifyItemRemoved(position);
+                holder.setValues(personalDataModel.getName(), personalDataModel.getFirstName());
+
             }
         });
     }
@@ -49,4 +49,5 @@ public class ListAdapter extends RecyclerView.Adapter<ListViewHolder> {
     public int getItemCount() {
         return choicesList.size();
     }
+
 }
