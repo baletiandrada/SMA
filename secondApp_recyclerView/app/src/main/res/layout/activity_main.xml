@@ -62,4 +62,14 @@
         android:padding="10dp" />
 
 
+    <Button
+        android:id="@+id/btn_navBar_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="Go to login page"
+        android:background="#612937"
+        android:textColor="@android:color/white"
+        android:padding="10dp" />
+
 </LinearLayout>

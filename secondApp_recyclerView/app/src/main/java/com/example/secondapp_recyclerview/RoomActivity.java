@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class RoomActivity extends AppCompatActivity {
@@ -33,6 +34,7 @@ public class RoomActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room);
         initializeViews();
+        testDatabase = TestDatabase.getInstance(this);
 
         addData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,17 +56,26 @@ public class RoomActivity extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteAllFromDatabase();
-                getFromDatabase();
-                setRecyclerView();
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        deleteAllFromDatabase();
+                    }
+                });
+
             }
         });
 
         seeDB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getFromDatabase();
-                setRecyclerView();
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        getFromDatabase();
+                    }
+                });
+
             }
         });
     }
@@ -84,7 +95,12 @@ public class RoomActivity extends AppCompatActivity {
             return;
         }
         else {
-            insertToDatabase(name.getText().toString(), firstName.getText().toString());
+            AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    insertToDatabase(name.getText().toString(), firstName.getText().toString());
+                }
+            });
 
             name.setText(null);
             firstName.setText(null);
@@ -97,18 +113,20 @@ public class RoomActivity extends AppCompatActivity {
 
     private void insertToDatabase(final String name, final String firstName)
     {
-        class InsertValue extends AsyncTask<Void, Void, TestEntity> {
+        class InsertValue extends AsyncTask<Void, Void, List<TestEntity>> {
 
             @Override
-            protected TestEntity doInBackground(Void... voids) {
+            protected List<TestEntity> doInBackground(Void... voids) {
                 TestEntity testEntity = new TestEntity(name,firstName);
                 testDatabase.testDAO().insertAll(testEntity);
-                return testEntity;
+                testEntityList = testDatabase.testDAO().getAll();
+                return testEntityList;
             }
 
             @Override
-            protected void onPostExecute(TestEntity testEntity) {
-                super.onPostExecute(testEntity);
+            protected void onPostExecute(List<TestEntity> testEntityList) {
+                super.onPostExecute(testEntityList);
+                setRecyclerView();
             }
         }
 
@@ -117,13 +135,18 @@ public class RoomActivity extends AppCompatActivity {
     }
 
     public void getFromDatabase() {
-        class GetValue extends AsyncTask<Void, Void, Void> {
+        class GetValue extends AsyncTask<Void, Void, List<TestEntity>> {
 
             @Override
-            protected Void doInBackground(Void... voids) {
+            protected List<TestEntity> doInBackground(Void... voids) {
                 //@SuppressLint("WrongThread") TestEntity testEntity = new TestEntity("Baleti", "Andrada");
                 testEntityList = testDatabase.testDAO().getAll();
-                return null;
+                return testEntityList;
+            }
+            @Override
+            protected void onPostExecute(List<TestEntity> testEntityList) {
+                super.onPostExecute(testEntityList);
+                setRecyclerView();
             }
 
         }
@@ -132,12 +155,19 @@ public class RoomActivity extends AppCompatActivity {
     }
 
     public void deleteAllFromDatabase() {
-        class RemoveAllValues extends AsyncTask<Void, Void, Void> {
+        class RemoveAllValues extends AsyncTask<Void, Void, List<TestEntity>> {
 
             @Override
-            protected Void doInBackground(Void... voids) {
+            protected List<TestEntity> doInBackground(Void... voids) {
                 testDatabase.testDAO().delete();
-                return null;
+                testEntityList= Collections.emptyList();
+                return testEntityList;
+            }
+
+            @Override
+            protected void onPostExecute(List<TestEntity> testEntityList) {
+                super.onPostExecute(testEntityList);
+                setRecyclerView();
             }
 
         }
@@ -165,7 +195,12 @@ public class RoomActivity extends AppCompatActivity {
         changeContent.setVisibility(View.GONE);
 
         exampleListRv = findViewById(R.id.rv_my_first_list);
-        getFromDatabase();
-        setRecyclerView();
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                getFromDatabase();
+            }
+        });
+
     }
 }

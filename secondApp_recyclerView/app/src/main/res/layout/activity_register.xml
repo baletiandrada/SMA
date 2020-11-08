@@ -6,13 +6,25 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context=".fragments.DashboardFragment">
+    tools:context=".RegisterActivity"
+    android:background="@drawable/background_image1">
+
+    <TextView
+    android:id="@+id/tv_register_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="40dp"
+    android:text="Register"
+    android:textColor="@android:color/black"
+    android:textAlignment="center"
+    android:textSize="25sp"/>
 
     <EditText
         android:id="@+id/et_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:hint="Please enter your email"
         android:textColor="@android:color/black"
         android:textStyle="bold"
         android:textAlignment="center"/>
@@ -22,6 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:hint="Please enter your age"
         android:textColor="@android:color/black"
         android:textStyle="bold"
         android:textAlignment="center"/>
@@ -31,6 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:hint="Please enter your username"
         android:textColor="@android:color/black"
         android:textStyle="bold"
         android:textAlignment="center"/>
@@ -40,29 +54,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:hint="Please enter your password"
         android:inputType="textPassword"
         android:textColor="@android:color/black"
         android:textStyle="bold"
         android:textAlignment="center"/>
 
     <Button
-        android:id="@+id/btn_update"
+        android:id="@+id/register_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="50dp"
-        android:text="Update"
+        android:text="Sign up"
         android:background="#612937"
         android:textColor="@android:color/white"
-        android:padding="10dp" />
+        android:layout_margin="20dp"/>
 
-    <Button
-        android:id="@+id/btn_open_update"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="50dp"
-        android:text="Update"
-        android:background="#612937"
-        android:textColor="@android:color/white"
-        android:padding="10dp" />
 
 </LinearLayout>

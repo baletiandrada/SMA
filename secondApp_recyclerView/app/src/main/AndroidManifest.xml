@@ -11,18 +11,25 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SecondApp_recyclerView">
-        <activity android:name=".RoomActivity"
-            android:label="Add to database">
-        </activity>
-        <activity android:name=".BottomNavigationActivity"
-            android:label="Bottom navigation"/>
-        <activity android:name=".FilesActivity"
-            android:label="Add to file"/>
-        <activity android:name=".PreferedRefActivity"
-            android:label="Add to shared preferences"/>
-        <activity android:name=".SecondActivity"
-            android:label="List operations"/>
-        <activity android:name=".MainActivity"
+        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".LoginActivity" />
+        <activity
+            android:name=".RoomActivity"
+            android:label="Add to database" />
+        <activity
+            android:name=".BottomNavigationActivity"
+            android:label="Bottom navigation" />
+        <activity
+            android:name=".FilesActivity"
+            android:label="Add to file" />
+        <activity
+            android:name=".PreferedRefActivity"
+            android:label="Add to shared preferences" />
+        <activity
+            android:name=".SecondActivity"
+            android:label="List operations" />
+        <activity
+            android:name=".MainActivity"
             android:label="Main activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

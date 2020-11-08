@@ -13,11 +13,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-public class BottomNavigationActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemReselectedListener{
+public class BottomNavigationActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener{
 
     private HomeFragment homeFragment;
     private DashboardFragment dashboardFragment;
     private NotificationsFragment notificationsFragment;
+
+    private BottomNavigationView navView;
 
     private Fragment activeFragment;
     final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -26,10 +28,10 @@ public class BottomNavigationActivity extends AppCompatActivity implements Botto
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bottom_navigation);
-        BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView = findViewById(R.id.nav_view);
 
         initializeViews();
-        navView.setOnNavigationItemReselectedListener(this);
+        navView.setOnNavigationItemSelectedListener(this);
         loadFragments();
     }
 
@@ -41,22 +43,23 @@ public class BottomNavigationActivity extends AppCompatActivity implements Botto
     }
 
     @Override
-    public void onNavigationItemReselected(@NonNull MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch ((item.getItemId()))
         {
             case R.id.navigation_home:
-                fragmentManager.beginTransaction().hide(activeFragment).show(homeFragment).commit();
+                fragmentManager.beginTransaction().hide(activeFragment).show(homeFragment).detach(homeFragment).attach(homeFragment).commit();
                 activeFragment = homeFragment;
-                break;
+                return true;
             case R.id.navigation_dashboard:
                 fragmentManager.beginTransaction().hide(activeFragment).show(dashboardFragment).commit();
                 activeFragment = dashboardFragment;
-                break;
+                return true;
             case R.id.navigation_notifications:
                 fragmentManager.beginTransaction().hide(activeFragment).show(notificationsFragment).commit();
                 activeFragment = notificationsFragment;
-                break;
+                return true;
         }
+        return false;
     }
 
     public void loadFragments()
