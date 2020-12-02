@@ -20,6 +20,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText username_et, passwd_et;
     private CheckBox save_checkBox;
     private Button login_btn, register_btn, navBar_btn;
+    boolean saveToSharedPref=false;
 
     private TestEntity foundTestEntity = null;
     private TestDatabase testDatabase;
@@ -73,10 +74,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if(view.getId() == R.id.checkbox_save)
             if(checked){
-                SharedPreferences.Editor editor = getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE).edit();
-                editor.putString(AppConstants.KEY1_NAME, username_et.getText().toString());
-                editor.putString(AppConstants.KEY2_NAME, passwd_et.getText().toString());
-                editor.apply();
+                saveToSharedPref=true;
             }
     }
 
@@ -114,6 +112,10 @@ public class LoginActivity extends AppCompatActivity {
                     received_data.setAge(foundTestEntity.getAge());
                     received_data.setUsername(foundTestEntity.getUsername());
                     received_data.setPassword(foundTestEntity.getPassword());
+
+                    if(saveToSharedPref==true)
+                        writeToSharedPref();
+
                     goToNavBarActivity();
                     Toast.makeText(getApplicationContext(), "Welcome " + username + '!', Toast.LENGTH_LONG).show();
                 }
@@ -134,6 +136,21 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void readSharedPref(){
+        SharedPreferences prefs = getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE);
+        String username = prefs.getString(AppConstants.KEY_username, "No name defined");
+        String password = prefs.getString(AppConstants.KEY_password, "No name defined");
+        username_et.setText(username);
+        passwd_et.setText(password);
+    }
+
+    public void writeToSharedPref(){
+        SharedPreferences.Editor editor = getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE).edit();
+        editor.putString(AppConstants.KEY_username, foundTestEntity.getUsername());
+        editor.putString(AppConstants.KEY_password, foundTestEntity.getPassword());
+        editor.apply();
+    }
+
     private void initializeViews() {
         login_tv = findViewById(R.id.tv_login_text);
         username_et = findViewById(R.id.et_username);
@@ -142,5 +159,7 @@ public class LoginActivity extends AppCompatActivity {
         login_btn = findViewById(R.id.login_button);
         register_btn = findViewById(R.id.register_button);
         navBar_btn = findViewById(R.id.navBar_button);
+
+        readSharedPref();
     }
 }

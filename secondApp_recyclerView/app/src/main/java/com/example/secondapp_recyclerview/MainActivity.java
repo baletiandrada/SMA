@@ -19,7 +19,7 @@ import static com.example.secondapp_recyclerview.AppConstants.MY_PREFS_NAME;
 public class MainActivity extends AppCompatActivity {
 
     private TextView firstTextView;
-    private Button firstButton, secondButton, thirdButton, roomButton, navBarButton;
+    private Button firstButton, secondButton, thirdButton, roomButton, navBarButton, firebaseButton;
 
     public MainActivity() {
     }
@@ -64,6 +64,13 @@ public class MainActivity extends AppCompatActivity {
                 openLoginActivity();
             }
         });
+
+        firebaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFirebaseActivity();
+            }
+        });
     }
 
     public void openActivity4()
@@ -96,6 +103,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void openFirebaseActivity(){
+        Intent intent = new Intent(this, FirebaseActivity.class);
+        startActivity(intent);
+    }
+
     private void initializeViews()
     {
         firstTextView = findViewById(R.id.tv_first_text);
@@ -104,5 +116,6 @@ public class MainActivity extends AppCompatActivity {
         thirdButton = findViewById(R.id.btn_fileManagement_button);
         roomButton = findViewById(R.id.btn_room_button);
         navBarButton = findViewById(R.id.btn_navBar_button);
+        firebaseButton = findViewById(R.id.btn_firebase_button);
     }
 }

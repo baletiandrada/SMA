@@ -136,7 +136,6 @@ public class RoomActivity extends AppCompatActivity {
 
     public void getFromDatabase() {
         class GetValue extends AsyncTask<Void, Void, List<TestEntity>> {
-
             @Override
             protected List<TestEntity> doInBackground(Void... voids) {
                 //@SuppressLint("WrongThread") TestEntity testEntity = new TestEntity("Baleti", "Andrada");
@@ -148,7 +147,6 @@ public class RoomActivity extends AppCompatActivity {
                 super.onPostExecute(testEntityList);
                 setRecyclerView();
             }
-
         }
         GetValue getTask = new GetValue();
         getTask.execute();

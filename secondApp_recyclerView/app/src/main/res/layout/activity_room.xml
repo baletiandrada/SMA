@@ -60,7 +60,7 @@
         android:padding="10dp" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_my_first_list"
+        android:id="@+id/rv_book_list"
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:layout_marginTop="30dp"

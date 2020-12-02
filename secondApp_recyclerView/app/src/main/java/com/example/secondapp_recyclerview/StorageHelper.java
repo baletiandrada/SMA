@@ -1,12 +1,11 @@
 package com.example.secondapp_recyclerview;
 
 public class StorageHelper {
-    private static StorageHelper single_instance=null;
-    public String email, age, username, password;
+    private static StorageHelper single_instance;
+    public String idUserFirebase, email, age, username, password;
     public int id;
 
     private StorageHelper(){
-
     }
 
     public static StorageHelper getInstance(){
@@ -18,7 +17,9 @@ public class StorageHelper {
     public void setId(int id){
         this.id=id;
     }
-
+    public void setIdUserFirebase(String idUserFirebase){
+        this.idUserFirebase = idUserFirebase;
+    }
     public void setEmail(String email){
         this.email=email;
     }
@@ -33,5 +34,24 @@ public class StorageHelper {
     }
     public StorageHelper getValues(){
         return single_instance;
+    }
+    public String getUsername(){
+        return username;
+    }
+
+    public String getIdUserFirebase() {
+        return idUserFirebase;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }
