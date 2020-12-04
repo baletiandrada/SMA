@@ -3,6 +3,10 @@ package com.example.secondapp_recyclerview;
 public class UserDetailsModel {
     private String username, age, email, password;
 
+    public UserDetailsModel(){
+
+    }
+
     public UserDetailsModel(String username, String age, String email, String password) {
         this.username = username;
         this.age = age;

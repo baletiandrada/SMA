@@ -46,6 +46,7 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
             public void onClick(View v){
                 choicesList.remove(position);
                 notifyItemRemoved(position);
+                Toast.makeText(context,"Book deleted successfully", Toast.LENGTH_SHORT).show();
 
                 mBooksReadDatabase.addValueEventListener(new ValueEventListener() {
                     @Override

@@ -46,15 +46,15 @@ public class BottomNavigationActivity extends AppCompatActivity implements Botto
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch ((item.getItemId()))
         {
-            case R.id.navigation_home:
+            case R.id.navigation_books:
                 fragmentManager.beginTransaction().hide(activeFragment).show(homeFragment).detach(homeFragment).attach(homeFragment).commit();
                 activeFragment = homeFragment;
                 return true;
-            case R.id.navigation_dashboard:
+            case R.id.navigation_editProfile:
                 fragmentManager.beginTransaction().hide(activeFragment).show(dashboardFragment).commit();
                 activeFragment = dashboardFragment;
                 return true;
-            case R.id.navigation_notifications:
+            case R.id.navigation_logout:
                 fragmentManager.beginTransaction().hide(activeFragment).show(notificationsFragment).commit();
                 activeFragment = notificationsFragment;
                 return true;

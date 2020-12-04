@@ -41,20 +41,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class ImageActivity extends AppCompatActivity {
-    // Folder path for Firebase Storage.
-    private String Storage_Path = "Images uploaded/";
-    // Creating button.
-    private Button ChooseButton, UploadButton, goToImageGallery_button;
-    // Creating EditText.
-    private EditText ImageName;
-    // Creating ImageView.
-    private ImageView SelectImage;
-    // Creating URI.
-    private Uri FilePathUri;
-    // Creating StorageReference and DatabaseReference object.
+    private String storagePath = "Images uploaded/";
+    private Button chooseImage_button, uploadImage_button, uploadImageAgain_button, goToImageGallery_button;
+    private EditText imageName_et;
+    private ImageView choosedImage_iv;
+    private Uri filePath;
     private StorageReference storageReference;
-    // Image request code for onActivityResult() .
-    int Image_Request_Code = 7;
+    int imageRequestCode = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,25 +56,39 @@ public class ImageActivity extends AppCompatActivity {
 
         initializeViews();
 
-        // Adding click listener to Choose image button.
-        ChooseButton.setOnClickListener(new View.OnClickListener() {
+        chooseImage_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Creating intent.
                 Intent intent = new Intent();
-                // Setting intent type as image to select image from phone storage.
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Please Select Image"), Image_Request_Code);
+                startActivityForResult(Intent.createChooser(intent, "Please select an image"), imageRequestCode);
             }
         });
-        // Adding click listener to Upload image button.
-        UploadButton.setOnClickListener(new View.OnClickListener() {
+        uploadImage_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Calling method to upload selected image on Firebase storage.
                 UploadImageFileToFirebaseStorage();
+                chooseImage_button.setVisibility(View.GONE);
+                uploadImage_button.setVisibility(View.GONE);
+                imageName_et.setVisibility(View.GONE);
+                choosedImage_iv.setVisibility(View.GONE);
 
+                uploadImageAgain_button.setVisibility(View.VISIBLE);
+            }
+        });
+
+
+        uploadImageAgain_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                uploadImageAgain_button.setVisibility(View.GONE);
+
+                chooseImage_button.setVisibility(View.VISIBLE);
+                uploadImage_button.setVisibility(View.VISIBLE);
+                imageName_et.setVisibility(View.VISIBLE);
+                choosedImage_iv.setVisibility(View.VISIBLE);
             }
         });
 
@@ -98,31 +105,30 @@ public class ImageActivity extends AppCompatActivity {
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == Image_Request_Code && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            FilePathUri = data.getData();
-            Glide.with(this).load(FilePathUri).placeholder(R.mipmap.ic_launcher).into(SelectImage);
-            ChooseButton.setText("Choose another image");
+        if (requestCode == imageRequestCode && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            filePath = data.getData();
+            Glide.with(this).load(filePath).placeholder(R.mipmap.ic_launcher).into(choosedImage_iv);
+            chooseImage_button.setText("Choose another image");
         }
     }
 
-    // Creating Method to get the selected image file Extension from File Path URI.
     public String GetFileExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-        // Returning the file Extension.
         return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
 
     }
 
-    // Creating UploadImageFileToFirebaseStorage method to upload image on storage.
     public void UploadImageFileToFirebaseStorage() {
-        // Checking whether FilePathUri Is empty or not.
-        if (FilePathUri != null) {
-            // Creating second StorageReference.
-            StorageReference storageReference2nd = storageReference.child(Storage_Path + System.currentTimeMillis() + "." + GetFileExtension(FilePathUri));
+        if(imageName_et.getText().toString().isEmpty()){
+            Toast.makeText( getApplicationContext() , "Please enter an image name", Toast.LENGTH_LONG).show();
+            return;
+        }
 
-            // Adding addOnSuccessListener to second StorageReference.
-            storageReference2nd.putFile(FilePathUri)
+        else if (filePath != null) {
+            StorageReference storageReference2nd = storageReference.child(storagePath + System.currentTimeMillis() + "." + GetFileExtension(filePath));
+
+            storageReference2nd.putFile(filePath)
                     .continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                         @Override
                         public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
@@ -134,19 +140,19 @@ public class ImageActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
                      if(task.isSuccessful()) {
-                         Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
+                         Toast.makeText(getApplicationContext(), "Image uploaded successfully ", Toast.LENGTH_LONG).show();
                          Uri downloadUrl = task.getResult();
                          String mUri = downloadUrl.toString();
 
-                         String TempImageName = ImageName.getText().toString().trim();
+                         String TempImageName = imageName_et.getText().toString().trim();
                          ImageUploadInfo imageUploadInfo = new ImageUploadInfo(TempImageName, mUri);
 
                          String ImageUploadId = mImagesDatabase.push().getKey();
                          mImagesDatabase.child(ImageUploadId).setValue(imageUploadInfo);
 
-                         SelectImage.setImageBitmap(null);
-                         ImageName.setText(null);
-                         ChooseButton.setText("Choose image");
+                         choosedImage_iv.setImageBitmap(null);
+                         imageName_et.setText(null);
+                         chooseImage_button.setText("Choose image");
                      }
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -156,7 +162,7 @@ public class ImageActivity extends AppCompatActivity {
                 }
             });
         } else {
-            Toast.makeText(this, "Please Select Image or Add Image Name", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Please select an image", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -166,15 +172,13 @@ public class ImageActivity extends AppCompatActivity {
     }
 
     public void initializeViews(){
-        // Assign FirebaseStorage instance to storageReference.
         storageReference = FirebaseStorage.getInstance().getReference();
-        //Assign ID'S to button.
-        ChooseButton = (Button) findViewById(R.id.ButtonChooseImage);
-        UploadButton = (Button) findViewById(R.id.ButtonUploadImage);
-        // Assign ID's to EditText.
-        ImageName = (EditText) findViewById(R.id.ImageNameEditText);
-        // Assign ID'S to image view.
-        SelectImage = findViewById(R.id.ShowImageView);
+        chooseImage_button = findViewById(R.id.btn_chooseImage);
+        uploadImage_button = findViewById(R.id.btn_uploadImage);
+        uploadImageAgain_button = findViewById(R.id.btn_uploadAgain);
+        uploadImageAgain_button.setVisibility(View.GONE);
+        imageName_et = findViewById(R.id.et_imageName);
+        choosedImage_iv = findViewById(R.id.iv_showImageChoosed);
         goToImageGallery_button = findViewById(R.id.btn_goToImageGallery);
     }
 

@@ -1,10 +1,12 @@
 package com.example.secondapp_recyclerview;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.accounts.Account;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,12 +17,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -28,10 +33,9 @@ import static com.example.secondapp_recyclerview.FirebaseHelper.mUserDatabase;
 
 public class FirebaseActivity extends AppCompatActivity {
 
-    private TextView firebaseText;
     private FirebaseAuth mAuth;
     private EditText email_login, password_login, username, age, email_register, password_register;
-    private Button login_button, register_open_button, register_button;
+    private Button login_button, register_open_button, register_button, addImage_button;
     StorageHelper userData = StorageHelper.getInstance();
 
     @Override
@@ -39,6 +43,8 @@ public class FirebaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_firebase);
         initializeViews();
+
+        addImage_button = findViewById(R.id.btn_addImage);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -63,31 +69,52 @@ public class FirebaseActivity extends AppCompatActivity {
             }
         });
 
+        addImage_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToImageActivity();
+            }
+        });
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
+
+        if(currentUser == null){
+            SharedPreferences prefs = getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE);
+            String mail = prefs.getString(AppConstants.EMAIL, "");
+            email_login.setText(mail);
+        }
+
+        /*if(currentUser != null){
+            mUserDatabase.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    if(user != null){
+                        setGone2();
+                        getData(dataSnapshot, user);
+                        goToUserActivity();
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }*/
     }
 
-    public void updateUI(FirebaseUser currentUser){
-        if(currentUser != null){
-            firebaseText.setText("There is a user signed in.");
-            email_login.setText(String.valueOf(currentUser.getEmail()));
-        }
-        else
-            firebaseText.setText("There is not a user signed in.");
+    public void goToImageActivity(){
+        Intent intent = new Intent(getApplicationContext(), ImageActivity.class);
+        startActivity(intent);
     }
 
     public void openRegisterUI(){
-        email_login.setVisibility(View.GONE);
-        password_login.setVisibility(View.GONE);
-        login_button.setVisibility(View.GONE);
-        register_open_button.setVisibility(View.GONE);
-
+        setGone2();
         username.setVisibility(View.VISIBLE);
         age.setVisibility(View.VISIBLE);
         email_register.setVisibility(View.VISIBLE);
@@ -129,34 +156,40 @@ public class FirebaseActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if(user == null)
                                 return;
+
                             UserDetailsModel userModel = new UserDetailsModel(usernameAux, ageAux, emailAux, passwordAux);
                             mUserDatabase.child(user.getUid()).setValue(userModel);
 
-                            Toast.makeText(getApplicationContext(), "Sign in with succes.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Sign up with succes.", Toast.LENGTH_SHORT).show();
 
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            //Log.w(Tag, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(getApplicationContext(), "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                            //updateUI(null);
+                            username.setText(null);
+                            age.setText(null);
+                            email_register.setText(null);
+                            password_register.setText(null);
+                            setGone();
+
+                            email_login.setVisibility(View.VISIBLE);
+                            password_login.setVisibility(View.VISIBLE);
+                            login_button.setVisibility(View.VISIBLE);
+                            register_open_button.setVisibility(View.VISIBLE);
+                            addImage_button.setVisibility(View.VISIBLE);
+
+                            SharedPreferences.Editor editor = getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE).edit();
+                            editor.putString(AppConstants.EMAIL, user.getEmail());
+                            editor.apply();
+
+                            email_login.setText(user.getEmail());
+
+                            mAuth.signOut();
+
                         }
-
-                        // ...
                     }
-                });
-
-        username.setText(null);
-        age.setText(null);
-        email_register.setText(null);
-        password_register.setText(null);
-        setGone();
-
-        email_login.setVisibility(View.VISIBLE);
-        password_login.setVisibility(View.VISIBLE);
-        login_button.setVisibility(View.VISIBLE);
-        register_open_button.setVisibility(View.VISIBLE);
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void loginMethod(){
@@ -174,21 +207,22 @@ public class FirebaseActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                           // Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            //firebaseText.setText("User is: " + user.getEmail());
+
                             mUserDatabase.addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    getData(dataSnapshot, user);
-                                    goToUserActivity();
+                                    FirebaseUser user = mAuth.getCurrentUser();
+                                    if(user != null){
+                                        getData(dataSnapshot, user);
+                                        goToUserActivity();
+                                    }
                                 }
                                 @Override
                                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                                    Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                             });
+
                         } else {
                             Toast.makeText(getApplicationContext(), "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
@@ -199,7 +233,7 @@ public class FirebaseActivity extends AppCompatActivity {
     }
 
     public void goToUserActivity(){
-        Intent intent = new Intent(this, GetUserDataFromFirebase.class);
+        Intent intent = new Intent(this, BottomNavigationActivity.class);
         startActivity(intent);
     }
 
@@ -217,6 +251,14 @@ public class FirebaseActivity extends AppCompatActivity {
         }
     }
 
+    public void setGone2(){
+        email_login.setVisibility(View.GONE);
+        password_login.setVisibility(View.GONE);
+        login_button.setVisibility(View.GONE);
+        register_open_button.setVisibility(View.GONE);
+        addImage_button.setVisibility(View.GONE);
+    }
+
     public void setGone(){
         username.setVisibility(View.GONE);
         age.setVisibility(View.GONE);
@@ -226,7 +268,6 @@ public class FirebaseActivity extends AppCompatActivity {
     }
 
     public void initializeViews(){
-        firebaseText = findViewById(R.id.text_firebase);
         email_login = findViewById(R.id.et_login_email);
         password_login = findViewById(R.id.et_login_passwd);
         username = findViewById(R.id.et_firebase_username);

@@ -22,12 +22,6 @@
             android:name=".ImageActivity"
             android:label="Image upload to firebase storage" />
         <activity
-            android:name=".AddBookReadToFirebase"
-            android:label="Your books" />
-        <activity
-            android:name=".GetUserDataFromFirebase"
-            android:label="Update your profile" />
-        <activity
             android:name=".FirebaseActivity"
             android:label="Login with firebase" />
         <activity
@@ -41,7 +35,7 @@
             android:label="Add to database" />
         <activity
             android:name=".BottomNavigationActivity"
-            android:label="Bottom navigation" />
+            android:label="Book's world" />
         <activity
             android:name=".FilesActivity"
             android:label="Add to file" />
@@ -53,7 +47,7 @@
             android:label="List operations" />
         <activity
             android:name=".MainActivity"
-            android:label="Main activity">
+            android:label="Books app">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

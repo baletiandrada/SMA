@@ -5,39 +5,42 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ImageActivity"
-    android:background="@drawable/background_image1">
+    android:background="@drawable/book_background4">
 
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/ButtonChooseImage"
-        android:layout_marginTop="20dp"
+        android:id="@+id/btn_chooseImage"
+        android:layout_marginTop="60dp"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:text="Choose image"/>
 
     <ImageView
         android:layout_width="fill_parent"
+        android:layout_margin="20dp"
         android:layout_height="200dp"
-        android:id="@+id/ShowImageView"
-        android:layout_below="@+id/ButtonChooseImage"
+        android:id="@+id/iv_showImageChoosed"
+        android:layout_below="@+id/btn_chooseImage"
         android:layout_marginTop="20dp"/>
 
     <EditText
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/ImageNameEditText"
-        android:layout_below="@+id/ShowImageView"
+        android:layout_margin="20dp"
+        android:id="@+id/et_imageName"
+        android:layout_below="@+id/iv_showImageChoosed"
         android:layout_marginTop="20dp"
         android:hint="Enter image name"
         android:textColor="@color/black"
+        android:textColorHint="#665F63"
         android:gravity="center"/>
 
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/ButtonUploadImage"
-        android:layout_below="@+id/ImageNameEditText"
+        android:id="@+id/btn_uploadImage"
+        android:layout_below="@+id/et_imageName"
         android:layout_marginTop="20dp"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
@@ -46,8 +49,18 @@
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/btn_uploadAgain"
+        android:layout_below="@+id/btn_uploadImage"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:text="Upload another image"/>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/btn_goToImageGallery"
-        android:layout_below="@+id/ButtonUploadImage"
+        android:layout_below="@+id/btn_uploadAgain"
         android:layout_marginTop="40dp"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/add_book_background"
+    android:background="@drawable/book_background4"
     tools:context=".BookEditActivity">
 
     <EditText
@@ -14,7 +14,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:textColor="@android:color/black"
-        android:textStyle="bold"
+        android:hint="Enter the new author's name"
+        android:textColorHint="#BFB5C1"
         android:textAlignment="center"/>
 
     <EditText
@@ -23,7 +24,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:textColor="@android:color/black"
-        android:textStyle="bold"
+        android:hint="Enter the new book title"
+        android:textColorHint="#BFB5C1"
         android:textAlignment="center"/>
 
     <EditText
@@ -31,9 +33,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:textAlignment="center"
         android:textColor="@android:color/black"
-        android:textStyle="bold" />
+        android:hint="Enter the new year"
+        android:textColorHint="#BFB5C1"
+        android:textAlignment="center"/>
 
     <LinearLayout
         android:layout_width="match_parent"

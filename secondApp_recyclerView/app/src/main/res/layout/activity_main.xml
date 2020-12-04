@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:gravity="center_vertical"
     tools:context=".MainActivity"
-    android:background="@drawable/background_image1">
+    android:background="#DADCE2">
 
     <TextView
         android:id="@+id/tv_first_text"

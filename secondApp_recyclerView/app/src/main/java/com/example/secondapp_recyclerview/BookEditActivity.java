@@ -9,6 +9,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.secondapp_recyclerview.fragments.HomeFragment;
+
 import static com.example.secondapp_recyclerview.FirebaseHelper.mBooksReadDatabase;
 
 public class BookEditActivity extends AppCompatActivity {
@@ -39,7 +41,7 @@ public class BookEditActivity extends AppCompatActivity {
     }
 
     public void goToPreviousActivity(){
-        Intent intent = new Intent(this, AddBookReadToFirebase.class);
+        Intent intent = new Intent(this, BottomNavigationActivity.class);
         startActivity(intent);
     }
 
