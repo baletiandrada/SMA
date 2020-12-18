@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/book_background4">
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:context=".fragments.BooksRecommendedFragment">
+
+        <Button
+            android:id="@+id/btn_seeAllRecommendedBooks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center"
+            android:text="See all recommendations for you"
+            android:textColor="@android:color/white"/>
+
+        <TextView
+            android:id="@+id/tv_choose_genre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose genre:"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="25dp"
+            android:textColor="@color/black"
+            android:textSize="18dp" />
+
+        <Spinner
+            android:id="@+id/spinner_genres"
+            android:layout_width="200dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:layout_height="wrap_content"
+            android:dropDownHeight="30dp"
+            android:dropDownWidth="290dp"
+            android:textColor="@android:color/white" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_book_recommended_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginLeft="20dp"
+            android:orientation="horizontal"/>
+    </LinearLayout>
+</ScrollView>

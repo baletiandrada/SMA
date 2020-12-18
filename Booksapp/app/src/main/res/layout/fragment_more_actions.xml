@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/book_background4"
+    tools:context=".fragments.MoreActionsFragment">
+
+    <Button
+        android:id="@+id/btn_logout_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="Log out"
+        android:textColor="@android:color/white"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/btn_delete_account"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="Delete account"
+        android:textColor="@android:color/white"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/btnTop_addBook_recomm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="Add a new entry for recommended books"
+        android:textColor="@android:color/white"
+        android:padding="10dp" />
+
+    <EditText
+        android:id="@+id/et_authorName_recomm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:textAlignment="center"
+        android:hint="Enter the author's name"
+        android:textColor="@color/black"
+        android:textColorHint="#BFB5C1 " />
+
+    <EditText
+        android:id="@+id/et_bookTitle_recomm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:hint="Enter the book title"
+        android:textColorHint="#BFB5C1" />
+
+    <EditText
+        android:id="@+id/et_genre_recomm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:hint="Enter the genre"
+        android:textColorHint="#BFB5C1" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="20dp">
+        <Button
+            android:id="@+id/btnBottom_addBook_recomm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="25dp"
+            android:padding="10dp"
+            android:text="Add the book"
+            android:textColor="@android:color/white" />
+        <Button
+            android:id="@+id/btnBottom_addBookRecomm_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="25dp"
+            android:padding="10dp"
+            android:text="Cancel"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+</LinearLayout>

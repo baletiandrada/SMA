@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragments_navigation"
+    app:startDestination="@+id/navigation_books">
+
+    <fragment
+        android:id="@+id/navigation_books"
+        android:name="com.example.booksapp.fragments.BooksMainViewFragment"
+        android:label="View all books"
+        tools:layout="@layout/fragment_books" />
+
+    <fragment
+        android:id="@+id/navigation_books_recommended"
+        android:name="com.example.booksapp.fragments.BooksRecommendedFragment"
+        android:label="More actions"
+        tools:layout="@layout/fragment_books_recommended" />
+
+    <fragment
+        android:id="@+id/navigation_planning_books"
+        android:name="com.example.booksapp.fragments.PlanningBooksFragment"
+        android:label="Planning books"
+        tools:layout="@layout/fragment_planning_books" />
+
+    <fragment
+        android:id="@+id/navigation_edit_profile"
+        android:name="com.example.booksapp.fragments.EditUserDataFragment"
+        android:label="Edit profile"
+        tools:layout="@layout/fragment_edit_profile" />
+
+    <fragment
+        android:id="@+id/navigation_more_actions"
+        android:name="com.example.booksapp.fragments.MoreActionsFragment"
+        android:label="More actions"
+        tools:layout="@layout/fragment_more_actions" />
+
+</navigation>

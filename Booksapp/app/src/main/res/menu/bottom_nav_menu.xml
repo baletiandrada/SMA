@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#4C273D">
+
+    <item
+        android:id="@+id/navigation_books"
+        android:icon="@drawable/book_icon"
+        android:title="Yours" />
+
+    <item
+        android:id="@+id/navigation_planning_books"
+        android:icon="@drawable/planning_icon"
+        android:title="Planning" />
+
+    <item
+        android:id="@+id/navigation_books_recommended"
+        android:icon="@drawable/book_recommendations_icon"
+        android:title="For you" />
+
+    <item
+        android:id="@+id/navigation_edit_profile"
+        android:icon="@drawable/edit_icon"
+        android:title="Edit profile" />
+
+    <item
+        android:id="@+id/navigation_more_actions"
+        android:icon="@drawable/three_dots_icon"
+        android:title="More" />
+
+</menu>
