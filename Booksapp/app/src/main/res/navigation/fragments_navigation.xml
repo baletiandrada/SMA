@@ -12,16 +12,16 @@
         tools:layout="@layout/fragment_books" />
 
     <fragment
-        android:id="@+id/navigation_books_recommended"
-        android:name="com.example.booksapp.fragments.BooksRecommendedFragment"
-        android:label="More actions"
-        tools:layout="@layout/fragment_books_recommended" />
-
-    <fragment
         android:id="@+id/navigation_planning_books"
         android:name="com.example.booksapp.fragments.PlanningBooksFragment"
         android:label="Planning books"
         tools:layout="@layout/fragment_planning_books" />
+
+    <fragment
+        android:id="@+id/navigation_books_recommended"
+        android:name="com.example.booksapp.fragments.BooksRecommendedFragment"
+        android:label="More actions"
+        tools:layout="@layout/fragment_books_recommended" />
 
     <fragment
         android:id="@+id/navigation_edit_profile"

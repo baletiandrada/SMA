@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:text="Add a new entry for recommended books"
+        android:text="Add new entry for recommended books"
         android:textColor="@android:color/white"
         android:padding="10dp" />
 

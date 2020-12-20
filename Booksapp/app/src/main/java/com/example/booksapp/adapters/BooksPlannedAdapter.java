@@ -18,6 +18,7 @@ import com.example.booksapp.BookEditActivity;
 import com.example.booksapp.R;
 import com.example.booksapp.dataModels.BookReadData;
 import com.example.booksapp.helpers.BookStorageHelper;
+import com.google.android.youtube.player.YouTubePlayer;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -55,6 +56,7 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
     public void onBindViewHolder(@NonNull BookReadDataViewHolder holder, int position) {
         BookReadData bookModel = choicesList.get(position);
         holder.itemView.findViewById(R.id.tv_genre).setVisibility(View.GONE);
+        holder.itemView.findViewById(R.id.btn_play_trailer).setVisibility(View.GONE);
         holder.setValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getRead_month(), bookModel.getRead_year());
         holder.itemView.findViewById(R.id.iv_delete_image).setOnClickListener(new View.OnClickListener() {
             @Override

@@ -38,7 +38,12 @@ public class BookEditActivity extends AppCompatActivity {
         edit_book_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateBookInFirebase();
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateBookInFirebase();
+                    }
+                });
             }
         });
 
@@ -87,17 +92,19 @@ public class BookEditActivity extends AppCompatActivity {
             goToPreviousActivity();
         }
 
-        else if( ! param_bookTable.equals("Books recommended") ){
+        if( ! param_bookTable.equals("Recommended books") ){
+
                 if(read_year.getText().toString().isEmpty()) {
                     Toast.makeText(getApplicationContext(), "Please enter the year", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
                 String month;
                 if(read_month.getText().toString().isEmpty())
                     month = "";
                 else {
                     month = read_month.getText().toString();
-                    switch (month){
+                    switch (month) {
                         case "ianuarie": {
                             month = "ian";
                             break;
@@ -106,12 +113,18 @@ public class BookEditActivity extends AppCompatActivity {
                             month = "feb";
                             break;
                         }
-                        case "martie": break;
-                        case "aprilie": break;
-                        case "mai": break;
-                        case "iunie": break;
-                        case "iulie": break;
-                        case "august": break;
+                        case "martie":
+                            break;
+                        case "aprilie":
+                            break;
+                        case "mai":
+                            break;
+                        case "iunie":
+                            break;
+                        case "iulie":
+                            break;
+                        case "august":
+                            break;
                         case "septembrie": {
                             month = "sept";
                             break;
@@ -128,29 +141,27 @@ public class BookEditActivity extends AppCompatActivity {
                             month = "dec";
                             break;
                         }
-                        default:{
+                        default: {
                             Toast.makeText(this, "Please enter a valid month (not a number)", Toast.LENGTH_SHORT).show();
                             return;
                         }
+                    }
                 }
 
                 BookReadData updatedBook = new BookReadData(author_name.getText().toString(), book_title.getText().toString(), month, read_year.getText().toString());
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 if(param_bookTable.equals("Read books"))
                     mBooksReadDatabase.child(currentUser.getUid()).child(bookStorageHelper.getId_book()).setValue(updatedBook);
-                else if(param_bookTable.equals("Planned books"))
+                else
                     mBooksPlannedDatabase.child(currentUser.getUid()).child(bookStorageHelper.getId_book()).setValue(updatedBook);
-            }
         }
         else{
-
-            if(genre.getText().toString().isEmpty()) {
-                Toast.makeText(getApplicationContext(), "Please enter the genre", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            BookReadData updatedRecommendedBook = new BookReadData(author_name.getText().toString(), book_title.getText().toString(), genre.getText().toString());
-            mBooksRecommendedDatabase.child(bookStorageHelper.getId_book()).setValue(updatedRecommendedBook);
+                if(genre.getText().toString().isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Please enter the genre", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                BookReadData updatedRecommendedBook = new BookReadData(author_name.getText().toString(), book_title.getText().toString(), genre.getText().toString());
+                mBooksRecommendedDatabase.child(bookStorageHelper.getId_book()).setValue(updatedRecommendedBook);
         }
         goToPreviousActivity();
         Toast.makeText( getApplicationContext() , "Book data updated successfully", Toast.LENGTH_SHORT).show();
@@ -168,14 +179,14 @@ public class BookEditActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String param_bookTable = intent.getStringExtra(AppConstants.param_bookTable);
 
-        if( ! param_bookTable.equals("Books recommended") ){
+        if( ! param_bookTable.equals("Recommended books") ){
             genre.setVisibility(View.GONE);
             read_month.setText(bookStorageHelper.getRead_month());
             read_year.setText(bookStorageHelper.getRead_year());
         }
         else{
-            edit_book_button.setVisibility(View.GONE);
-            cancel_edit_activity_button.setVisibility(View.GONE);
+            read_month.setVisibility(View.GONE);
+            read_year.setVisibility(View.GONE);
             genre.setText(bookStorageHelper.getGenre());
         }
 

@@ -1,7 +1,7 @@
 package com.example.booksapp.dataModels;
 
 public class BookReadData {
-    private String author_name, title, read_month, read_year, id, genre;
+    private String author_name, title, read_month, read_year, id, genre, video_path;
 
     public BookReadData(String author_name, String title, String read_month, String read_year) {
         this.author_name = author_name;
@@ -19,6 +19,7 @@ public class BookReadData {
         this.author_name = author_name;
         this.title = title;
         this.genre = genre;
+        this.video_path = video_path;
     }
 
     public void setId(String id){
@@ -67,5 +68,13 @@ public class BookReadData {
 
     public void setGenre(String genre) {
         this.genre = genre;
+    }
+
+    public String getVideo_path() {
+        return video_path;
+    }
+
+    public void setVideo_path(String video_path) {
+        this.video_path = video_path;
     }
 }

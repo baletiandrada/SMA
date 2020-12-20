@@ -25,6 +25,7 @@ import com.example.booksapp.adapters.BookReadDataAdapter;
 import com.example.booksapp.adapters.BooksRecommendedAdapter;
 import com.example.booksapp.adapters.GenresAdapter;
 import com.example.booksapp.dataModels.BookReadData;
+import com.google.android.youtube.player.YouTubePlayerFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,22 +36,25 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.booksapp.helpers.FirebaseHelper.mBooksPlannedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
 
 public class BooksRecommendedFragment extends Fragment {
-    private TextView chooseGenre_tv;
     private Button seeAllRecommendedBooks_button;
     private Spinner genres_spinner;
     private RecyclerView recyclerView;
     private List<BookReadData> books = new ArrayList<BookReadData>();
     private BooksRecommendedAdapter listExampleAdapterBooks;
 
-    private ArrayList<String> genres = new ArrayList<String>();
     private GenresAdapter genresAdapter;
 
     private FirebaseAuth mAuth;
     FirebaseUser currentUser;
+
+    List<BookReadData> user_read_books = new ArrayList<BookReadData>(), user_planned_books = new ArrayList<BookReadData>();  //lista contine genurile din cartile citite si din cele planificate
+    List<BookReadData>  user_books = new ArrayList<BookReadData>();
+    ArrayList<String> user_book_genres = new ArrayList<String>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -61,27 +65,17 @@ public class BooksRecommendedFragment extends Fragment {
         currentUser = mAuth.getCurrentUser();
 
         seeAllRecommendedBooks_button = root.findViewById(R.id.btn_seeAllRecommendedBooks);
-        chooseGenre_tv = root.findViewById(R.id.tv_choose_genre);
         genres_spinner = root.findViewById(R.id.spinner_genres);
-        getGenreValuesSpinner();
+
+        getUserBooks();
 
         recyclerView = root.findViewById(R.id.rv_book_recommended_list);
 
-        seeAllRecommendedBooks_button.setOnClickListener(new View.OnClickListener() {
+        seeAllRecommendedBooks_button.setOnClickListener(new View.OnClickListener() {   //afisez lista, nu parcurg iar baza de date
             @Override
             public void onClick(View v) {
                 if(!(currentUser ==null)){
-                    mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            getData(dataSnapshot);
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                            Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    getDataFromRecommendedDB();
                 }
             }
         });
@@ -94,7 +88,8 @@ public class BooksRecommendedFragment extends Fragment {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if(!(currentUser.getUid() == null)){
-                            getDataByVariable(dataSnapshot, genre_item);
+                            if( ! genre_item.equals("Select genre") )
+                                getDataByVariable(dataSnapshot, genre_item);
                         }
                     }
                     @Override
@@ -117,17 +112,44 @@ public class BooksRecommendedFragment extends Fragment {
 
         if (currentUser == null) {
             seeAllRecommendedBooks_button.setVisibility(View.GONE);
-            chooseGenre_tv.setVisibility(View.GONE);
             genres_spinner.setVisibility(View.GONE);
             recyclerView.setVisibility(View.GONE);
             goToLoginActivity();
         }
-        else {
-            mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
+    }
+
+    public void getDataFromRecommendedDB(){
+        mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(!(currentUser.getUid() == null))
+                    getData(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void getUserBooks(){
+        if(!(currentUser.getUid() == null)){
+            mBooksReadDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if(!(currentUser.getUid() == null))
-                        getData(dataSnapshot);
+                    getAllRecommendationsREAD(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
+                }
+            });
+            mBooksPlannedDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    getAllRecommendationsPLAN(dataSnapshot);
                 }
 
                 @Override
@@ -138,18 +160,70 @@ public class BooksRecommendedFragment extends Fragment {
         }
     }
 
+    public void getAllRecommendationsREAD(DataSnapshot dataSnapshot){
+        getReadBookGenres(dataSnapshot);
+        setUserBooks();
+        getGenreValuesSpinner();
+        getDataFromRecommendedDB();
+    }
+
+    public void getAllRecommendationsPLAN(DataSnapshot dataSnapshot){
+        getPlannedBookGenres(dataSnapshot);
+        setUserBooks();
+        getGenreValuesSpinner();
+        getDataFromRecommendedDB();
+    }
+
+    public void setUserBooks(){
+        user_books.removeAll(user_books);
+        user_books.addAll(user_read_books);
+        user_books.addAll(user_planned_books);
+    }
+
+    public void getReadBookGenres(DataSnapshot dataSnapshot){
+        user_read_books.removeAll(user_read_books);
+        for(DataSnapshot ds : dataSnapshot.getChildren()){
+            String author_name = String.valueOf(ds.child("author_name").getValue()).toLowerCase();
+            String title = String.valueOf(ds.child("title").getValue()).toLowerCase();
+            BookReadData currentBook = new BookReadData(author_name, title);
+            user_read_books.add(currentBook);
+        }
+    }
+
+    public void getPlannedBookGenres(DataSnapshot dataSnapshot){
+        user_planned_books.removeAll(user_planned_books);
+        for(DataSnapshot ds : dataSnapshot.getChildren()){
+            String author_name = String.valueOf(ds.child("author_name").getValue()).toLowerCase();
+            String title = String.valueOf(ds.child("title").getValue()).toLowerCase();
+            BookReadData currentBook = new BookReadData(author_name, title);
+            user_planned_books.add(currentBook);
+        }
+    }
+
     public void getGenreValuesSpinner(){
         mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(!(currentUser.getUid() == null)){
-                    genres.removeAll(genres);
+                    user_book_genres.removeAll(user_book_genres);
+                    user_book_genres.add("Select genre");
                     for(DataSnapshot ds : dataSnapshot.getChildren()){
-                        if( ! genres.contains(ds.child("genre").getValue().toString()) )
-                            genres.add(ds.child("genre").getValue().toString());
+                        String author_name = String.valueOf(ds.child("author_name").getValue()).toLowerCase();
+                        String book_title = String.valueOf(ds.child("title").getValue()).toLowerCase();
+                        BookReadData newBook = new BookReadData(author_name, book_title);
+                        for(BookReadData bookInUserBooks : user_books){
+                            if( (bookInUserBooks.getAuthor_name().contains(newBook.getAuthor_name())
+                                    || newBook.getAuthor_name().contains(bookInUserBooks.getAuthor_name()))
+                                    && (bookInUserBooks.getTitle().contains(newBook.getTitle())
+                                    || newBook.getTitle().contains(bookInUserBooks.getTitle())) ){
+
+                                if(!user_book_genres.contains(String.valueOf(ds.child("genre").getValue())))
+                                    user_book_genres.add(String.valueOf(ds.child("genre").getValue()).toLowerCase());
+                            }
+                        }
                     }
-                    if(genres!=null) {
-                        genresAdapter = new GenresAdapter(getActivity(), genres);
+                    if(user_book_genres!=null) {
+                        genresAdapter = new GenresAdapter(getActivity(), user_book_genres);
                         genres_spinner.setAdapter(genresAdapter);
                     }
                     else
@@ -180,13 +254,39 @@ public class BooksRecommendedFragment extends Fragment {
         for(DataSnapshot ds : dataSnapshot.getChildren()){
             String author_name = String.valueOf(ds.child("author_name").getValue());
             String book_title = String.valueOf(ds.child("title").getValue());
+            String genre = String.valueOf(ds.child("genre").getValue()).toLowerCase();
             BookReadData newBook = new BookReadData(author_name, book_title);
-            newBook.setId(String.valueOf(ds.getKey()));
-            newBook.setGenre(ds.child("genre").getValue().toString());
-            books.add(newBook);
+            boolean listContainsGenreFromDB = false;
+
+            for(String genre_item : user_book_genres)
+                if(genre.contains(genre_item)){
+                    listContainsGenreFromDB = true;
+                    break;
+                }
+
+            boolean userBooksContainNewBook = false;
+            for(BookReadData bookInUserBooks:user_books){
+                if( (bookInUserBooks.getAuthor_name().contains(newBook.getAuthor_name().toLowerCase())
+                        || newBook.getAuthor_name().toLowerCase().contains(bookInUserBooks.getAuthor_name()))
+                        && (bookInUserBooks.getTitle().contains(newBook.getTitle().toLowerCase())
+                        || newBook.getTitle().toLowerCase().contains(bookInUserBooks.getTitle())) ){
+
+                    userBooksContainNewBook = true;
+                    break;
+                }
+            }
+
+            if( !userBooksContainNewBook && (user_book_genres.contains(genre) || listContainsGenreFromDB) )
+            {
+                newBook.setId(String.valueOf(ds.getKey()));
+                newBook.setGenre(ds.child("genre").getValue().toString());
+                books.add(newBook);
+            }
         }
         if(!books.isEmpty())
             setRecyclerView();
+        else
+            Toast.makeText(getActivity(), "Sorry, there are no recommendations for you", Toast.LENGTH_SHORT).show();
     }
 
     private void getDataByVariable(DataSnapshot dataSnapshot, String genre_variable){
@@ -197,9 +297,24 @@ public class BooksRecommendedFragment extends Fragment {
                 String author_name = String.valueOf(ds.child("author_name").getValue());
                 String book_title = String.valueOf(ds.child("title").getValue());
                 BookReadData newBook = new BookReadData(author_name, book_title);
-                newBook.setId(String.valueOf(ds.getKey()));
-                newBook.setGenre(ds.child("genre").getValue().toString());
-                books.add(newBook);
+
+                boolean userBooksContainNewBook = false;
+                for(BookReadData bookInUserBooks:user_books){
+                    if( (bookInUserBooks.getAuthor_name().contains(newBook.getAuthor_name().toLowerCase())
+                            || newBook.getAuthor_name().toLowerCase().contains(bookInUserBooks.getAuthor_name()))
+                            && (bookInUserBooks.getTitle().contains(newBook.getTitle().toLowerCase())
+                            || newBook.getTitle().toLowerCase().contains(bookInUserBooks.getTitle())) ){
+
+                        userBooksContainNewBook = true;
+                        break;
+                    }
+                }
+
+                if(!userBooksContainNewBook){
+                    newBook.setId(String.valueOf(ds.getKey()));
+                    newBook.setGenre(ds.child("genre").getValue().toString());
+                    books.add(newBook);
+                }
             }
         }
         if(!books.isEmpty())
@@ -207,5 +322,4 @@ public class BooksRecommendedFragment extends Fragment {
         else
             Toast.makeText(getActivity(), "No results", Toast.LENGTH_SHORT).show();
     }
-
 }

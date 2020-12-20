@@ -22,8 +22,6 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
-import static com.example.booksapp.helpers.FirebaseHelper.mBooksPlannedDatabase;
-import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
 
 public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataViewHolder>{
@@ -97,6 +95,13 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
             }
         });
 
+        holder.itemView.findViewById(R.id.btn_play_trailer).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Intent intent = new Intent(context, YoutubeVideosActivity.class);
+                //context.startActivity(intent);
+            }
+        });
     }
 
     @Override

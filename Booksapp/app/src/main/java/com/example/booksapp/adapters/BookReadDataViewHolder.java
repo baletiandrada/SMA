@@ -1,21 +1,24 @@
 package com.example.booksapp.adapters;
 
 import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.booksapp.R;
+import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayerFragment;
+import com.google.android.youtube.player.YouTubePlayerView;
 
 public class BookReadDataViewHolder extends RecyclerView.ViewHolder{
-    private TextView author_name;
-    private TextView book_tile;
-    private TextView read_year;
-    private TextView read_month;
-    private TextView genre;
+    private TextView author_name, book_tile, read_year, read_month, genre;
     private ImageView iv_delete, iv_edit, iv_check_book;
+    private Button play_trailer_button;
 
     public BookReadDataViewHolder(@NonNull View itemView){
         super(itemView);
@@ -32,6 +35,7 @@ public class BookReadDataViewHolder extends RecyclerView.ViewHolder{
         iv_delete = itemView.findViewById(R.id.iv_delete_image);
         iv_edit = itemView.findViewById(R.id.iv_edit_icon);
         iv_check_book = itemView.findViewById(R.id.iv_check_book_image);
+        play_trailer_button = itemView.findViewById(R.id.btn_play_trailer);
     }
 
     public void setValues(String author_name, String book_title, String read_month, String read_year){
@@ -46,5 +50,4 @@ public class BookReadDataViewHolder extends RecyclerView.ViewHolder{
         this.book_tile.setText(book_title);
         this.genre.setText(genre);
     }
-
 }

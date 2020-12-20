@@ -88,18 +88,23 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             setGone2();
-            mUserDatabase.addValueEventListener(new ValueEventListener() {
+            AppExecutors.getInstance().diskIO().execute(new Runnable() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    if(user != null){
-                        getData(dataSnapshot, user);
-                        goToUserActivity();
-                    }
-                }
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                public void run() {
+                    mUserDatabase.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if(user != null){
+                                getData(dataSnapshot, user);
+                                goToUserActivity();
+                            }
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             });
         }
@@ -165,35 +170,41 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            if(user == null)
-                                return;
 
-                            UserDetailsModel userModel = new UserDetailsModel(usernameAux, ageAux, emailAux, passwordAux);
-                            mUserDatabase.child(user.getUid()).setValue(userModel);
+                            AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    FirebaseUser user = mAuth.getCurrentUser();
+                                    if(user == null)
+                                        return;
 
-                            Toast.makeText(getApplicationContext(), "Sign up with succes.", Toast.LENGTH_SHORT).show();
+                                    UserDetailsModel userModel = new UserDetailsModel(usernameAux, ageAux, emailAux, passwordAux);
+                                    mUserDatabase.child(user.getUid()).setValue(userModel);
 
-                            username.setText(null);
-                            age.setText(null);
-                            email_register.setText(null);
-                            password_register.setText(null);
-                            confirm_password_register.setText(null);
-                            setGone();
+                                    Toast.makeText(getApplicationContext(), "Sign up with succes.", Toast.LENGTH_SHORT).show();
 
-                            email_login.setVisibility(View.VISIBLE);
-                            password_login.setVisibility(View.VISIBLE);
-                            login_button.setVisibility(View.VISIBLE);
-                            register_open_button.setVisibility(View.VISIBLE);
-                            addImage_button.setVisibility(View.VISIBLE);
+                                    username.setText(null);
+                                    age.setText(null);
+                                    email_register.setText(null);
+                                    password_register.setText(null);
+                                    confirm_password_register.setText(null);
+                                    setGone();
 
-                            SharedPreferences.Editor editor = getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE).edit();
-                            editor.putString(AppConstants.EMAIL, user.getEmail());
-                            editor.apply();
+                                    email_login.setVisibility(View.VISIBLE);
+                                    password_login.setVisibility(View.VISIBLE);
+                                    login_button.setVisibility(View.VISIBLE);
+                                    register_open_button.setVisibility(View.VISIBLE);
+                                    addImage_button.setVisibility(View.VISIBLE);
 
-                            email_login.setText(user.getEmail());
+                                    SharedPreferences.Editor editor = getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE).edit();
+                                    editor.putString(AppConstants.EMAIL, user.getEmail());
+                                    editor.apply();
 
-                            mAuth.signOut();
+                                    email_login.setText(user.getEmail());
+
+                                    mAuth.signOut();
+                                }
+                            });
 
                         }
                     }
@@ -215,32 +226,40 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        mAuth.signInWithEmailAndPassword(email_login.getText().toString(), password_login.getText().toString())
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
 
-                            mUserDatabase.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    FirebaseUser user = mAuth.getCurrentUser();
-                                    if(user != null){
-                                        getData(dataSnapshot, user);
-                                        goToUserActivity();
-                                    }
-                                }
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
-                                    Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                mAuth.signInWithEmailAndPassword(email_login.getText().toString(), password_login.getText().toString())
+                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                                        @Override
+                                        public void run() {
 
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                                            mUserDatabase.addValueEventListener(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                    FirebaseUser user = mAuth.getCurrentUser();
+                                                    if (user != null) {
+                                                        getData(dataSnapshot, user);
+                                                        goToUserActivity();
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                                    Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+
+                                        }
+                                    });
+
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
 
     }
 
