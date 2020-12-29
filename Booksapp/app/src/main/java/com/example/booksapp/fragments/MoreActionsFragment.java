@@ -222,11 +222,12 @@ public class MoreActionsFragment extends Fragment {
         if(bookNotExistsInRecommBooks(book_author_et.getText().toString(), book_title_et.getText().toString())){
             BookReadData newBook = new BookReadData(book_author_et.getText().toString(), book_title_et.getText().toString(), book_genre_et.getText().toString());
             String book_id = mBooksRecommendedDatabase.push().getKey();
+            newBook.setVideo_path("");
             mBooksRecommendedDatabase.child(book_id).setValue(newBook);
             Toast.makeText(getActivity(), "Book added successfully", Toast.LENGTH_SHORT).show();
         }
         else
-            Toast.makeText(getActivity(), "The book already exists (you read it or you planned it)", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), "The book already exists", Toast.LENGTH_LONG).show();
 
         book_author_et.setText(null);
         book_title_et.setText(null);

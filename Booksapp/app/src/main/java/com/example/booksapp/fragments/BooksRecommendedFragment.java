@@ -26,6 +26,7 @@ import com.example.booksapp.adapters.BooksRecommendedAdapter;
 import com.example.booksapp.adapters.GenresAdapter;
 import com.example.booksapp.dataModels.BookReadData;
 import com.google.android.youtube.player.YouTubePlayerFragment;
+import com.google.android.youtube.player.YouTubePlayerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -255,7 +256,10 @@ public class BooksRecommendedFragment extends Fragment {
             String author_name = String.valueOf(ds.child("author_name").getValue());
             String book_title = String.valueOf(ds.child("title").getValue());
             String genre = String.valueOf(ds.child("genre").getValue()).toLowerCase();
+            String video_path = String.valueOf(ds.child("video_path").getValue());
             BookReadData newBook = new BookReadData(author_name, book_title);
+            if(video_path!=null)
+                newBook.setVideo_path(video_path);
             boolean listContainsGenreFromDB = false;
 
             for(String genre_item : user_book_genres)

@@ -19,7 +19,6 @@ public class BookReadData {
         this.author_name = author_name;
         this.title = title;
         this.genre = genre;
-        this.video_path = video_path;
     }
 
     public void setId(String id){

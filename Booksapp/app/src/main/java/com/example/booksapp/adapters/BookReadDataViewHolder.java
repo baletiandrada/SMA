@@ -1,6 +1,8 @@
 package com.example.booksapp.adapters;
 
 import android.view.View;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -20,10 +22,10 @@ public class BookReadDataViewHolder extends RecyclerView.ViewHolder{
     private ImageView iv_delete, iv_edit, iv_check_book;
     private Button play_trailer_button;
 
+
     public BookReadDataViewHolder(@NonNull View itemView){
         super(itemView);
         initializeView();
-
     }
 
     private void initializeView(){
@@ -35,7 +37,6 @@ public class BookReadDataViewHolder extends RecyclerView.ViewHolder{
         iv_delete = itemView.findViewById(R.id.iv_delete_image);
         iv_edit = itemView.findViewById(R.id.iv_edit_icon);
         iv_check_book = itemView.findViewById(R.id.iv_check_book_image);
-        play_trailer_button = itemView.findViewById(R.id.btn_play_trailer);
     }
 
     public void setValues(String author_name, String book_title, String read_month, String read_year){

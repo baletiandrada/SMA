@@ -21,7 +21,6 @@
             android:text="Add a book that you've read"
             android:textColor="@android:color/white"
             android:padding="10dp" />
-
         <EditText
             android:id="@+id/et_authorName"
             android:layout_width="match_parent"
@@ -31,7 +30,6 @@
             android:hint="Enter the author's name"
             android:textColor="@color/black"
             android:textColorHint="#BFB5C1 " />
-
         <EditText
             android:id="@+id/et_bookTitle"
             android:layout_width="match_parent"
@@ -41,7 +39,6 @@
             android:textColor="@color/black"
             android:hint="Enter the book title"
             android:textColorHint="#BFB5C1" />
-
         <EditText
             android:id="@+id/et_readingMonth"
             android:layout_width="match_parent"
@@ -51,7 +48,6 @@
             android:textColor="@color/black"
             android:hint="Enter the month (optional)"
             android:textColorHint="#BFB5C1" />
-
         <EditText
             android:id="@+id/et_readingYear"
             android:layout_width="match_parent"
@@ -61,7 +57,6 @@
             android:textColor="@color/black"
             android:hint="Enter the year"
             android:textColorHint="#BFB5C1" />
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -84,7 +79,6 @@
                 android:text="Cancel"
                 android:textColor="@android:color/white" />
         </LinearLayout>
-
         <Button
             android:id="@+id/btn_seeAllBooks"
             android:layout_width="wrap_content"
@@ -94,7 +88,6 @@
             android:text="See all books"
             android:layout_marginRight="5dp"
             android:textColor="@android:color/white"/>
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -120,7 +113,6 @@
                 android:layout_marginBottom="5dp"
                 android:src="@drawable/search_icon"/>
         </LinearLayout>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_book_list"
             android:layout_width="match_parent"
@@ -130,6 +122,5 @@
             android:layout_marginBottom="0dp"
             android:layout_marginLeft="20dp"
             android:orientation="horizontal"/>
-
     </LinearLayout>
 </ScrollView>

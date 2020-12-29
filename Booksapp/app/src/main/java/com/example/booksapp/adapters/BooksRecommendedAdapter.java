@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.booksapp.AppConstants;
 import com.example.booksapp.BookEditActivity;
 import com.example.booksapp.R;
+import com.example.booksapp.VideoPopUpActivity;
 import com.example.booksapp.dataModels.BookReadData;
 import com.example.booksapp.helpers.BookStorageHelper;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,12 +25,22 @@ import java.util.List;
 
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
 
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
+
+import org.jetbrains.annotations.NotNull;
+
 public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataViewHolder>{
     private List<BookReadData> choicesList;
     private Context context;
 
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
+    BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
 
     public BooksRecommendedAdapter(List<BookReadData> bookList){
         this.choicesList = bookList;
@@ -95,13 +106,77 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
             }
         });
 
-        holder.itemView.findViewById(R.id.btn_play_trailer).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Intent intent = new Intent(context, YoutubeVideosActivity.class);
-                //context.startActivity(intent);
-            }
-        });
+        if(bookModel.getVideo_path()=="null" || bookModel.getVideo_path()=="")
+            holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.GONE);
+        else{
+            YouTubePlayerView youTubePlayerView = holder.itemView.findViewById(R.id.youtube_player);
+            youTubePlayerView.setEnableAutomaticInitialization(false);
+            youTubePlayerView.addFullScreenListener(new YouTubePlayerFullScreenListener() {
+                @Override
+                public void onYouTubePlayerEnterFullScreen() {
+                    bookStorageHelper.setBook_title(bookModel.getTitle());
+                    Intent intent = new Intent(context, VideoPopUpActivity.class);
+                    intent.putExtra(AppConstants.VIDEO_PATH, bookModel.getVideo_path());
+                    context.startActivity(intent);
+                }
+
+                @Override
+                public void onYouTubePlayerExitFullScreen() {
+                    context.startActivity(new Intent(context, VideoPopUpActivity.class).putExtra(AppConstants.VIDEO_PATH, bookModel.getVideo_path()));
+                }
+            });
+            youTubePlayerView.initialize(new YouTubePlayerListener() {
+                @Override
+                public void onReady(@NotNull YouTubePlayer youTubePlayer) {
+                    youTubePlayer.cueVideo(bookModel.getVideo_path(), 0);
+                }
+
+                @Override
+                public void onStateChange(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlayerState playerState) {
+
+                }
+
+                @Override
+                public void onPlaybackQualityChange(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlaybackQuality playbackQuality) {
+
+                }
+
+                @Override
+                public void onPlaybackRateChange(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlaybackRate playbackRate) {
+
+                }
+
+                @Override
+                public void onError(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlayerError playerError) {
+
+                }
+
+                @Override
+                public void onCurrentSecond(@NotNull YouTubePlayer youTubePlayer, float v) {
+
+                }
+
+                @Override
+                public void onVideoDuration(@NotNull YouTubePlayer youTubePlayer, float v) {
+
+                }
+
+                @Override
+                public void onVideoLoadedFraction(@NotNull YouTubePlayer youTubePlayer, float v) {
+
+                }
+
+                @Override
+                public void onVideoId(@NotNull YouTubePlayer youTubePlayer, @NotNull String s) {
+
+                }
+
+                @Override
+                public void onApiChange(@NotNull YouTubePlayer youTubePlayer) {
+
+                }
+            });
+        }
     }
 
     @Override
