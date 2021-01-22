@@ -18,14 +18,16 @@ import com.google.android.youtube.player.YouTubePlayerFragment;
 import com.google.android.youtube.player.YouTubePlayerView;
 
 public class BookReadDataViewHolder extends RecyclerView.ViewHolder{
-    private TextView author_name, book_tile, read_year, read_month, genre;
-    private ImageView iv_delete, iv_edit, iv_check_book;
+    private TextView author_name, book_tile, read_year, read_month, genre, description;
+    private ImageView iv_delete, iv_edit, iv_check_book, iv_show_desc;
+    public ImageView iv_book_image, heart_icon;
     private Button play_trailer_button;
 
 
     public BookReadDataViewHolder(@NonNull View itemView){
         super(itemView);
         initializeView();
+
     }
 
     private void initializeView(){
@@ -34,9 +36,13 @@ public class BookReadDataViewHolder extends RecyclerView.ViewHolder{
         read_month = itemView.findViewById(R.id.tv_row_read_month);
         read_year = itemView.findViewById(R.id.tv_row_read_year);
         genre = itemView.findViewById(R.id.tv_genre);
+        description= itemView.findViewById(R.id.tv_description);
         iv_delete = itemView.findViewById(R.id.iv_delete_image);
         iv_edit = itemView.findViewById(R.id.iv_edit_icon);
         iv_check_book = itemView.findViewById(R.id.iv_check_book_image);
+        iv_book_image = itemView.findViewById(R.id.iv_book_image);
+        iv_show_desc = itemView.findViewById(R.id.iv_for_description);
+        heart_icon = itemView.findViewById(R.id.iv_heart_icon);
     }
 
     public void setValues(String author_name, String book_title, String read_month, String read_year){
@@ -50,5 +56,12 @@ public class BookReadDataViewHolder extends RecyclerView.ViewHolder{
         this.author_name.setText(author_name);
         this.book_tile.setText(book_title);
         this.genre.setText(genre);
+    }
+    public void setDescription(String description){
+        this.description.setText(description);
+    }
+
+    public ImageView getHeart_icon(){
+        return heart_icon;
     }
 }

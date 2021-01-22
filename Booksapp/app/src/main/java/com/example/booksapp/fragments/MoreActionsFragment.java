@@ -1,26 +1,39 @@
 package com.example.booksapp.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.booksapp.AddBookActivity;
 import com.example.booksapp.AppConstants;
+import com.example.booksapp.ChangePasswordActivity;
 import com.example.booksapp.MainActivity;
 import com.example.booksapp.R;
 import com.example.booksapp.dataModels.BookReadData;
+import com.example.booksapp.helpers.BookListStorageHelper;
+import com.example.booksapp.helpers.FirebaseHelper;
+import com.example.booksapp.helpers.StorageHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.youtube.player.YouTubePlayerFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,43 +42,79 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksPlannedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
+import static com.example.booksapp.helpers.FirebaseHelper.mFavouriteBooksDatabase;
+import static com.example.booksapp.helpers.FirebaseHelper.mQuotesDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mUserDatabase;
 
 public class MoreActionsFragment extends Fragment {
-    private Button logout_button, delete_account_button, addBookRecomm_top, addBookRecomm_bottom, addBookRecomm_cancel;
-    private EditText book_author_et, book_title_et, book_genre_et;
-    private FirebaseAuth mAuth;
-    FirebaseUser currentUser;
-    ArrayList<BookReadData> books_recomm = new ArrayList<BookReadData>();
+    private Button logout_button, delete_account_button;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+    private ImageView arrow_down, arrow_up;
+
+    FirebaseUser currentUser= mAuth.getCurrentUser();;
+
+    private EditText username_et, age_et, email_et;
+    private Button updateUserData_button, changePasswordTop_button;
+    StorageHelper userData = StorageHelper.getInstance();
+
+    List<String> favourite_books = new ArrayList<String>();
+
+
+    Animation scaleUp, scaleDown;
+
+    private FloatingActionButton fab;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_more_actions, container, false);
+        initializeViews(root);
 
-        mAuth = FirebaseAuth.getInstance();
+        scaleUp = AnimationUtils.loadAnimation(getActivity(), R.anim.scale_up);
+        scaleDown = AnimationUtils.loadAnimation(getActivity(), R.anim.scale_down);
 
-        logout_button = root.findViewById(R.id.btn_logout_fragment);
-        delete_account_button = root.findViewById(R.id.btn_delete_account);
-        addBookRecomm_top = root.findViewById(R.id.btnTop_addBook_recomm);
-        addBookRecomm_bottom = root.findViewById(R.id.btnBottom_addBook_recomm);
-        addBookRecomm_cancel = root.findViewById(R.id.btnBottom_addBookRecomm_cancel);
-        book_author_et = root.findViewById(R.id.et_authorName_recomm);
-        book_title_et = root.findViewById(R.id.et_bookTitle_recomm);
-        book_genre_et = root.findViewById(R.id.et_genre_recomm);
-        setAddBookUIGone();
+        getDataFromStorageHelper();
 
-        currentUser = mAuth.getCurrentUser();
-        if( ! currentUser.getEmail().equals("admin@gmail.com") )
-            addBookRecomm_top.setVisibility(View.GONE);
 
-        logout_button.setOnClickListener(new View.OnClickListener() {
+        arrow_down.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                arrow_down.setVisibility(View.GONE);
+                arrow_up.setVisibility(View.VISIBLE);
+                changePasswordTop_button.setVisibility(View.VISIBLE);
+                delete_account_button.setVisibility(View.VISIBLE);
+                root.findViewById(R.id.layout_et_username).setVisibility(View.GONE);
+                root.findViewById(R.id.layout_et_age).setVisibility(View.GONE);
+                root.findViewById(R.id.layout_et_email).setVisibility(View.GONE);
+                updateUserData_button.setVisibility(View.GONE);
+            }
+        });
+
+
+        arrow_up.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                arrow_down.setVisibility(View.VISIBLE);
+                arrow_up.setVisibility(View.GONE);
+                changePasswordTop_button.setVisibility(View.GONE);
+                delete_account_button.setVisibility(View.GONE);
+                root.findViewById(R.id.layout_et_username).setVisibility(View.VISIBLE);
+                root.findViewById(R.id.layout_et_age).setVisibility(View.VISIBLE);
+                root.findViewById(R.id.layout_et_email).setVisibility(View.VISIBLE);
+                updateUserData_button.setVisibility(View.VISIBLE);
+            }
+        });
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setMessage("Are you sure you want to log out?")
                         .setPositiveButton("YES", new DialogInterface.OnClickListener() {
@@ -89,49 +138,93 @@ public class MoreActionsFragment extends Fragment {
             }
         });
 
-        delete_account_button.setOnClickListener(new View.OnClickListener() {
+        updateUserData_button.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage("Are you sure you want to delete your account?")
-                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                deleteAccount();
-                            }
-                        }).setNegativeButton("CANCEL", null);
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                    updateUserData_button.startAnimation(scaleUp);
+                    updateUserData();
 
-                AlertDialog alert = builder.create();
-                alert.show();
+                }
+                else if(event.getAction()==MotionEvent.ACTION_UP){
+                    updateUserData_button.startAnimation(scaleDown);
+                }
+                return true;
             }
         });
 
-        addBookRecomm_top.setOnClickListener(new View.OnClickListener() {
+        changePasswordTop_button.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                addBookRecomm_top.setVisibility(View.GONE);
-                addBookRecomm_bottom.setVisibility(View.VISIBLE);
-                addBookRecomm_cancel.setVisibility(View.VISIBLE);
-                book_author_et.setVisibility(View.VISIBLE);
-                book_title_et.setVisibility(View.VISIBLE);
-                book_genre_et.setVisibility(View.VISIBLE);
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                    changePasswordTop_button.startAnimation(scaleUp);
+                    goToChangePasswordActivity();
+
+                }
+                else if(event.getAction()==MotionEvent.ACTION_UP){
+                    changePasswordTop_button.startAnimation(scaleDown);
+                }
+                return true;
             }
         });
 
-        addBookRecomm_bottom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addToRecommendedBooksTable();
-                addBookRecomm_top.setVisibility(View.VISIBLE);
-                setAddBookUIGone();
-            }
-        });
 
-        addBookRecomm_cancel.setOnClickListener(new View.OnClickListener() {
+        /*logout_button.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                addBookRecomm_top.setVisibility(View.VISIBLE);
-                setAddBookUIGone();
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                    logout_button.startAnimation(scaleUp);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage("Are you sure you want to log out?")
+                            .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                                    final FirebaseUser currentUser = mAuth.getCurrentUser();
+
+                                    SharedPreferences.Editor editor = getActivity().getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE).edit();
+                                    editor.putString(AppConstants.EMAIL, currentUser.getEmail());
+                                    editor.apply();
+
+                                    mAuth.signOut();
+                                    goToLoginActivity();
+                                    Toast.makeText( getActivity() , "Log out successfully", Toast.LENGTH_SHORT).show();
+                                }
+                            }).setNegativeButton("CANCEL", null);
+
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
+                else if(event.getAction()==MotionEvent.ACTION_UP){
+                    logout_button.startAnimation(scaleDown);
+                }
+                return true;
+            }
+        });*/
+
+
+        delete_account_button.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                    delete_account_button.startAnimation(scaleUp);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage("Are you sure you want to delete your account?")
+                            .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    deleteAccount();
+                                }
+                            }).setNegativeButton("CANCEL", null);
+
+                    AlertDialog alert = builder.create();
+                    alert.show();
+
+                }
+                else if(event.getAction()==MotionEvent.ACTION_UP){
+                    delete_account_button.startAnimation(scaleDown);
+                }
+                return true;
             }
         });
 
@@ -148,29 +241,83 @@ public class MoreActionsFragment extends Fragment {
             goToLoginActivity();
             return;
         }
-
-        mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(!(currentUser.getUid() == null)){
-                    getDataFromRecommBooks();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
-            }
-        });
-
     }
 
-    public void setAddBookUIGone(){
-        addBookRecomm_bottom.setVisibility(View.GONE);
-        addBookRecomm_cancel.setVisibility(View.GONE);
-        book_author_et.setVisibility(View.GONE);
-        book_title_et.setVisibility(View.GONE);
-        book_genre_et.setVisibility(View.GONE);
+    public void goToChangePasswordActivity(){
+        Intent intent = new Intent(getActivity(), ChangePasswordActivity.class);
+        startActivity(intent);
+    }
+
+    public void updateUserData(){
+
+        if(username_et.getText().toString().isEmpty()){
+            Toast.makeText( getActivity(), "Please enter a username", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(age_et.getText().toString().isEmpty()){
+            Toast.makeText( getActivity(), "Please enter an age", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(email_et.getText().toString().isEmpty()){
+            Toast.makeText( getActivity(), "Please enter a email", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(!username_et.getText().toString().equals(userData.username) ||
+                !age_et.getText().toString().equals(userData.age) ||
+                !email_et.getText().toString().equals(userData.email)) {
+
+            FirebaseUser user = mAuth.getCurrentUser();
+            String new_email = email_et.getText().toString();
+
+            assert user != null;
+            if (!new_email.equals(user.getEmail())) {
+                final Task<Void> voidTask = user.updateEmail(email_et.getText().toString()).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+                if(!voidTask.isSuccessful())
+                    return;
+            }
+
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("username", username_et.getText().toString());
+            map.put("age", age_et.getText().toString());
+            map.put("email", email_et.getText().toString());
+            map.put("password", userData.getPassword());
+
+            String node_name = userData.idUserFirebase;
+            FirebaseHelper.mUserDatabase.child(node_name).updateChildren(map);
+
+            Toast.makeText(getActivity(), "Your profile updated successfully", Toast.LENGTH_SHORT).show();
+        }
+        else
+            Toast.makeText(getActivity(), "Please enter new values in the above fields", Toast.LENGTH_SHORT).show();
+    }
+
+    @SuppressLint("SetTextI18n")
+    public void getDataFromStorageHelper(){
+        if(userData.username == null && userData.age == null && userData.email == null && userData.password == null)
+        {
+            mAuth.signOut();
+            SharedPreferences.Editor editor = getActivity().getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE).edit();
+            editor.putString(AppConstants.EMAIL, "");
+            editor.apply();
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            startActivity(intent);
+        }
+        else{
+            if(!userData.username.equals("") && !userData.age.equals("") && !userData.email.equals("") && !userData.password.equals(""))
+            {
+                username_et.setText(userData.getUsername());
+                age_et.setText(userData.getAge());
+            }
+            email_et.setText(userData.getEmail());
+        }
     }
 
     public void deleteAccount(){
@@ -185,6 +332,25 @@ public class MoreActionsFragment extends Fragment {
                     mUserDatabase.child(uid).removeValue();
                     mBooksReadDatabase.child(uid).removeValue();
                     mBooksPlannedDatabase.child(uid).removeValue();
+
+                    mFavouriteBooksDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            favourite_books.removeAll(favourite_books);
+                            for(DataSnapshot ds : dataSnapshot.getChildren()){
+                                favourite_books.add(ds.getKey());
+                            }
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    for(String book: favourite_books){
+                        mQuotesDatabase.child(book).removeValue();
+                    }
+
+                    mFavouriteBooksDatabase.child(uid).removeValue();
 
                     mAuth.signOut();
                     SharedPreferences.Editor editor = getActivity().getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE).edit();
@@ -205,68 +371,22 @@ public class MoreActionsFragment extends Fragment {
         startActivity(intent);
     }
 
-    public void addToRecommendedBooksTable(){
-        if (book_author_et.getText().toString().isEmpty()) {
-            Toast.makeText(getActivity(), "Please enter a name for the author", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (book_title_et.getText().toString().isEmpty()) {
-            Toast.makeText(getActivity(), "Please enter a book title", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (book_genre_et.getText().toString().isEmpty()) {
-            Toast.makeText(getActivity(), "Please enter a genre", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    public void initializeViews(View root){
+        username_et = root.findViewById(R.id.et_username);
+        age_et = root.findViewById(R.id.et_age);
+        email_et = root.findViewById(R.id.et_email);
+        updateUserData_button = root.findViewById(R.id.btn_updateUserData);
 
-        if(bookNotExistsInRecommBooks(book_author_et.getText().toString(), book_title_et.getText().toString())){
-            BookReadData newBook = new BookReadData(book_author_et.getText().toString(), book_title_et.getText().toString(), book_genre_et.getText().toString());
-            String book_id = mBooksRecommendedDatabase.push().getKey();
-            newBook.setVideo_path("");
-            mBooksRecommendedDatabase.child(book_id).setValue(newBook);
-            Toast.makeText(getActivity(), "Book added successfully", Toast.LENGTH_SHORT).show();
-        }
-        else
-            Toast.makeText(getActivity(), "The book already exists", Toast.LENGTH_LONG).show();
+        changePasswordTop_button = root.findViewById(R.id.btn_changePasswordTop);
+        changePasswordTop_button.setVisibility(View.GONE);
+        delete_account_button = root.findViewById(R.id.btn_delete_account);
+        delete_account_button.setVisibility(View.GONE);
 
-        book_author_et.setText(null);
-        book_title_et.setText(null);
-        book_genre_et.setText(null);
-        addBookRecomm_top.setVisibility(View.VISIBLE);
-        setAddBookUIGone();
-    }
+        arrow_down = root.findViewById(R.id.iv_arrow_down_more);
+        arrow_up = root.findViewById(R.id.iv_arrow_up_more);
+        arrow_up.setVisibility(View.GONE);
 
-    public void getDataFromRecommBooks(){
-        mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                books_recomm.removeAll(books_recomm);
-                for(DataSnapshot ds : dataSnapshot.getChildren()){
-                    String author_name = String.valueOf(ds.child("author_name").getValue());
-                    String book_title = String.valueOf(ds.child("title").getValue());
-                    String year = String.valueOf(ds.child("read_year").getValue());
-                    String month = String.valueOf(ds.child("read_month").getValue());
-                    if(month==null)
-                        month = "";
-                    BookReadData newBook = new BookReadData(author_name, book_title, month, year);
-                    newBook.setId(String.valueOf(ds.getKey()));
-                    books_recomm.add(newBook);
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    public boolean bookNotExistsInRecommBooks(String author_name, String title){
-        for(BookReadData current_book : books_recomm){
-            if(current_book.getAuthor_name().toLowerCase().equals(author_name.toLowerCase())
-                    && current_book.getTitle().toLowerCase().equals(title.toLowerCase()))
-                return false;
-        }
-        return true;
+        fab = root.findViewById(R.id.fab_settings);
     }
 
 }

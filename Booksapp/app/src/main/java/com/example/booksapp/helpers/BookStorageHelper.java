@@ -1,7 +1,7 @@
 package com.example.booksapp.helpers;
 
 public class BookStorageHelper {
-    private String author_name, book_title, read_month, read_year, id_book, genre;
+    private String author_name, book_title, read_month, read_year, id_book, genre, uri;
     private static BookStorageHelper instance;
 
     private BookStorageHelper(){
@@ -12,6 +12,14 @@ public class BookStorageHelper {
         if(instance==null)
             instance = new BookStorageHelper();
         return instance;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     public String getAuthor_name() {

@@ -4,14 +4,18 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.booksapp.AppConstants;
 import com.example.booksapp.BookEditActivity;
 import com.example.booksapp.R;
@@ -24,6 +28,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.List;
 
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
+import static com.example.booksapp.helpers.FirebaseHelper.mFavouriteBooksDatabase;
 
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
@@ -62,13 +67,20 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
         BookReadData bookModel = choicesList.get(position);
         holder.itemView.findViewById(R.id.tv_row_read_month).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.tv_row_read_year).setVisibility(View.GONE);
+        holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
+        holder.itemView.findViewById(R.id.layout_done_text).setVisibility(View.GONE);
+        holder.itemView.findViewById(R.id.iv_for_description).setVisibility(View.VISIBLE);
         holder.setThreeValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getGenre());
+        if(bookModel.getDescription()!=null)
+            holder.setDescription(bookModel.getDescription());
+        if(!(bookModel.getUri()==null) && !bookModel.getUri().isEmpty() && !bookModel.getUri().equals("null"))
+            Glide.with(context).load(bookModel.getUri()).placeholder(R.mipmap.ic_launcher).into(holder.iv_book_image);
 
         if(!currentUser.getEmail().equals("admin@gmail.com")){
             holder.itemView.findViewById(R.id.iv_delete_image).setVisibility(View.GONE);
             holder.itemView.findViewById(R.id.iv_edit_icon).setVisibility(View.GONE);
+            holder.itemView.findViewById(R.id.layout_edit_delete_icons).setVisibility(View.GONE);
         }
-        holder.itemView.findViewById(R.id.iv_check_book_image).setVisibility(View.GONE);
 
         holder.itemView.findViewById(R.id.iv_delete_image).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,11 +91,14 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if(!(choicesList==null)){
-                                    choicesList.remove(position);
-                                    notifyItemRemoved(position);
                                     Toast.makeText(context,"Book deleted successfully", Toast.LENGTH_SHORT).show();
-                                    if(currentUser!=null)
+                                    if(currentUser!=null) {
                                         mBooksRecommendedDatabase.child(bookModel.getId()).removeValue();
+                                        mFavouriteBooksDatabase.child(bookModel.getId()).removeValue();
+                                        choicesList.remove(bookModel);
+                                        notifyItemRemoved(position);
+                                        notifyItemRangeChanged(position, choicesList.size());
+                                    }
                                 }
                             }
                         }).setNegativeButton("CANCEL", null);
@@ -96,92 +111,117 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
         holder.itemView.findViewById(R.id.iv_edit_icon).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
-                BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
+                Toast.makeText(context, bookStorageHelper.getId_book(), Toast.LENGTH_LONG).show();
                 bookStorageHelper.setId_book(bookModel.getId());
                 bookStorageHelper.setThreeValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getGenre());
                 Intent intent = new Intent(context, BookEditActivity.class);
                 String param_bookTable_value = "Recommended books";
+                //Toast.makeText(context, bookStorageHelper.getId_book(), Toast.LENGTH_LONG).show();
                 intent.putExtra(AppConstants.param_bookTable, param_bookTable_value);
                 context.startActivity(intent);
             }
         });
 
-        if(bookModel.getVideo_path()=="null" || bookModel.getVideo_path()=="")
+        if(bookModel.getVideo_path()=="null" || bookModel.getVideo_path()=="" || bookModel.getVideo_path()==null)
             holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.GONE);
         else{
-            YouTubePlayerView youTubePlayerView = holder.itemView.findViewById(R.id.youtube_player);
-            youTubePlayerView.setEnableAutomaticInitialization(false);
-            youTubePlayerView.addFullScreenListener(new YouTubePlayerFullScreenListener() {
-                @Override
-                public void onYouTubePlayerEnterFullScreen() {
-                    bookStorageHelper.setBook_title(bookModel.getTitle());
-                    Intent intent = new Intent(context, VideoPopUpActivity.class);
-                    intent.putExtra(AppConstants.VIDEO_PATH, bookModel.getVideo_path());
-                    context.startActivity(intent);
-                }
+            if(bookModel.getYouTubePlayer()==null) {
+                bookModel.setYouTubePlayer(holder.itemView.findViewById(R.id.youtube_player));
+                YouTubePlayerView youTubePlayerView = bookModel.getYouTubePlayer();
+                youTubePlayerView.setEnableAutomaticInitialization(false);
+                youTubePlayerView.initialize(new YouTubePlayerListener() {
+                    @Override
+                    public void onReady(@NotNull YouTubePlayer youTubePlayer) {
+                        youTubePlayer.cueVideo(bookModel.getVideo_path(), 0);
+                    }
 
-                @Override
-                public void onYouTubePlayerExitFullScreen() {
-                    context.startActivity(new Intent(context, VideoPopUpActivity.class).putExtra(AppConstants.VIDEO_PATH, bookModel.getVideo_path()));
-                }
-            });
-            youTubePlayerView.initialize(new YouTubePlayerListener() {
-                @Override
-                public void onReady(@NotNull YouTubePlayer youTubePlayer) {
-                    youTubePlayer.cueVideo(bookModel.getVideo_path(), 0);
-                }
+                    @Override
+                    public void onStateChange(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlayerState playerState) {
 
-                @Override
-                public void onStateChange(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlayerState playerState) {
+                    }
 
-                }
+                    @Override
+                    public void onPlaybackQualityChange(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlaybackQuality playbackQuality) {
 
-                @Override
-                public void onPlaybackQualityChange(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlaybackQuality playbackQuality) {
+                    }
 
-                }
+                    @Override
+                    public void onPlaybackRateChange(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlaybackRate playbackRate) {
 
-                @Override
-                public void onPlaybackRateChange(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlaybackRate playbackRate) {
+                    }
 
-                }
+                    @Override
+                    public void onError(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlayerError playerError) {
 
-                @Override
-                public void onError(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlayerError playerError) {
+                    }
 
-                }
+                    @Override
+                    public void onCurrentSecond(@NotNull YouTubePlayer youTubePlayer, float v) {
 
-                @Override
-                public void onCurrentSecond(@NotNull YouTubePlayer youTubePlayer, float v) {
+                    }
 
-                }
+                    @Override
+                    public void onVideoDuration(@NotNull YouTubePlayer youTubePlayer, float v) {
 
-                @Override
-                public void onVideoDuration(@NotNull YouTubePlayer youTubePlayer, float v) {
+                    }
 
-                }
+                    @Override
+                    public void onVideoLoadedFraction(@NotNull YouTubePlayer youTubePlayer, float v) {
 
-                @Override
-                public void onVideoLoadedFraction(@NotNull YouTubePlayer youTubePlayer, float v) {
+                    }
 
-                }
+                    @Override
+                    public void onVideoId(@NotNull YouTubePlayer youTubePlayer, @NotNull String s) {
 
-                @Override
-                public void onVideoId(@NotNull YouTubePlayer youTubePlayer, @NotNull String s) {
+                    }
 
-                }
+                    @Override
+                    public void onApiChange(@NotNull YouTubePlayer youTubePlayer) {
+                        //youTubePlayer.mute();
+                    }
+                });
+                youTubePlayerView.addFullScreenListener(new YouTubePlayerFullScreenListener() {
+                    @Override
+                    public void onYouTubePlayerEnterFullScreen() {
+                        Intent intent = new Intent(context, VideoPopUpActivity.class);
+                        intent.putExtra(AppConstants.VIDEO_PATH, bookModel.getVideo_path());
+                        bookStorageHelper.setBook_title(bookModel.getTitle());
+                        //Toast.makeText(context, bookStorageHelper.getBook_title(), Toast.LENGTH_SHORT).show();
+                        context.startActivity(intent);
+                    }
 
-                @Override
-                public void onApiChange(@NotNull YouTubePlayer youTubePlayer) {
+                    @Override
+                    public void onYouTubePlayerExitFullScreen() {
 
-                }
-            });
+                    }
+                });
+            }
         }
+
+        holder.itemView.findViewById(R.id.iv_for_description).setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View v) {
+                holder.itemView.findViewById(R.id.iv_for_description).setVisibility(View.GONE);
+                holder.itemView.findViewById(R.id.tv_description).setVisibility(View.VISIBLE);
+                holder.itemView.findViewById(R.id.iv_hide_description).setVisibility(View.VISIBLE);
+
+            }
+        });
+
+        holder.itemView.findViewById(R.id.iv_hide_description).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                holder.itemView.findViewById(R.id.iv_for_description).setVisibility(View.VISIBLE);
+                holder.itemView.findViewById(R.id.tv_description).setVisibility(View.GONE);
+                holder.itemView.findViewById(R.id.iv_hide_description).setVisibility(View.GONE);
+            }
+        });
+
     }
 
     @Override
     public int getItemCount() {
         return choicesList.size();
     }
-
 }

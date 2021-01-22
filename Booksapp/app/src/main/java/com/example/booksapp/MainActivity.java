@@ -6,8 +6,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -26,12 +29,19 @@ import com.google.firebase.database.ValueEventListener;
 
 import static com.example.booksapp.helpers.FirebaseHelper.mUserDatabase;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private EditText email_login, password_login, username, age, email_register, password_register, confirm_password_register;
-    private Button login_button, register_open_button, register_button, addImage_button;
+    private TextInputLayout layout_email_login, layout_password_login, layout_username, layout_age, layout_email_register, layout_password_register;
+    private TextInputLayout layout_confirm_password_register;
+    private Button login_button, register_open_button, register_button, cancel_register_button;
     StorageHelper userData = StorageHelper.getInstance();
+
+    Animation scaleUp, scaleDown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,38 +52,106 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
         initializeViews();
+        scaleUp = AnimationUtils.loadAnimation(this, R.anim.scale_up);
+        scaleDown = AnimationUtils.loadAnimation(this, R.anim.scale_down);
 
-        addImage_button = findViewById(R.id.btn_addImage);
+        //addImage_button = findViewById(R.id.btn_addImage);
 
         mAuth = FirebaseAuth.getInstance();
 
-        register_open_button.setOnClickListener(new View.OnClickListener() {
+        register_open_button.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                    register_open_button.startAnimation(scaleUp);
+                    openRegisterUI();
+
+                }
+                else if(event.getAction()==MotionEvent.ACTION_UP){
+                    register_open_button.startAnimation(scaleDown);
+                }
+                return true;
+            }
+        });
+        /*register_open_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openRegisterUI();
             }
-        });
+        });*/
 
-        register_button.setOnClickListener(new View.OnClickListener() {
+        register_button.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                    register_button.startAnimation(scaleUp);
+                    registerMethod();
+
+                }
+                else if(event.getAction()==MotionEvent.ACTION_UP){
+                    register_button.startAnimation(scaleDown);
+                }
+                return true;
+            }
+        });
+        /*register_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 registerMethod();
             }
+        });*/
+
+        cancel_register_button.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                    cancel_register_button.startAnimation(scaleUp);
+                    setGone();
+                    username.setText(null);
+                    age.setText(null);
+                    email_register.setText(null);
+                    password_register.setText(null);
+                    confirm_password_register.setText(null);
+                    SharedPreferences prefs = getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE);
+                    String mail = prefs.getString(AppConstants.EMAIL, "");
+                    email_login.setText(mail);
+                    setLoginUIsVisible();
+
+                }
+                else if(event.getAction()==MotionEvent.ACTION_UP){
+                    cancel_register_button.startAnimation(scaleDown);
+                }
+                return true;
+            }
         });
 
-        login_button.setOnClickListener(new View.OnClickListener() {
+        login_button.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                    login_button.startAnimation(scaleUp);
+                    loginMethod();
+
+                }
+                else if(event.getAction()==MotionEvent.ACTION_UP){
+                    login_button.startAnimation(scaleDown);
+                }
+                return true;
+            }
+        });
+        /*login_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loginMethod();
             }
-        });
+        });*/
 
-        addImage_button.setOnClickListener(new View.OnClickListener() {
+        /*addImage_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 goToImageActivity();
             }
-        });
+        });*/
     }
 
     @Override
@@ -87,10 +165,7 @@ public class MainActivity extends AppCompatActivity {
             email_login.setText(mail);
         }
         else{
-            setGone2();
-            AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
+                    setGone2();
                     mUserDatabase.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -105,10 +180,17 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
-                }
-            });
         }
 
+    }
+
+    public void setLoginUIsVisible(){
+        layout_email_login.setVisibility(View.VISIBLE);
+        email_login.setVisibility(View.VISIBLE);
+        layout_password_login.setVisibility(View.VISIBLE);
+        password_login.setVisibility(View.VISIBLE);
+        login_button.setVisibility(View.VISIBLE);
+        register_open_button.setVisibility(View.VISIBLE);
     }
 
     public void goToImageActivity(){
@@ -125,7 +207,13 @@ public class MainActivity extends AppCompatActivity {
         email_register.setVisibility(View.VISIBLE);
         password_register.setVisibility(View.VISIBLE);
         confirm_password_register.setVisibility(View.VISIBLE);
+        layout_username.setVisibility(View.VISIBLE);
+        layout_age.setVisibility(View.VISIBLE);
+        layout_email_register.setVisibility(View.VISIBLE);
+        layout_password_register.setVisibility(View.VISIBLE);
+        layout_confirm_password_register.setVisibility(View.VISIBLE);
         register_button.setVisibility(View.VISIBLE);
+        cancel_register_button.setVisibility(View.VISIBLE);
     }
 
     public void registerMethod(){
@@ -170,12 +258,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-
-                            AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                                @Override
-                                public void run() {
                                     FirebaseUser user = mAuth.getCurrentUser();
-                                    if(user == null)
+                                    if (user == null)
                                         return;
 
                                     UserDetailsModel userModel = new UserDetailsModel(usernameAux, ageAux, emailAux, passwordAux);
@@ -188,13 +272,9 @@ public class MainActivity extends AppCompatActivity {
                                     email_register.setText(null);
                                     password_register.setText(null);
                                     confirm_password_register.setText(null);
-                                    setGone();
 
-                                    email_login.setVisibility(View.VISIBLE);
-                                    password_login.setVisibility(View.VISIBLE);
-                                    login_button.setVisibility(View.VISIBLE);
-                                    register_open_button.setVisibility(View.VISIBLE);
-                                    addImage_button.setVisibility(View.VISIBLE);
+                                    setGone();
+                                    setLoginUIsVisible();
 
                                     SharedPreferences.Editor editor = getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE).edit();
                                     editor.putString(AppConstants.EMAIL, user.getEmail());
@@ -204,9 +284,6 @@ public class MainActivity extends AppCompatActivity {
 
                                     mAuth.signOut();
                                 }
-                            });
-
-                        }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -232,10 +309,6 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                                        @Override
-                                        public void run() {
-
                                             mUserDatabase.addValueEventListener(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -251,9 +324,6 @@ public class MainActivity extends AppCompatActivity {
                                                     Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                                                 }
                                             });
-
-                                        }
-                                    });
 
                                 } else {
                                     Toast.makeText(getApplicationContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
@@ -283,11 +353,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setGone2(){
+        layout_email_login.setVisibility(View.GONE);
         email_login.setVisibility(View.GONE);
+        layout_password_login.setVisibility(View.GONE);
         password_login.setVisibility(View.GONE);
         login_button.setVisibility(View.GONE);
         register_open_button.setVisibility(View.GONE);
-        addImage_button.setVisibility(View.GONE);
     }
 
     public void setGone(){
@@ -296,7 +367,13 @@ public class MainActivity extends AppCompatActivity {
         email_register.setVisibility(View.GONE);
         password_register.setVisibility(View.GONE);
         confirm_password_register.setVisibility(View.GONE);
+        layout_username.setVisibility(View.GONE);
+        layout_age.setVisibility(View.GONE);
+        layout_email_register.setVisibility(View.GONE);
+        layout_password_register.setVisibility(View.GONE);
+        layout_confirm_password_register.setVisibility(View.GONE);
         register_button.setVisibility(View.GONE);
+        cancel_register_button.setVisibility(View.GONE);
     }
 
     public void initializeViews(){
@@ -307,10 +384,18 @@ public class MainActivity extends AppCompatActivity {
         email_register = findViewById(R.id.et_register_email);
         password_register = findViewById(R.id.et_register_passwd);
         confirm_password_register = findViewById(R.id.et_confirm_register_passwd);
+        layout_email_login = findViewById(R.id.layout_login_email);
+        layout_password_login = findViewById(R.id.layout_login_passwd);
+        layout_username = findViewById(R.id.layout_firebase_username);
+        layout_age = findViewById(R.id.layout_firebase_age);
+        layout_email_register = findViewById(R.id.layout_register_email);
+        layout_password_register = findViewById(R.id.layout_register_passwd);
+        layout_confirm_password_register = findViewById(R.id.layout_confirm_register_passwd);
 
         login_button = findViewById(R.id.login_firebase_button);
         register_open_button = findViewById(R.id.register_open_button);
         register_button = findViewById(R.id.register_firebase_button);
+        cancel_register_button = findViewById(R.id.cancel_register_button);
 
         setGone();
     }

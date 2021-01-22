@@ -61,7 +61,7 @@ public class ImageGalleryActivity extends AppCompatActivity {
     public void setRecyclerView(){
 
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mImageAdapter = new ImageUploadAdapter(mImagesList);
         mRecyclerView.setAdapter(mImageAdapter);
     }

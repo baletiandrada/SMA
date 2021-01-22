@@ -1,13 +1,36 @@
 package com.example.booksapp.dataModels;
 
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
+
 public class BookReadData {
-    private String author_name, title, read_month, read_year, id, genre, video_path;
+    private String author_name, title, read_month, read_year, id, genre, video_path, uri, description;
+    private YouTubePlayerView youTubePlayer;
+
+    public BookReadData(){
+
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public BookReadData(String author_name, String title, String read_month, String read_year) {
         this.author_name = author_name;
         this.title = title;
         this.read_month = read_month;
         this.read_year = read_year;
+    }
+
+    public BookReadData(String author_name, String title, String read_month, String read_year, String uri) {
+        this.author_name = author_name;
+        this.title = title;
+        this.read_month = read_month;
+        this.read_year = read_year;
+        this.uri = uri;
     }
 
     public BookReadData(String author_name, String title) {
@@ -19,6 +42,21 @@ public class BookReadData {
         this.author_name = author_name;
         this.title = title;
         this.genre = genre;
+    }
+
+    public void setBookReadData(String author_name, String title, String genre, String uri){
+        this.author_name = author_name;
+        this.title = title;
+        this.genre = genre;
+        this.uri = uri;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     public void setId(String id){
@@ -76,4 +114,13 @@ public class BookReadData {
     public void setVideo_path(String video_path) {
         this.video_path = video_path;
     }
+
+    public YouTubePlayerView getYouTubePlayer() {
+        return youTubePlayer;
+    }
+
+    public void setYouTubePlayer(YouTubePlayerView youTubePlayer) {
+        this.youTubePlayer = youTubePlayer;
+    }
+
 }

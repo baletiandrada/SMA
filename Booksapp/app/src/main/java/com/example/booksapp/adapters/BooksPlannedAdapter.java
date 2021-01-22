@@ -13,8 +13,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.booksapp.AppConstants;
 import com.example.booksapp.BookEditActivity;
+import com.example.booksapp.BottomNavigationActivity;
 import com.example.booksapp.R;
 import com.example.booksapp.dataModels.BookReadData;
 import com.example.booksapp.helpers.BookStorageHelper;
@@ -58,6 +60,24 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
         holder.itemView.findViewById(R.id.tv_genre).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.GONE);
         holder.setValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getRead_month(), bookModel.getRead_year());
+        if(!(bookModel.getUri()==null) && !bookModel.getUri().isEmpty() && !bookModel.getUri().equals("null"))
+            Glide.with(context).load(bookModel.getUri()).placeholder(R.mipmap.ic_launcher).into(holder.iv_book_image);
+        else
+            holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
+
+        if(AppConstants.IMG_PLAN_CAME_FROM.get(position).equals("Admin"))
+            holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
+
+        holder.itemView.findViewById(R.id.iv_delete_just_image).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBooksPlannedDatabase.child(currentUser.getUid()).child(bookModel.getId()).child("uri").removeValue();
+                holder.itemView.findViewById(R.id.iv_delete_just_image).setBackgroundResource(R.drawable.default_book_image);
+                holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
+            }
+        });
+
+
         holder.itemView.findViewById(R.id.iv_delete_image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
@@ -67,11 +87,14 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if(!(choicesList==null)){
-                                    choicesList.remove(position);
-                                    notifyItemRemoved(position);
                                     Toast.makeText(context,"Book deleted successfully", Toast.LENGTH_SHORT).show();
-                                    if(currentUser!=null)
+                                    if(currentUser!=null) {
                                         mBooksPlannedDatabase.child(currentUser.getUid()).child(bookModel.getId()).removeValue();
+                                        choicesList.remove(bookModel);
+                                        notifyItemRemoved(position);
+                                        notifyItemRangeChanged(position, choicesList.size());
+                                    }
+
                                 }
                             }
                         }).setNegativeButton("CANCEL", null);
@@ -106,6 +129,9 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                                     String book_id = mBooksReadDatabase.child(currentUser.getUid()).push().getKey();
                                     mBooksReadDatabase.child(currentUser.getUid()).child(book_id).setValue(bookModel);
                                     mBooksPlannedDatabase.child(currentUser.getUid()).child(bookModel.getId()).removeValue();
+                                    choicesList.remove(bookModel);
+                                    notifyItemRemoved(position);
+                                    notifyItemRangeChanged(position, choicesList.size());
                                 }
                                 Toast.makeText(context, "Book moved successfully", Toast.LENGTH_SHORT).show();
                             }

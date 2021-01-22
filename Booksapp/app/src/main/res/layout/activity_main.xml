@@ -6,107 +6,172 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="@drawable/book_background2"
+    android:layout_marginTop="15dp"
+    android:background="@drawable/main_background1"
     tools:context=".MainActivity">
 
-
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_login_email"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter your email"
+        android:textColorHint="#BFB5C1"
+        android:layout_margin="10dp"
+        android:layout_gravity="center"
+        app:boxBackgroundColor="@color/white">
     <EditText
         android:id="@+id/et_login_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:hint="Please enter your email"
-        android:textColor="@android:color/white"
-        android:textColorHint="#C0C0C0"
-        android:textAlignment="center"/>
+        android:textColor="@android:color/black" />
+    </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_login_passwd"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter your password"
+        android:textColorHint="#BFB5C1"
+        android:layout_margin="10dp"
+        android:layout_gravity="center"
+        app:boxBackgroundColor="@color/white">
     <EditText
         android:id="@+id/et_login_passwd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:hint="Please enter your password"
-        android:inputType="textPassword"
-        android:textColor="@android:color/white"
-        android:textColorHint="#C0C0C0"
-        android:textAlignment="center"/>
+        android:textColor="@android:color/black"
+        android:inputType="textPassword"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/login_firebase_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:background="@drawable/custom_button_2"
         android:text="Login"
-        android:textColor="@android:color/white"
-        android:layout_margin="20dp"/>
+        android:textColor="@color/white"
+        android:layout_margin="15dp"/>
 
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/register_open_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:background="@drawable/custom_button_2"
         android:text="Sign up"
-        android:textColor="@android:color/white"
-        android:layout_margin="20dp"/>
+        android:textColor="@color/white"
+        android:layout_margin="15dp"/>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_firebase_username"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter your username"
+        android:textColorHint="#BFB5C1"
+        android:layout_margin="10dp"
+        android:layout_gravity="center"
+        app:boxBackgroundColor="@color/white">
     <EditText
         android:id="@+id/et_firebase_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:hint="Please enter your username"
-        android:textColor="@android:color/white"
-        android:textColorHint="#C0C0C0"
-        android:textAlignment="center"/>
+        android:textColor="@android:color/black" />
+    </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_firebase_age"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter your age"
+        android:textColorHint="#BFB5C1"
+        android:layout_margin="10dp"
+        android:layout_gravity="center"
+        app:boxBackgroundColor="@color/white">
     <EditText
         android:id="@+id/et_firebase_age"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:hint="Please enter your age"
-        android:textColor="@android:color/white"
-        android:textColorHint="#C0C0C0"
-        android:textAlignment="center"/>
+        android:textColor="@android:color/black"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_register_email"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter your email"
+        android:textColorHint="#BFB5C1"
+        android:layout_margin="10dp"
+        android:layout_gravity="center"
+        app:boxBackgroundColor="@color/white">
     <EditText
         android:id="@+id/et_register_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:hint="Please enter your email"
-        android:textColor="@android:color/white"
-        android:textColorHint="#C0C0C0"
-        android:textAlignment="center"/>
+        android:textColor="@android:color/black" />
+    </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_register_passwd"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter your password"
+        android:textColorHint="#BFB5C1"
+        android:layout_margin="10dp"
+        android:layout_gravity="center"
+        app:boxBackgroundColor="@color/white">
     <EditText
         android:id="@+id/et_register_passwd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:hint="Please enter your password"
-        android:inputType="textPassword"
-        android:textColor="@android:color/white"
-        android:textColorHint="#C0C0C0"
-        android:textAlignment="center"/>
+        android:textColor="@android:color/black"
+        android:inputType="textPassword"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_confirm_register_passwd"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:hint="Confirm your password"
+        android:textColorHint="#BFB5C1"
+        android:layout_margin="10dp"
+        android:layout_gravity="center"
+        app:boxBackgroundColor="@color/white">
     <EditText
         android:id="@+id/et_confirm_register_passwd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:hint="Confirm your password"
-        android:inputType="textPassword"
-        android:textColor="@android:color/white"
-        android:textColorHint="#C0C0C0"
-        android:textAlignment="center"/>
+        android:textColor="@android:color/black"
+        android:inputType="textPassword"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
-        android:id="@+id/register_firebase_button"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:text="Sign up"
-        android:textColor="@android:color/white" />
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        android:layout_gravity="center">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/register_firebase_button"
+            android:layout_width="140dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/custom_button"
+            android:text="Sign up"
+            android:textColor="@color/purple_200" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/cancel_register_button"
+            android:layout_width="140dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:text="Cancel"
+            android:textColor="@color/purple_200"
+            android:background="@drawable/custom_button"/>
+    </LinearLayout>
+
 
     <Button
         android:id="@+id/btn_addImage"
@@ -116,6 +181,7 @@
         android:layout_marginBottom="20dp"
         android:padding="10dp"
         android:text="Add an image"
-        android:textColor="@android:color/white"/>
+        android:textColor="@android:color/white"
+        android:visibility="gone"/>
 
 </LinearLayout>

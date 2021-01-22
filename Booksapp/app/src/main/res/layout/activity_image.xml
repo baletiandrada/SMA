@@ -7,21 +7,25 @@
     tools:context=".ImageActivity"
     android:background="@drawable/book_background4">
 
-    <Button
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:id="@+id/linear_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/btn_chooseImage"
-        android:layout_marginTop="60dp"
-        android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"
-        android:text="Choose image"/>
+        android:gravity="center">
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_margin="20dp"
+        android:layout_height="60dp"
+        android:id="@+id/iv_chooseImage"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/ic_choose_image"/></LinearLayout>
 
     <ImageView
         android:layout_width="fill_parent"
         android:layout_margin="20dp"
         android:layout_height="200dp"
         android:id="@+id/iv_showImageChoosed"
-        android:layout_below="@+id/btn_chooseImage"
+        android:layout_below="@+id/linear_layout"
         android:layout_marginTop="20dp"/>
 
     <EditText

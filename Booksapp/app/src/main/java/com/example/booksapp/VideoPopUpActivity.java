@@ -4,10 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -25,25 +27,26 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 
 import org.jetbrains.annotations.NotNull;
 
+import java.security.Provider;
+
+import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
+import static android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+import static android.view.View.SYSTEM_UI_FLAG_IMMERSIVE;
+
 public class VideoPopUpActivity extends Activity {
 
-    private TextView trailer_title_tv;
     BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
-    private Button goBack_btn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_pop_up);
 
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getActionBar().hide();
 
-        trailer_title_tv = findViewById(R.id.tv_trailer_title);
+        //trailer_title_tv = findViewById(R.id.tv_trailer_title);
         YouTubePlayerView youTubePlayerView = findViewById(R.id.youtube_player);
-        goBack_btn = findViewById(R.id.goBack_button);
-
-        String trailer_title = bookStorageHelper.getBook_title();
-        trailer_title_tv.setText(trailer_title);
+        //goBack_btn = findViewById(R.id.goBack_button);
 
         Intent intent = getIntent();
         String video_path = intent.getStringExtra(AppConstants.VIDEO_PATH);
@@ -51,18 +54,12 @@ public class VideoPopUpActivity extends Activity {
         youTubePlayerView.addFullScreenListener(new YouTubePlayerFullScreenListener() {
             @Override
             public void onYouTubePlayerEnterFullScreen() {
-                goBack_btn.setVisibility(View.GONE);
-                Toast.makeText(getApplicationContext(), "Rotate your phone for a better view", Toast.LENGTH_LONG).show();
+                goToBottomActivity();
             }
 
             @Override
             public void onYouTubePlayerExitFullScreen() {
-                goBack_btn.setVisibility(View.VISIBLE);
-                /*android.widget.LinearLayout.LayoutParams params = (android.widget.LinearLayout.LayoutParams) youTubePlayerView.getLayoutParams();
-                params.height = 400;
-                params.width = 100;
-                youTubePlayerView.setLayoutParams(params);*/
-                Toast.makeText(getApplicationContext(), "Rotate your phone for a better view", Toast.LENGTH_LONG).show();
+                goToBottomActivity();
             }
         });
         youTubePlayerView.initialize(new YouTubePlayerListener() {
@@ -117,15 +114,9 @@ public class VideoPopUpActivity extends Activity {
             }
         });
 
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        //DisplayMetrics dm = new DisplayMetrics();
+        //getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-        goBack_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToBottomActivity();
-            }
-        });
     }
 
     @Override
@@ -136,6 +127,7 @@ public class VideoPopUpActivity extends Activity {
         if (currentUser == null) {
             goToLoginActivity();
         }
+        else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
 
     public void goToBottomActivity(){

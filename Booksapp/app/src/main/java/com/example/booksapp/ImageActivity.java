@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -30,9 +32,9 @@ import static com.example.booksapp.helpers.FirebaseHelper.mImagesDatabase;
 public class ImageActivity extends AppCompatActivity {
 
     private String storagePath = "Images uploaded/";
-    private Button chooseImage_button, uploadImage_button, uploadImageAgain_button, goToImageGallery_button;
+    private Button uploadImage_button, uploadImageAgain_button, goToImageGallery_button;
     private EditText imageName_et;
-    private ImageView choosedImage_iv;
+    private ImageView choosedImage_iv, chooseImage_iv;
     private Uri filePath;
     private StorageReference storageReference;
     int imageRequestCode = 7;
@@ -47,7 +49,7 @@ public class ImageActivity extends AppCompatActivity {
 
         initializeViews();
 
-        chooseImage_button.setOnClickListener(new View.OnClickListener() {
+        chooseImage_iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
@@ -61,7 +63,7 @@ public class ImageActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // Calling method to upload selected image on Firebase storage.
                 UploadImageFileToFirebaseStorage();
-                chooseImage_button.setVisibility(View.GONE);
+                chooseImage_iv.setVisibility(View.GONE);
                 uploadImage_button.setVisibility(View.GONE);
                 imageName_et.setVisibility(View.GONE);
                 choosedImage_iv.setVisibility(View.GONE);
@@ -76,7 +78,7 @@ public class ImageActivity extends AppCompatActivity {
             public void onClick(View view) {
                 uploadImageAgain_button.setVisibility(View.GONE);
 
-                chooseImage_button.setVisibility(View.VISIBLE);
+                chooseImage_iv.setVisibility(View.VISIBLE);
                 uploadImage_button.setVisibility(View.VISIBLE);
                 imageName_et.setVisibility(View.VISIBLE);
                 choosedImage_iv.setVisibility(View.VISIBLE);
@@ -99,7 +101,6 @@ public class ImageActivity extends AppCompatActivity {
         if (requestCode == imageRequestCode && resultCode == RESULT_OK && data != null && data.getData() != null) {
             filePath = data.getData();
             Glide.with(this).load(filePath).placeholder(R.mipmap.ic_launcher).into(choosedImage_iv);
-            chooseImage_button.setText("Choose another image");
         }
     }
 
@@ -112,7 +113,7 @@ public class ImageActivity extends AppCompatActivity {
 
     public void UploadImageFileToFirebaseStorage() {
         if(imageName_et.getText().toString().isEmpty()){
-            Toast.makeText( getApplicationContext() , "Please enter an image name", Toast.LENGTH_LONG).show();
+            Toast.makeText( getApplicationContext() , "Please enter image name", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -143,7 +144,6 @@ public class ImageActivity extends AppCompatActivity {
 
                         choosedImage_iv.setImageBitmap(null);
                         imageName_et.setText(null);
-                        chooseImage_button.setText("Choose image");
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -153,7 +153,7 @@ public class ImageActivity extends AppCompatActivity {
                 }
             });
         } else {
-            Toast.makeText(this, "Please select an image", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Select image", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -164,7 +164,7 @@ public class ImageActivity extends AppCompatActivity {
 
     public void initializeViews(){
         storageReference = FirebaseStorage.getInstance().getReference();
-        chooseImage_button = findViewById(R.id.btn_chooseImage);
+        chooseImage_iv = findViewById(R.id.iv_chooseImage);
         uploadImage_button = findViewById(R.id.btn_uploadImage);
         uploadImageAgain_button = findViewById(R.id.btn_uploadAgain);
         uploadImageAgain_button.setVisibility(View.GONE);
