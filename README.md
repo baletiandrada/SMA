@@ -3,12 +3,13 @@
 ##Instalation
 
 ```git
-git clone 'repository'
+#Clone repo
+git clone https://github.com/baletiandrada/SMA.git
 ```
 
-##Usage
+## Usage
 
-Install java JDK
+Java Development Kit
 
-##Licence
+## Licence
 [MIT](https://choosealicense.com/licenses/mit/)
