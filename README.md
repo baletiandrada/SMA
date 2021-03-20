@@ -7,9 +7,10 @@
 git clone https://github.com/baletiandrada/SMA.git
 ```
 
-## Usage
+## Requirements
 
 Java Development Kit
+Android Studio IDE
 
 ## Licence
 [MIT](https://choosealicense.com/licenses/mit/)
