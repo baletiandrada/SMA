@@ -1,6 +1,6 @@
 # SMA
 
-##Instalation
+## Instalation
 
 ```git
 #Clone repo
