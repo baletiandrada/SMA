@@ -1,9 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
     tools:context=".AutoCompleteActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <AutoCompleteTextView
+        android:id="@+id/autoCompleteTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Select a name"
+        android:completionThreshold="1"
+        android:popupBackground="#BFB5C1"
+        android:dropDownSelector="@color/teal_200"
+        />
+
+    <Button
+        android:id="@+id/actv_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Go"/>
+
+    <TextView
+        android:id="@+id/actv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Select a name"
+        android:layout_marginTop="20dp"
+        android:completionThreshold="1" />
+
+
+
+
+</LinearLayout>

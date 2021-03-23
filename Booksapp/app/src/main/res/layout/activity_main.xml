@@ -64,6 +64,17 @@
         android:textColor="@color/white"
         android:layout_margin="15dp"/>
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/test_autoComplete"
+        android:layout_width="300dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:background="@drawable/custom_button_2"
+        android:text="Auto complete activity"
+        android:textColor="@color/white"
+        android:layout_margin="15dp"/>
+
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layout_firebase_username"
         android:layout_width="300dp"

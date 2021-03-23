@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -152,10 +154,9 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
             }
         });
 
-
-        if(bookModel.getVideo_path()=="null" || bookModel.getVideo_path()=="" || bookModel.getVideo_path()==null)
-            holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.GONE);
-        else{
+        if(!(bookModel.getVideo_path()=="null" || bookModel.getVideo_path()=="" || bookModel.getVideo_path()==null))
+        {
+            holder.itemView.findViewById(R.id.tv_watch_trailer).setVisibility(View.VISIBLE);
             if(bookModel.getYouTubePlayer()==null) {
                 bookModel.setYouTubePlayer(holder.itemView.findViewById(R.id.youtube_player));
                 YouTubePlayerView youTubePlayerView = bookModel.getYouTubePlayer();
@@ -228,6 +229,26 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                 });
             }
         }
+
+        holder.itemView.findViewById(R.id.tv_watch_trailer).setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View v) {
+                holder.itemView.findViewById(R.id.tv_watch_trailer).setVisibility(View.GONE);
+                holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.VISIBLE);
+                holder.itemView.findViewById(R.id.tv_hide_trailer).setVisibility(View.VISIBLE);
+            }
+        });
+
+        holder.itemView.findViewById(R.id.tv_hide_trailer).setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View v) {
+                holder.itemView.findViewById(R.id.tv_hide_trailer).setVisibility(View.GONE);
+                holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.GONE);
+                holder.itemView.findViewById(R.id.tv_watch_trailer).setVisibility(View.VISIBLE);
+            }
+        });
 
     }
 

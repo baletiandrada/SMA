@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText email_login, password_login, username, age, email_register, password_register, confirm_password_register;
     private TextInputLayout layout_email_login, layout_password_login, layout_username, layout_age, layout_email_register, layout_password_register;
     private TextInputLayout layout_confirm_password_register;
-    private Button login_button, register_open_button, register_button, cancel_register_button;
+    private Button login_button, register_open_button, register_button, cancel_register_button, autoComplete_btn;
     StorageHelper userData = StorageHelper.getInstance();
 
     Animation scaleUp, scaleDown;
@@ -152,6 +152,15 @@ public class MainActivity extends AppCompatActivity {
                 goToImageActivity();
             }
         });*/
+
+        autoComplete_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToAutoCompleteActivity();
+            }
+        });
+
+
     }
 
     @Override
@@ -182,6 +191,11 @@ public class MainActivity extends AppCompatActivity {
                     });
         }
 
+    }
+
+    public void goToAutoCompleteActivity(){
+        Intent intent = new Intent(getApplicationContext(), AutoCompleteActivity.class);
+        startActivity(intent);
     }
 
     public void setLoginUIsVisible(){
@@ -396,6 +410,8 @@ public class MainActivity extends AppCompatActivity {
         register_open_button = findViewById(R.id.register_open_button);
         register_button = findViewById(R.id.register_firebase_button);
         cancel_register_button = findViewById(R.id.cancel_register_button);
+
+        autoComplete_btn = findViewById(R.id.test_autoComplete);
 
         setGone();
     }

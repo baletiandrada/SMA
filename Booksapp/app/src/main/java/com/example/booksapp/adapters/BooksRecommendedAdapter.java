@@ -122,9 +122,9 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
             }
         });
 
-        if(bookModel.getVideo_path()=="null" || bookModel.getVideo_path()=="" || bookModel.getVideo_path()==null)
-            holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.GONE);
-        else{
+        if(!(bookModel.getVideo_path()=="null" || bookModel.getVideo_path()=="" || bookModel.getVideo_path()==null))
+        {
+            holder.itemView.findViewById(R.id.tv_watch_trailer).setVisibility(View.VISIBLE);
             if(bookModel.getYouTubePlayer()==null) {
                 bookModel.setYouTubePlayer(holder.itemView.findViewById(R.id.youtube_player));
                 YouTubePlayerView youTubePlayerView = bookModel.getYouTubePlayer();
@@ -215,6 +215,26 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
                 holder.itemView.findViewById(R.id.iv_for_description).setVisibility(View.VISIBLE);
                 holder.itemView.findViewById(R.id.tv_description).setVisibility(View.GONE);
                 holder.itemView.findViewById(R.id.iv_hide_description).setVisibility(View.GONE);
+            }
+        });
+
+        holder.itemView.findViewById(R.id.tv_watch_trailer).setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View v) {
+                holder.itemView.findViewById(R.id.tv_watch_trailer).setVisibility(View.GONE);
+                holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.VISIBLE);
+                holder.itemView.findViewById(R.id.tv_hide_trailer).setVisibility(View.VISIBLE);
+            }
+        });
+
+        holder.itemView.findViewById(R.id.tv_hide_trailer).setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View v) {
+                holder.itemView.findViewById(R.id.tv_hide_trailer).setVisibility(View.GONE);
+                holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.GONE);
+                holder.itemView.findViewById(R.id.tv_watch_trailer).setVisibility(View.VISIBLE);
             }
         });
 

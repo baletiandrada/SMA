@@ -3,11 +3,20 @@ package com.example.booksapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -37,6 +46,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,7 +55,7 @@ import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mImagesDatabase;
 
-public class AddBookActivity extends AppCompatActivity {
+public class AddBookActivity extends AppCompatActivity implements SelectPhotoDialog.OnPhotoSelectedListener {
 
     private EditText authorName, bookTitle, month, year, genre, description;
     private TextInputLayout layout_author, layout_title, layout_month, layout_year, layout_genre, layout_description;
@@ -62,14 +72,65 @@ public class AddBookActivity extends AppCompatActivity {
 
     private String storagePath = "Book Images/";
     private StorageReference storageReference;
-    int imageRequestCode = 7;
+    int requestCode = 7;
     private Uri filePath;
     private String mUri;
+
+    @Override
+    public void getImagePath(Uri imagePath) {
+        cardViewImg.setVisibility(View.VISIBLE);
+        Glide.with(this).load(imagePath).placeholder(R.mipmap.ic_launcher).into(choosedImg);
+        filePath = imagePath;
+    }
+
+    @Override
+    public void getImageBitmap(Bitmap bitmap) {
+        cardViewImg.setVisibility(View.VISIBLE);
+        //choosedImg.setImageBitmap(bitmap);
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(getApplicationContext().getContentResolver(), bitmap, "val", null);
+        Uri uri = Uri.parse(path);
+        Glide.with(this).load(uri).placeholder(R.mipmap.ic_launcher).into(choosedImg);
+        filePath = uri;
+    }
+
+    private void init(){
+        chooseImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast.makeText( getApplicationContext() , "Opening dialog for choosing a photo", Toast.LENGTH_SHORT).show();
+                SelectPhotoDialog dialog = new SelectPhotoDialog();
+                dialog.show(getSupportFragmentManager(), "Select Photo");
+
+            }
+        });
+    }
+
+    private void verifyPermissions(){
+        String permissions[] = {Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA};
+
+        if(!(ContextCompat.checkSelfPermission(getApplicationContext(), permissions[0]) == PackageManager.PERMISSION_GRANTED
+        && ContextCompat.checkSelfPermission(getApplicationContext(), permissions[1]) == PackageManager.PERMISSION_GRANTED
+        && ContextCompat.checkSelfPermission(getApplicationContext(), permissions[2]) == PackageManager.PERMISSION_GRANTED)){
+            ActivityCompat.requestPermissions(this, permissions, requestCode);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        verifyPermissions();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_book);
+
+        verifyPermissions();
+
         initializeViews();
         scaleUp = AnimationUtils.loadAnimation(this, R.anim.scale_up);
         scaleDown = AnimationUtils.loadAnimation(this, R.anim.scale_down);
@@ -77,7 +138,7 @@ public class AddBookActivity extends AppCompatActivity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().hide();
 
-        chooseImg.setOnClickListener(new View.OnClickListener() {
+        /*chooseImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -85,7 +146,7 @@ public class AddBookActivity extends AppCompatActivity {
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intent, "Select image"), imageRequestCode);
             }
-        });
+        });*/
 
         checkBox_add_photo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,37 +156,25 @@ public class AddBookActivity extends AppCompatActivity {
             }
         });
 
-        add_book_button.setOnTouchListener(new View.OnTouchListener() {
+        add_book_button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction()==MotionEvent.ACTION_DOWN){
-                    add_book_button.startAnimation(scaleUp);
-                    if(checkBox_add_photo.isChecked()){
-                        Toast.makeText(getApplicationContext(), "Wait a few seconds...", Toast.LENGTH_LONG).show();
-                        setImageUri();
-                    }
-                    else addBookInFirebase();
+            public void onClick(View v) {
+                if(checkBox_add_photo.isChecked()){
+                    Toast.makeText(getApplicationContext(), "Wait a few seconds...", Toast.LENGTH_LONG).show();
+                    setImageUri();
                 }
-                else if(event.getAction()==MotionEvent.ACTION_UP){
-                    add_book_button.startAnimation(scaleDown);
-                }
-                return true;
+                else addBookInFirebase();
             }
         });
 
-        cancel_add_activity_button.setOnTouchListener(new View.OnTouchListener() {
+        cancel_add_activity_button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction()==MotionEvent.ACTION_DOWN){
-                    cancel_add_activity_button.startAnimation(scaleUp);
-                    goToPreviousActivity();
-                }
-                else if(event.getAction()==MotionEvent.ACTION_UP){
-                    cancel_add_activity_button.startAnimation(scaleDown);
-                }
-                return true;
+            public void onClick(View v) {
+                goToPreviousActivity();
             }
         });
+
+        init();
     }
 
     @Override
@@ -137,7 +186,7 @@ public class AddBookActivity extends AppCompatActivity {
         }
     }
 
-    @Override
+    /*@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -147,7 +196,7 @@ public class AddBookActivity extends AppCompatActivity {
             cardViewImg.setVisibility(View.VISIBLE);
             Glide.with(this).load(filePath).placeholder(R.mipmap.ic_launcher).into(choosedImg);
         }
-    }
+    }*/
 
     public String getFileExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
@@ -387,5 +436,6 @@ public class AddBookActivity extends AppCompatActivity {
             year.setVisibility(View.GONE);
         }
     }
+
 
 }
