@@ -3,11 +3,17 @@ package com.example.booksapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -37,6 +43,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +53,7 @@ import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mFavouriteBooksDatabase;
 
-public class BookEditActivity extends AppCompatActivity {
+public class BookEditActivity extends AppCompatActivity implements SelectPhotoDialog.OnPhotoSelectedListener{
 
     private EditText author_name, book_title, read_month, read_year, genre, description;
     private TextInputLayout layout_author, layout_title, layout_month, layout_year, layout_genre, layout_description;
@@ -70,6 +77,53 @@ public class BookEditActivity extends AppCompatActivity {
     private List<BookReadData> fav_books = new ArrayList<BookReadData>();
 
     @Override
+    public void getImagePath(Uri imagePath) {
+        cardViewImg.setVisibility(View.VISIBLE);
+        Glide.with(this).load(imagePath).placeholder(R.mipmap.ic_launcher).into(choosedImg);
+        filePath = imagePath;
+    }
+
+    @Override
+    public void getImageBitmap(Bitmap bitmap) {
+        cardViewImg.setVisibility(View.VISIBLE);
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(getApplicationContext().getContentResolver(), bitmap, "val", null);
+        Uri uri = Uri.parse(path);
+        Glide.with(this).load(uri).placeholder(R.mipmap.ic_launcher).into(choosedImg);
+        filePath = uri;
+    }
+
+    private void init(){
+        chooseImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast.makeText( getApplicationContext() , "Opening dialog for choosing a photo", Toast.LENGTH_SHORT).show();
+                SelectPhotoDialog dialog = new SelectPhotoDialog();
+                dialog.show(getSupportFragmentManager(), "Select Photo");
+
+            }
+        });
+    }
+
+    private void verifyPermissions(){
+        String permissions[] = {Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA};
+
+        if(!(ContextCompat.checkSelfPermission(getApplicationContext(), permissions[0]) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(getApplicationContext(), permissions[1]) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(getApplicationContext(), permissions[2]) == PackageManager.PERMISSION_GRANTED)){
+            ActivityCompat.requestPermissions(this, permissions, imageRequestCode);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        verifyPermissions();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_edit);
@@ -82,15 +136,7 @@ public class BookEditActivity extends AppCompatActivity {
 
         getBooksFromFavouriteDB();
 
-        chooseImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select image"), imageRequestCode);
-            }
-        });
+        init();
 
         checkBox_add_photo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -403,5 +449,6 @@ public class BookEditActivity extends AppCompatActivity {
         author_name.setText(bookStorageHelper.getAuthor_name());
         book_title.setText(bookStorageHelper.getBook_title());
     }
+
 
 }
