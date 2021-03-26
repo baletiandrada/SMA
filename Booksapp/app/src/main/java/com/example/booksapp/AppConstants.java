@@ -11,4 +11,17 @@ public class AppConstants {
     public static final ArrayList<String> IMG_CAME_FROM = new ArrayList<String>();
     public static final ArrayList<String> IMG_PLAN_CAME_FROM = new ArrayList<String>();
     public static final ArrayList<String> BookExistsInFav = new ArrayList<String>();
+    public static final String[] commonRomanianWords= new String[]{
+        ""
+    };
+
+    public static final String[] commonEnglishWords= new String[]{
+            ""
+    };
+
+    public static final String[] MONTHS= new String[]{
+            "ianuarie", "februarie", "martie", "aprilie", "mai", "iunie",
+            "iulie", "august", "septembrie", "octombrie", "noiembrie", "decembrie"
+    };
+
 }

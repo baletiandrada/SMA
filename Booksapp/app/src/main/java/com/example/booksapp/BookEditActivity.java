@@ -20,10 +20,12 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.MimeTypeMap;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -45,6 +47,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -55,7 +58,8 @@ import static com.example.booksapp.helpers.FirebaseHelper.mFavouriteBooksDatabas
 
 public class BookEditActivity extends AppCompatActivity implements SelectPhotoDialog.OnPhotoSelectedListener{
 
-    private EditText author_name, book_title, read_month, read_year, genre, description;
+    private EditText read_month, read_year, genre, description;
+    private MultiAutoCompleteTextView author_name, book_title;
     private TextInputLayout layout_author, layout_title, layout_month, layout_year, layout_genre, layout_description;
     private Button edit_book_button, cancel_edit_activity_button;
     BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
@@ -75,6 +79,9 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
     private String mUri;
 
     private List<BookReadData> fav_books = new ArrayList<BookReadData>();
+
+    ArrayList<String> authorNames = new ArrayList<String>();
+    ArrayList<String> bookTitles = new ArrayList<String>();
 
     @Override
     public void getImagePath(Uri imagePath) {
@@ -138,6 +145,16 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
 
         init();
 
+        getAuthorAndTitles();
+
+        ArrayAdapter<String> adapterAuthor = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, authorNames);
+        author_name.setTokenizer(new SpaceTokenizer());
+        author_name.setAdapter(adapterAuthor);
+
+        ArrayAdapter<String> adapterTitle = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, bookTitles);
+        book_title.setTokenizer(new SpaceTokenizer());
+        book_title.setAdapter(adapterTitle);
+
         checkBox_add_photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,50 +163,19 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
             }
         });
 
-
-        edit_book_button.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction()==MotionEvent.ACTION_DOWN){
-                    edit_book_button.startAnimation(scaleUp);
-                    if(checkBox_add_photo.isChecked()){
-                        Toast.makeText(getApplicationContext(), "Wait a few seconds...", Toast.LENGTH_LONG).show();
-                        setImageUri();
-                    }
-                    else updateBookInFirebase();
-                }
-                else if(event.getAction()==MotionEvent.ACTION_UP){
-                    edit_book_button.startAnimation(scaleDown);
-                }
-                return true;
-            }
-        });
-        /*edit_book_button.setOnClickListener(new View.OnClickListener() {
+        edit_book_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 updateBookInFirebase();
             }
-        });*/
-
-        cancel_edit_activity_button.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction()==MotionEvent.ACTION_DOWN){
-                    cancel_edit_activity_button.startAnimation(scaleUp);
-                    goToPreviousActivity();
-                }
-                else if(event.getAction()==MotionEvent.ACTION_UP){
-                    cancel_edit_activity_button.startAnimation(scaleDown);
-                }
-                return true;
-            }
         });
-        /*cancel_edit_activity_button.setOnClickListener(new View.OnClickListener() {
+
+        cancel_edit_activity_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 goToPreviousActivity();
             }
-        });*/
+        });
     }
 
     @Override
@@ -202,16 +188,30 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    private void getAuthorAndTitles(){
+        mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                authorNames.removeAll(authorNames);
+                bookTitles.removeAll(authorNames);
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    String author_name = String.valueOf(ds.child("author_name").getValue());
+                    String book_title = String.valueOf(ds.child("title").getValue());
+                    List<String> titles = Arrays.asList(book_title.split("\\s+"));
+                    if(!authorNames.contains(author_name))
+                        authorNames.add(author_name);
+                    for(String title: titles){
+                        if(!bookTitles.contains(title))
+                            bookTitles.add(title);
+                    }
+                }
+            }
 
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == imageRequestCode && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            filePath = data.getData();
-            cardViewImg.setVisibility(View.VISIBLE);
-            Glide.with(this).load(filePath).placeholder(R.mipmap.ic_launcher).into(choosedImg);
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public String getFileExtension(Uri uri) {

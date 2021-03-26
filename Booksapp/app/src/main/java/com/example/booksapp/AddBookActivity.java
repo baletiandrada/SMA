@@ -23,10 +23,12 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.MimeTypeMap;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -41,12 +43,17 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -57,7 +64,8 @@ import static com.example.booksapp.helpers.FirebaseHelper.mImagesDatabase;
 
 public class AddBookActivity extends AppCompatActivity implements SelectPhotoDialog.OnPhotoSelectedListener {
 
-    private EditText authorName, bookTitle, month, year, genre, description;
+    private EditText year, genre, description, month;
+    private MultiAutoCompleteTextView authorName, bookTitle;
     private TextInputLayout layout_author, layout_title, layout_month, layout_year, layout_genre, layout_description;
     private Button add_book_button, cancel_add_activity_button;
     private ImageView chooseImg, choosedImg;
@@ -75,6 +83,9 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
     int requestCode = 7;
     private Uri filePath;
     private String mUri;
+
+    ArrayList<String> authorNames = new ArrayList<String>();
+    ArrayList<String> bookTitles = new ArrayList<String>();
 
     @Override
     public void getImagePath(Uri imagePath) {
@@ -148,6 +159,16 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
             }
         });*/
 
+        getAuthorAndTitles();
+
+        ArrayAdapter<String> adapterAuthor = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, authorNames);
+        authorName.setTokenizer(new SpaceTokenizer());
+        authorName.setAdapter(adapterAuthor);
+
+        ArrayAdapter<String> adapterTitle = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, bookTitles);
+        bookTitle.setTokenizer(new SpaceTokenizer());
+        bookTitle.setAdapter(adapterTitle);
+
         checkBox_add_photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -184,6 +205,32 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
         if (currentUser == null) {
             goToLoginActivity();
         }
+    }
+
+    private void getAuthorAndTitles(){
+        mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                authorNames.removeAll(authorNames);
+                bookTitles.removeAll(authorNames);
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    String author_name = String.valueOf(ds.child("author_name").getValue());
+                    String book_title = String.valueOf(ds.child("title").getValue());
+                    List<String> titles = Arrays.asList(book_title.split("\\s+"));
+                    if(!authorNames.contains(author_name))
+                        authorNames.add(author_name);
+                    for(String title: titles){
+                        if(!bookTitles.contains(title))
+                            bookTitles.add(title);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /*@Override
@@ -277,52 +324,18 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
                 return;
             }
 
-            String month_aux;
-            if(month.getText().toString().isEmpty())
+            String month_aux = "";
+            if(month.getText().toString().isEmpty()){
                 month_aux = "";
+            }
             else {
-                month_aux = month.getText().toString();
-                switch (month_aux) {
-                    case "ianuarie": {
-                        month_aux = "ian";
-                        break;
-                    }
-                    case "februarie": {
-                        month_aux = "feb";
-                        break;
-                    }
-                    case "martie":
-                        break;
-                    case "aprilie":
-                        break;
-                    case "mai":
-                        break;
-                    case "iunie":
-                        break;
-                    case "iulie":
-                        break;
-                    case "august":
-                        break;
-                    case "septembrie": {
-                        month_aux = "sept";
-                        break;
-                    }
-                    case "octombrie": {
-                        month_aux = "oct";
-                        break;
-                    }
-                    case "noiembrie": {
-                        month_aux = "nov";
-                        break;
-                    }
-                    case "decembrie": {
-                        month_aux = "dec";
-                        break;
-                    }
-                    default: {
-                        Toast.makeText(this, "Please enter a valid month (not a number)", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+                String month_entered = month.getText().toString();
+                List<String> list = Arrays.asList(AppConstants.MONTHS);
+                if (list.contains(month_entered)) {
+                    month_aux = month_entered.substring(0, 3);
+                } else {
+                    Toast.makeText(this, "Please enter a valid month (not a number)", Toast.LENGTH_SHORT).show();
+                    return;
                 }
             }
 
