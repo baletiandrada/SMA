@@ -60,9 +60,10 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
         holder.itemView.findViewById(R.id.tv_genre).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.GONE);
         holder.setValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getRead_month(), bookModel.getRead_year());
+
         if(!(bookModel.getUri()==null) && !bookModel.getUri().isEmpty() && !bookModel.getUri().equals("null"))
             Glide.with(context).load(bookModel.getUri()).placeholder(R.mipmap.ic_launcher).into(holder.iv_book_image);
-        else
+        /*else
             holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
 
         if(AppConstants.IMG_PLAN_CAME_FROM.get(position).equals("Admin"))
@@ -76,7 +77,7 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                 holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
             }
         });
-
+        */
 
         holder.itemView.findViewById(R.id.iv_delete_image).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,7 +128,15 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                             public void onClick(DialogInterface dialog, int which) {
                                 if(currentUser!=null){
                                     String book_id = mBooksReadDatabase.child(currentUser.getUid()).push().getKey();
-                                    mBooksReadDatabase.child(currentUser.getUid()).child(book_id).setValue(bookModel);
+                                    if(bookModel.getId_from_big_db()=="null")
+                                        mBooksReadDatabase.child(currentUser.getUid()).child(book_id).setValue(bookModel);
+                                    else{
+                                        BookReadData book_aux = new BookReadData();
+                                        book_aux.setId(bookModel.getId_from_big_db());
+                                        book_aux.setRead_month(bookModel.getRead_month());
+                                        book_aux.setRead_year(bookModel.getRead_year());
+                                        mBooksReadDatabase.child(currentUser.getUid()).child(book_id).setValue(book_aux);
+                                    }
                                     mBooksPlannedDatabase.child(currentUser.getUid()).child(bookModel.getId()).removeValue();
                                     choicesList.remove(bookModel);
                                     notifyItemRemoved(position);

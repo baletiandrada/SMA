@@ -55,7 +55,8 @@ public class EditUserDataFragment extends Fragment {
     FirebaseUser currentUser = mAuth.getCurrentUser();
 
     private RecyclerView recyclerView;
-    private List<BookReadData> books = new ArrayList<BookReadData>(), books_recommended= new ArrayList<BookReadData>();
+    private ArrayList<BookReadData> books = new ArrayList<BookReadData>(), books_recommended= new ArrayList<BookReadData>();
+    private ArrayList<BookReadData> books_read = new ArrayList<BookReadData>();
     FavouriteBooksAdapter listExampleAdapterBooks;
     private SearchView searchView;
 
@@ -66,6 +67,7 @@ public class EditUserDataFragment extends Fragment {
         initializeViews(root);
 
         getDataFromRecommendedBooks();
+        getDataFromReadBooks();
         mFavouriteBooksDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -83,17 +85,7 @@ public class EditUserDataFragment extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if(!(currentUser ==null)){
-                    mFavouriteBooksDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            getDataByVariable(dataSnapshot, query);
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                            Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    getDataByVariable(query);
                 }
                 return false;
             }
@@ -101,17 +93,7 @@ public class EditUserDataFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if(!(currentUser ==null)){
-                    mFavouriteBooksDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            getDataByVariable(dataSnapshot, newText);
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                            Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    getDataByVariable(newText);
                 }
                 return false;
             }
@@ -130,57 +112,43 @@ public class EditUserDataFragment extends Fragment {
         }
     }
 
-    private void getDataByVariable(DataSnapshot dataSnapshot, String variable){
+    private void getData(DataSnapshot dataSnapshot) {
         books.removeAll(books);
         for(DataSnapshot ds : dataSnapshot.getChildren()){
-            String variable_lower_case = variable.toLowerCase();
-            if(String.valueOf(ds.child("author_name").getValue()).toLowerCase().contains(variable_lower_case)
-                    || String.valueOf(ds.child("title").getValue()).toLowerCase().contains(variable_lower_case)
-                    || String.valueOf(ds.child("read_year").getValue()).equals(variable)){
-                String author_name = String.valueOf(ds.child("author_name").getValue());
-                String book_title = String.valueOf(ds.child("title").getValue());
-                String read_year = String.valueOf(ds.child("read_year").getValue());
-                String month = String.valueOf(ds.child("read_month").getValue());
-                if(month == null)
-                    month = "";
-                BookReadData newBook = new BookReadData(author_name, book_title, month, read_year);
-                String uri;
-                uri = String.valueOf(ds.child("uri").getValue());
-
-                if(uri.equals("null") || uri==null || uri.isEmpty())
-                    uri = getUriFromRecommended(author_name, book_title);
-
-                newBook.setUri(uri);
-                newBook.setId(String.valueOf(ds.getKey()));
-                books.add(newBook);
+            String book_id = String.valueOf(ds.child("id").getValue());
+            String book_id_from_big_db;
+            for(BookReadData bookRead: books_read){
+                if(book_id.contains(bookRead.getId()) || bookRead.getId().contains(book_id)) {
+                    if (bookRead.getId_from_big_db() != "null") {
+                        book_id_from_big_db = bookRead.getId_from_big_db();
+                        for (BookReadData book : books_recommended) {
+                            if (book.getId().contains(book_id_from_big_db) || book_id_from_big_db.contains(book.getId()))
+                                books.add(book);
+                        }
+                    }
+                    else{
+                        books.add(bookRead);
+                    }
+                    break;
+                }
             }
         }
         setRecyclerView();
     }
 
-    private void getData(DataSnapshot dataSnapshot) {
+    private void getDataByVariable(String variable){
+        String variable_lower_case = variable.toLowerCase();
+        ArrayList<BookReadData> books_aux = books;
         books.removeAll(books);
-        for(DataSnapshot ds : dataSnapshot.getChildren()){
-            String author_name = String.valueOf(ds.child("author_name").getValue());
-            String book_title = String.valueOf(ds.child("title").getValue());
-            String year = String.valueOf(ds.child("read_year").getValue());
-            String month = String.valueOf(ds.child("read_month").getValue());
-            if(month == null)
-                month = "";
-            BookReadData newBook = new BookReadData(author_name, book_title, month, year);
-            String uri;
-            uri = String.valueOf(ds.child("uri").getValue());
 
-            if(uri.equals("null") || uri==null || uri.isEmpty()){
-                uri = getUriFromRecommended(author_name, book_title);
+        for(BookReadData book: books_aux){
+            if(book.getAuthor_name().toLowerCase().contains(variable_lower_case)
+                    || book.getTitle().toLowerCase().contains(variable_lower_case)){
+                books.add(book);
+                break;
             }
-
-            newBook.setUri(uri);
-            newBook.setId(String.valueOf(ds.getKey()));
-            books.add(newBook);
         }
-        //if(!books.isEmpty())
-            setRecyclerView();
+        setRecyclerView();
     }
 
     public void setRecyclerView(){
@@ -189,14 +157,32 @@ public class EditUserDataFragment extends Fragment {
         recyclerView.setAdapter(listExampleAdapterBooks);
     }
 
-    private String getUriFromRecommended(String author, String title) {
-        String uri = null;
-        for(BookReadData book : books_recommended){
-            if( (book.getAuthor_name().contains(author)||author.contains(book.getAuthor_name()))
-                    && (book.getTitle().contains(title) || title.contains(book.getTitle())) )
-                uri = book.getUri();
-        }
-        return uri;
+    public void getDataFromReadBooks(){
+        mBooksReadDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                books_read.removeAll(books_read);
+                for(DataSnapshot ds : dataSnapshot.getChildren()){
+                    BookReadData book_read = new BookReadData();
+                    book_read.setId(String.valueOf(ds.getKey()));
+                    String book_id=String.valueOf(ds.child("id").getValue());
+                    if(book_id!=null)
+                        book_read.setId_from_big_db(book_id);
+                    else{
+                        String author_name = String.valueOf(ds.child("author_name").getValue());
+                        String title = String.valueOf(ds.child("title").getValue());
+                        book_read.setAuthor_name(author_name);
+                        book_read.setTitle(title);
+                    }
+                    book_read.setId(String.valueOf(ds.getKey()));
+                    books_read.add(book_read);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void getDataFromRecommendedBooks(){

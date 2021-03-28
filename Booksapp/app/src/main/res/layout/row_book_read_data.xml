@@ -48,13 +48,6 @@
                 android:scaleType="fitXY"
                 android:src="@drawable/default_book_image" />
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/iv_delete_just_image"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:background="@color/white"
-                android:src="@drawable/ic_close_black"
-                android:tint="#5E325A" />
         </androidx.cardview.widget.CardView>
 
     </RelativeLayout>

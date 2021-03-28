@@ -60,28 +60,26 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
 
     private EditText read_month, read_year, genre, description;
     private MultiAutoCompleteTextView author_name, book_title;
-    private TextInputLayout layout_author, layout_title, layout_month, layout_year, layout_genre, layout_description;
+    private TextInputLayout layout_month, layout_year, layout_genre, layout_description;
     private Button edit_book_button, cancel_edit_activity_button;
     BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
 
-    private ImageView chooseImg, choosedImg;
-    private CardView cardViewImg;
-    private CheckBox checkBox_add_photo;
-
-    private Animation scaleUp, scaleDown;
-
-    private String storagePath = "Book Images/";
-    private StorageReference storageReference;
-    int imageRequestCode = 7;
-    private Uri filePath;
-    private String mUri;
-
     private List<BookReadData> fav_books = new ArrayList<BookReadData>();
 
     ArrayList<String> authorNames = new ArrayList<String>();
     ArrayList<String> bookTitles = new ArrayList<String>();
+
+    private ImageView chooseImg, choosedImg;
+    private CardView cardViewImg;
+    private CheckBox checkBox_add_photo;
+
+    private String storagePath = "Book Images/";
+    private StorageReference storageReference;
+    int imageRequestCode = 123;
+    private Uri filePath;
+    private String mUri;
 
     @Override
     public void getImagePath(Uri imagePath) {
@@ -135,15 +133,12 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_edit);
         initializeViews();
-        scaleUp = AnimationUtils.loadAnimation(this, R.anim.scale_up);
-        scaleDown = AnimationUtils.loadAnimation(this, R.anim.scale_down);
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().hide();
 
         getBooksFromFavouriteDB();
 
-        init();
 
         getAuthorAndTitles();
 
@@ -287,61 +282,25 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
                     return;
                 }
 
-                String month;
-                if(read_month.getText().toString().isEmpty())
-                    month = "";
-                else {
-                    month = read_month.getText().toString();
-                    switch (month) {
-                        case "ianuarie": {
-                            month = "ian";
-                            break;
-                        }
-                        case "februarie": {
-                            month = "feb";
-                            break;
-                        }
-                        case "martie":
-                            break;
-                        case "aprilie":
-                            break;
-                        case "mai":
-                            break;
-                        case "iunie":
-                            break;
-                        case "iulie":
-                            break;
-                        case "august":
-                            break;
-                        case "septembrie": {
-                            month = "sept";
-                            break;
-                        }
-                        case "octombrie": {
-                            month = "oct";
-                            break;
-                        }
-                        case "noiembrie": {
-                            month = "nov";
-                            break;
-                        }
-                        case "decembrie": {
-                            month = "dec";
-                            break;
-                        }
-                        default: {
-                            Toast.makeText(this, "Please enter a valid month (not a number)", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    }
+            String month = "";
+            if(read_month.getText().toString().isEmpty()){
+                month = "";
+            }
+            else {
+                String month_entered = read_month.getText().toString();
+                List<String> list = Arrays.asList(AppConstants.MONTHS);
+                if (list.contains(month_entered)) {
+                    month = month_entered.substring(0, 3);
+                } else {
+                    Toast.makeText(this, "Please enter a valid month (not a number)", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+            }
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("author_name", author_name.getText().toString());
                 map.put("title", book_title.getText().toString());
                 map.put("read_month", month);
                 map.put("read_year", read_year.getText().toString());
-                if(!(mUri==null) && !mUri.isEmpty())
-                    map.put("uri", mUri);
 
                 if(param_bookTable.equals("Read books")){
                     mBooksReadDatabase.child(currentUser.getUid()).child(bookStorageHelper.getId_book()).updateChildren(map);
@@ -351,8 +310,8 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
                 else if(param_bookTable.equals("Planned books"))
                         mBooksPlannedDatabase.child(currentUser.getUid()).child(bookStorageHelper.getId_book()).updateChildren(map);
                      else Toast.makeText(getApplicationContext(), "Please login again", Toast.LENGTH_SHORT).show();
-
         }
+
         else{
             if(genre.getText().toString().isEmpty()) {
                 Toast.makeText(getApplicationContext(), "Please enter the genre", Toast.LENGTH_SHORT).show();
@@ -366,6 +325,7 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
             if(!description.getText().toString().isEmpty()) {
                 map.put("description", description.getText().toString());
             }
+
             if(!(mUri==null) && !mUri.isEmpty())
                 map.put("uri", mUri);
             mBooksRecommendedDatabase.child(bookStorageHelper.getId_book()).updateChildren(map);
@@ -411,8 +371,6 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
         genre = findViewById(R.id.et_edit_genre);
         description = findViewById(R.id.et_edit_description);
         layout_description = findViewById(R.id.layout_edit_description);
-        layout_author = findViewById(R.id.layout_edit_author_name);
-        layout_title = findViewById(R.id.layout_edit_book_title);
         layout_month = findViewById(R.id.layout_edit_read_month);
         layout_year = findViewById(R.id.layout_edit_read_year);
         layout_genre = findViewById(R.id.layout_edit_genre);
@@ -420,7 +378,6 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
         cancel_edit_activity_button = findViewById(R.id.btn_cancel_edit_activity);
 
         checkBox_add_photo = findViewById(R.id.checkbox_add_photo_edit);
-
         storageReference = FirebaseStorage.getInstance().getReference();
         chooseImg = findViewById(R.id.iv_chooseImg_edit);
         choosedImg = findViewById(R.id.iv_showImgChoosed_edit);
@@ -442,8 +399,8 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
             read_month.setVisibility(View.GONE);
             layout_year.setVisibility(View.GONE);
             read_year.setVisibility(View.GONE);
-
             genre.setText(bookStorageHelper.getGenre());
+            checkBox_add_photo.setVisibility(View.GONE);
         }
 
         author_name.setText(bookStorageHelper.getAuthor_name());

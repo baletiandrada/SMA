@@ -66,26 +66,27 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
 
     private EditText year, genre, description, month;
     private MultiAutoCompleteTextView authorName, bookTitle;
-    private TextInputLayout layout_author, layout_title, layout_month, layout_year, layout_genre, layout_description;
+    private TextInputLayout layout_month, layout_year, layout_genre, layout_description;
     private Button add_book_button, cancel_add_activity_button;
-    private ImageView chooseImg, choosedImg;
-    private CardView cardViewImg;
-    private CheckBox checkBox_add_photo;
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-    private Animation scaleUp, scaleDown;
-
     BookListStorageHelper bookListStorageHelper = BookListStorageHelper.getInstance();
-
-    private String storagePath = "Book Images/";
-    private StorageReference storageReference;
-    int requestCode = 7;
-    private Uri filePath;
-    private String mUri;
 
     ArrayList<String> authorNames = new ArrayList<String>();
     ArrayList<String> bookTitles = new ArrayList<String>();
+
+    List<BookReadData> books_from_DB = new ArrayList<BookReadData>();
+
+    private String storagePath = "Book Images/";
+    private StorageReference storageReference;
+    int requestCode = 1234;
+    private Uri filePath;
+    private String mUri;
+
+    private ImageView chooseImg, choosedImg;
+    private CardView cardViewImg;
+    private CheckBox checkBox_add_photo;
 
     @Override
     public void getImagePath(Uri imagePath) {
@@ -120,12 +121,12 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
 
     private void verifyPermissions(){
         String permissions[] = {Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.CAMERA};
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA};
 
         if(!(ContextCompat.checkSelfPermission(getApplicationContext(), permissions[0]) == PackageManager.PERMISSION_GRANTED
-        && ContextCompat.checkSelfPermission(getApplicationContext(), permissions[1]) == PackageManager.PERMISSION_GRANTED
-        && ContextCompat.checkSelfPermission(getApplicationContext(), permissions[2]) == PackageManager.PERMISSION_GRANTED)){
+                && ContextCompat.checkSelfPermission(getApplicationContext(), permissions[1]) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(getApplicationContext(), permissions[2]) == PackageManager.PERMISSION_GRANTED)){
             ActivityCompat.requestPermissions(this, permissions, requestCode);
         }
     }
@@ -140,24 +141,10 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_book);
 
-        verifyPermissions();
-
         initializeViews();
-        scaleUp = AnimationUtils.loadAnimation(this, R.anim.scale_up);
-        scaleDown = AnimationUtils.loadAnimation(this, R.anim.scale_down);
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().hide();
-
-        /*chooseImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select image"), imageRequestCode);
-            }
-        });*/
 
         getAuthorAndTitles();
 
@@ -195,7 +182,6 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
             }
         });
 
-        init();
     }
 
     @Override
@@ -213,6 +199,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 authorNames.removeAll(authorNames);
                 bookTitles.removeAll(authorNames);
+                books_from_DB.removeAll(books_from_DB);
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     String author_name = String.valueOf(ds.child("author_name").getValue());
                     String book_title = String.valueOf(ds.child("title").getValue());
@@ -223,6 +210,12 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
                         if(!bookTitles.contains(title))
                             bookTitles.add(title);
                     }
+
+                    BookReadData newBook = new BookReadData();
+                    newBook.setAuthor_name(author_name);
+                    newBook.setTitle(book_title);
+                    newBook.setId(String.valueOf(ds.getKey()));
+                    books_from_DB.add(newBook);
                 }
             }
 
@@ -233,26 +226,6 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
         });
     }
 
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == imageRequestCode && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            filePath = data.getData();
-            cardViewImg.setVisibility(View.VISIBLE);
-            Glide.with(this).load(filePath).placeholder(R.mipmap.ic_launcher).into(choosedImg);
-        }
-    }*/
-
-    public String getFileExtension(Uri uri) {
-        ContentResolver contentResolver = getContentResolver();
-        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
-
-    }
-
-
     public void goToLoginActivity(){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
@@ -261,6 +234,13 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
     public void goToPreviousActivity(){
         Intent intent = new Intent(this, BottomNavigationActivity.class);
         startActivity(intent);
+    }
+
+    public String getFileExtension(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+
     }
 
     public void setImageUri(){
@@ -339,33 +319,64 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
                 }
             }
 
+            boolean book_exists_in_DB = false;
+            String book_id_extracted_from_DB="";
+
+            if(!bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_from_DB)){
+                book_exists_in_DB = true;
+                book_id_extracted_from_DB = getBookId(authorName.getText().toString(), bookTitle.getText().toString());
+            }
+
             if(param_bookTable.equals("Read books")){
-                if(bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_read_list)
-                        && bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_planned_list)){
-                    BookReadData newBook;
-                    newBook= new BookReadData(authorName.getText().toString(), bookTitle.getText().toString(), month_aux, year.getText().toString());
-                    if(!(mUri==null) && !mUri.isEmpty())
-                       newBook.setUri(mUri);
-                    String book_id = mBooksReadDatabase.child(currentUser.getUid()).push().getKey();
-                    mBooksReadDatabase.child(currentUser.getUid()).child(book_id).setValue(newBook);
-                    Toast.makeText(this, "Book added successfully", Toast.LENGTH_SHORT).show();
+                if(book_exists_in_DB){
+                    if(!bookExistsById(book_id_extracted_from_DB, books_read_list) && !bookExistsById(book_id_extracted_from_DB, books_planned_list)){
+                        String book_id = mBooksReadDatabase.child(currentUser.getUid()).push().getKey();
+                        BookReadData newBook = new BookReadData();
+                        newBook.setId(book_id_extracted_from_DB);
+                        newBook.setRead_month(month_aux);
+                        newBook.setRead_year(year.getText().toString());
+                        mBooksReadDatabase.child(currentUser.getUid()).child(book_id).setValue(newBook);
+                    }
+                    else Toast.makeText(this, "The book already exists (you read it or you planned it)", Toast.LENGTH_LONG).show();
                 }
-                else
-                    Toast.makeText(this, "The book already exists (you read it or you planned it)", Toast.LENGTH_LONG).show();
+                else{
+                    if(bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_read_list)
+                            && bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_planned_list)){
+                        BookReadData newBook;
+                        newBook= new BookReadData(authorName.getText().toString(), bookTitle.getText().toString(), month_aux, year.getText().toString());
+                        String book_id = mBooksReadDatabase.child(currentUser.getUid()).push().getKey();
+                        mBooksReadDatabase.child(currentUser.getUid()).child(book_id).setValue(newBook);
+                        Toast.makeText(this, "Book added successfully", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                        Toast.makeText(this, "The book already exists (you read it or you planned it)", Toast.LENGTH_LONG).show();
+                }
+
             }
             else if(param_bookTable.equals("Planned books")){
-                if(bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_read_list)
-                        && bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_planned_list)){
-                    BookReadData newBook = new BookReadData(authorName.getText().toString(), bookTitle.getText().toString(), month_aux, year.getText().toString());
-                    if(!(mUri==null) && !mUri.isEmpty())
-                        newBook.setUri(mUri);
-                    String book_id = mBooksPlannedDatabase.child(currentUser.getUid()).push().getKey();
-                    mBooksPlannedDatabase.child(currentUser.getUid()).child(book_id).setValue(newBook);
-                    Toast.makeText(this, "Book added successfully", Toast.LENGTH_SHORT).show();
+                if(book_exists_in_DB){
+                    if(!bookExistsById(book_id_extracted_from_DB, books_planned_list) && !bookExistsById(book_id_extracted_from_DB, books_read_list)){
+                        String book_id = mBooksPlannedDatabase.child(currentUser.getUid()).push().getKey();
+                        BookReadData newBook = new BookReadData();
+                        newBook.setId(book_id_extracted_from_DB);
+                        newBook.setRead_month(month_aux);
+                        newBook.setRead_year(year.getText().toString());
+                        mBooksPlannedDatabase.child(currentUser.getUid()).child(book_id).setValue(newBook);
+                    }
+                    else Toast.makeText(this, "The book already exists (you read it or you planned it)", Toast.LENGTH_LONG).show();
+
                 }
-                else
-                    Toast.makeText(this, "The book already exists (you read it or you planned it)", Toast.LENGTH_LONG).show();
-                
+                else{
+                    if(bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_read_list)
+                            && bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_planned_list)){
+                        BookReadData newBook = new BookReadData(authorName.getText().toString(), bookTitle.getText().toString(), month_aux, year.getText().toString());
+                        String book_id = mBooksPlannedDatabase.child(currentUser.getUid()).push().getKey();
+                        mBooksPlannedDatabase.child(currentUser.getUid()).child(book_id).setValue(newBook);
+                        Toast.makeText(this, "Book added successfully", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                        Toast.makeText(this, "The book already exists (you read it or you planned it)", Toast.LENGTH_LONG).show();
+                }
             }
             else Toast.makeText(getApplicationContext(), "Please go back to previous activity", Toast.LENGTH_SHORT).show();
         }
@@ -377,6 +388,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
             if(bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_recommended_list)){
                 String book_id = mBooksRecommendedDatabase.child(currentUser.getUid()).push().getKey();
                 BookReadData newBook = new BookReadData(authorName.getText().toString(), bookTitle.getText().toString(), genre.getText().toString());
+
                 if(!(mUri==null) && !mUri.isEmpty())
                     newBook.setUri(mUri);
 
@@ -391,6 +403,24 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
 
         }
         goToPreviousActivity();
+    }
+
+    private boolean bookExistsById(String book_id, List<BookReadData> books) {
+        for(BookReadData current_book : books){
+            if(book_id.equals(current_book.getId()))
+                return true;
+        }
+        return false;
+    }
+
+    public String getBookId(String author_name, String book_title){
+        for(BookReadData book: books_from_DB){
+            if(author_name.toLowerCase().contains(book.getAuthor_name().toLowerCase())
+            && book_title.toLowerCase().contains(book.getTitle().toLowerCase())){
+                return book.getId();
+            }
+        }
+        return null;
     }
 
     public boolean bookNotExistsInDBBooks(String author, String title, List<BookReadData> books_list){
@@ -414,21 +444,18 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
         description = findViewById(R.id.et_add_description);
         layout_description = findViewById(R.id.layout_add_description);
 
-        layout_author = findViewById(R.id.layout_add_author_name);
-        layout_title = findViewById(R.id.layout_add_book_title);
-        layout_month = findViewById(R.id.layout_add_month);
-        layout_year = findViewById(R.id.layout_add_year);
-        layout_genre = findViewById(R.id.layout_add_genre);
-        add_book_button = findViewById(R.id.btn_add_book);
-        cancel_add_activity_button = findViewById(R.id.btn_cancel_add_book_activity);
-
         checkBox_add_photo = findViewById(R.id.checkbox_add_photo);
-
         storageReference = FirebaseStorage.getInstance().getReference();
         chooseImg = findViewById(R.id.iv_chooseImg);
         choosedImg = findViewById(R.id.iv_showImgChoosed);
         cardViewImg = findViewById(R.id.card_view_img);
         cardViewImg.setVisibility(View.GONE);
+
+        layout_month = findViewById(R.id.layout_add_month);
+        layout_year = findViewById(R.id.layout_add_year);
+        layout_genre = findViewById(R.id.layout_add_genre);
+        add_book_button = findViewById(R.id.btn_add_book);
+        cancel_add_activity_button = findViewById(R.id.btn_cancel_add_book_activity);
 
         Intent intent = getIntent();
         String param_add_bookTable = intent.getStringExtra(AppConstants.PARAM_ADD_BOOK_TABLE);
@@ -440,6 +467,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
         if( ! param_add_bookTable.equals("Recommended books") ){
             layout_genre.setVisibility(View.GONE);
             genre.setVisibility(View.GONE);
+            checkBox_add_photo.setVisibility(View.GONE);
         }
         else{
             layout_description.setVisibility(View.VISIBLE);

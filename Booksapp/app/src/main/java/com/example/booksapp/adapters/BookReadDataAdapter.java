@@ -78,9 +78,10 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
         else
             ((ImageView) holder.itemView.findViewById(R.id.iv_heart_icon)).setImageDrawable(context.getResources().getDrawable(R.drawable.heart_icon, context.getApplicationContext().getTheme()));
         holder.setValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getRead_month(), bookModel.getRead_year());
+
         if(!(bookModel.getUri()==null) && !bookModel.getUri().isEmpty() && !bookModel.getUri().equals("null"))
             Glide.with(context).load(bookModel.getUri()).placeholder(R.mipmap.ic_launcher).into(holder.iv_book_image);
-        else
+        /*else
             holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
 
         if(AppConstants.IMG_CAME_FROM.get(position).equals("Admin"))
@@ -94,7 +95,7 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                 holder.itemView.findViewById(R.id.iv_delete_just_image).setBackgroundResource(R.drawable.default_book_image);
                 holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
             }
-        });
+        });*/
 
         holder.itemView.findViewById(R.id.iv_delete_image).setOnClickListener(new View.OnClickListener() {
             @Override

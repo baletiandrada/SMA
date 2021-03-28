@@ -31,8 +31,6 @@ import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 public class FavouriteBooksAdapter extends RecyclerView.Adapter<BookReadDataViewHolder>{
     private List<BookReadData> choicesList;
     private Context context;
-    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    FirebaseUser currentUser = mAuth.getCurrentUser();
 
     BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
 
@@ -56,7 +54,6 @@ public class FavouriteBooksAdapter extends RecyclerView.Adapter<BookReadDataView
         BookReadData bookModel = choicesList.get(position);
         holder.itemView.findViewById(R.id.tv_genre).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.GONE);
-        holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.layout_edit_delete_icons).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.layout_done_text).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.tv_see_quotes).setVisibility(View.VISIBLE);

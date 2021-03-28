@@ -3,11 +3,19 @@ package com.example.booksapp.dataModels;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
 public class BookReadData {
-    private String author_name, title, read_month, read_year, id, genre, video_path, uri, description;
+    private String author_name, title, read_month, read_year, id, genre, video_path, uri, description, id_from_big_db;
     private YouTubePlayerView youTubePlayer;
 
     public BookReadData(){
 
+    }
+
+    public String getId_from_big_db() {
+        return id_from_big_db;
+    }
+
+    public void setId_from_big_db(String id_from_big_db) {
+        this.id_from_big_db = id_from_big_db;
     }
 
     public String getDescription() {

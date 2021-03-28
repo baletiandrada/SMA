@@ -67,7 +67,7 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
         BookReadData bookModel = choicesList.get(position);
         holder.itemView.findViewById(R.id.tv_row_read_month).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.tv_row_read_year).setVisibility(View.GONE);
-        holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
+        //holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.layout_done_text).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.iv_for_description).setVisibility(View.VISIBLE);
         holder.setThreeValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getGenre());
