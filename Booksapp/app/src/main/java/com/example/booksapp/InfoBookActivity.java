@@ -56,15 +56,6 @@ public class InfoBookActivity extends AppCompatActivity {
 
     BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
 
-    //preiau din storage titlu, autor si id ca sa stiu unde sa caut : practic sub id-ul cartii am mai multe intrari in DB cu citate
-    //floating point pentru adaugare
-    // pt adaugare, fac un dialog
-    // incerc sa trimit si pozele in dialog unde sa se poate si mari
-
-    //extragere din baza de date cu quotes
-
-    //edit fac chiar aici, alternez textView cu EditView
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F7F7F7">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".SeeReviewsActivity">
+
+            <TextView
+                android:id="@+id/tv_reviews"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="20dp"
+                android:textColor="#2E6B79"
+                android:text="Reviews"
+                android:textSize="25dp"
+                android:layout_gravity="center"
+                android:textAlignment="center"/>
+
+            <ImageView
+                android:id="@+id/iv_reviews"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/review_icon"
+                android:layout_gravity="center"
+                android:layout_marginBottom="10dp"/>
+
+            <LinearLayout
+                android:id="@+id/layout_mean_rating_see_reviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/iv_mean_rating__see_reviews_colored"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginRight="3dp"
+                    android:src="@drawable/star_icon"
+                    app:tint="#F7DE13"
+                    android:visibility="gone"/>
+                <ImageView
+                    android:id="@+id/iv_mean_rating_see_reviews_discolored"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginRight="2dp"
+                    android:src="@drawable/star_border_icon"
+                    app:tint="#C9C8C1" />
+                <TextView
+                    android:id="@+id/tv_mean_rating_see_reviews"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:textSize="16sp"
+                    android:text="No rating"
+                    android:layout_marginRight="30dp"
+                    android:textColor="@color/black"
+                    android:paddingTop="2dp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/tv_title_in_reviews"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:textColor="#5E325A"
+                android:textSize="19dp"
+                android:textStyle="bold|italic"
+                android:layout_gravity="center"
+                android:textAlignment="center"/>
+
+            <TextView
+                android:id="@+id/tv_author_in_reviews"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="35dp"
+                android:layout_marginRight="35dp"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/black"
+                android:textSize="15dp"
+                android:layout_gravity="right"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_reviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"/>
+
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_review"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="15dp"
+        android:scaleType="center"
+        android:elevation="15dp"
+        app:fabSize="normal"
+        android:backgroundTint="#5E325A"
+        android:src="@drawable/ic_baseline_add_24"
+        app:tint="@color/white"
+        app:borderWidth="0dp">
+    </com.google.android.material.floatingactionbutton.FloatingActionButton>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

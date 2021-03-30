@@ -58,8 +58,8 @@ import static com.example.booksapp.helpers.FirebaseHelper.mFavouriteBooksDatabas
 
 public class BookEditActivity extends AppCompatActivity implements SelectPhotoDialog.OnPhotoSelectedListener{
 
-    private EditText read_month, read_year, genre, description;
-    private MultiAutoCompleteTextView author_name, book_title;
+    private EditText read_year, genre, description;
+    private MultiAutoCompleteTextView author_name, book_title, read_month;
     private TextInputLayout layout_month, layout_year, layout_genre, layout_description;
     private Button edit_book_button, cancel_edit_activity_button;
     BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
@@ -150,6 +150,10 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
         book_title.setTokenizer(new SpaceTokenizer());
         book_title.setAdapter(adapterTitle);
 
+        ArrayAdapter<String> adapterMonth = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, AppConstants.MONTHS);
+        read_month.setTokenizer(new SpaceTokenizer());
+        read_month.setAdapter(adapterMonth);
+
         checkBox_add_photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,13 +196,11 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     String author_name = String.valueOf(ds.child("author_name").getValue());
                     String book_title = String.valueOf(ds.child("title").getValue());
-                    List<String> titles = Arrays.asList(book_title.split("\\s+"));
+                    //List<String> titles = Arrays.asList(book_title.split("\\s+"));
                     if(!authorNames.contains(author_name))
                         authorNames.add(author_name);
-                    for(String title: titles){
-                        if(!bookTitles.contains(title))
-                            bookTitles.add(title);
-                    }
+                    if(!bookTitles.contains(book_title))
+                        bookTitles.add(book_title);
                 }
             }
 
@@ -242,7 +244,6 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
                     if(task.isSuccessful()) {
-                        //Toast.makeText(getApplicationContext(), "Image uploaded successfully ", Toast.LENGTH_LONG).show();
                         Uri downloadUrl = task.getResult();
                         mUri = downloadUrl.toString();
                         updateBookInFirebase();
@@ -392,6 +393,7 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
             genre.setVisibility(View.GONE);
             read_month.setText(bookStorageHelper.getRead_month());
             read_year.setText(bookStorageHelper.getRead_year());
+            checkBox_add_photo.setVisibility(View.GONE);
         }
         else{
             layout_description.setVisibility(View.VISIBLE);
@@ -400,7 +402,6 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
             layout_year.setVisibility(View.GONE);
             read_year.setVisibility(View.GONE);
             genre.setText(bookStorageHelper.getGenre());
-            checkBox_add_photo.setVisibility(View.GONE);
         }
 
         author_name.setText(bookStorageHelper.getAuthor_name());

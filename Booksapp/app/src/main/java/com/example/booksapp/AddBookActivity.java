@@ -64,8 +64,8 @@ import static com.example.booksapp.helpers.FirebaseHelper.mImagesDatabase;
 
 public class AddBookActivity extends AppCompatActivity implements SelectPhotoDialog.OnPhotoSelectedListener {
 
-    private EditText year, genre, description, month;
-    private MultiAutoCompleteTextView authorName, bookTitle;
+    private EditText year, genre, description;
+    private MultiAutoCompleteTextView authorName, bookTitle, month;
     private TextInputLayout layout_month, layout_year, layout_genre, layout_description;
     private Button add_book_button, cancel_add_activity_button;
 
@@ -156,6 +156,10 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
         bookTitle.setTokenizer(new SpaceTokenizer());
         bookTitle.setAdapter(adapterTitle);
 
+        ArrayAdapter<String> adapterMonth = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, AppConstants.MONTHS);
+        month.setTokenizer(new SpaceTokenizer());
+        month.setAdapter(adapterMonth);
+
         checkBox_add_photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -203,13 +207,11 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     String author_name = String.valueOf(ds.child("author_name").getValue());
                     String book_title = String.valueOf(ds.child("title").getValue());
-                    List<String> titles = Arrays.asList(book_title.split("\\s+"));
+                    //List<String> titles = Arrays.asList(book_title.split("\\s+"));
                     if(!authorNames.contains(author_name))
                         authorNames.add(author_name);
-                    for(String title: titles){
-                        if(!bookTitles.contains(title))
-                            bookTitles.add(title);
-                    }
+                    if(!bookTitles.contains(book_title))
+                        bookTitles.add(book_title);
 
                     BookReadData newBook = new BookReadData();
                     newBook.setAuthor_name(author_name);
@@ -319,66 +321,39 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
                 }
             }
 
-            boolean book_exists_in_DB = false;
-            String book_id_extracted_from_DB="";
+            String book_id_extracted_from_DB = getBookId(authorName.getText().toString(), bookTitle.getText().toString());
 
-            if(!bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_from_DB)){
-                book_exists_in_DB = true;
-                book_id_extracted_from_DB = getBookId(authorName.getText().toString(), bookTitle.getText().toString());
-            }
-
-            if(param_bookTable.equals("Read books")){
-                if(book_exists_in_DB){
-                    if(!bookExistsById(book_id_extracted_from_DB, books_read_list) && !bookExistsById(book_id_extracted_from_DB, books_planned_list)){
+            if(!book_id_extracted_from_DB.equals("null")) {
+                if (param_bookTable.equals("Read books")) {
+                    if (!bookExistsById(book_id_extracted_from_DB, books_read_list) && !bookExistsById(book_id_extracted_from_DB, books_planned_list)) {
+                        assert currentUser != null;
                         String book_id = mBooksReadDatabase.child(currentUser.getUid()).push().getKey();
                         BookReadData newBook = new BookReadData();
                         newBook.setId(book_id_extracted_from_DB);
                         newBook.setRead_month(month_aux);
                         newBook.setRead_year(year.getText().toString());
-                        mBooksReadDatabase.child(currentUser.getUid()).child(book_id).setValue(newBook);
-                    }
-                    else Toast.makeText(this, "The book already exists (you read it or you planned it)", Toast.LENGTH_LONG).show();
-                }
-                else{
-                    if(bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_read_list)
-                            && bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_planned_list)){
-                        BookReadData newBook;
-                        newBook= new BookReadData(authorName.getText().toString(), bookTitle.getText().toString(), month_aux, year.getText().toString());
-                        String book_id = mBooksReadDatabase.child(currentUser.getUid()).push().getKey();
+                        assert book_id != null;
                         mBooksReadDatabase.child(currentUser.getUid()).child(book_id).setValue(newBook);
                         Toast.makeText(this, "Book added successfully", Toast.LENGTH_SHORT).show();
-                    }
-                    else
+                    } else
                         Toast.makeText(this, "The book already exists (you read it or you planned it)", Toast.LENGTH_LONG).show();
-                }
-
-            }
-            else if(param_bookTable.equals("Planned books")){
-                if(book_exists_in_DB){
-                    if(!bookExistsById(book_id_extracted_from_DB, books_planned_list) && !bookExistsById(book_id_extracted_from_DB, books_read_list)){
+                } else if (param_bookTable.equals("Planned books")) {
+                    if (!bookExistsById(book_id_extracted_from_DB, books_planned_list) && !bookExistsById(book_id_extracted_from_DB, books_read_list)) {
+                        assert currentUser != null;
                         String book_id = mBooksPlannedDatabase.child(currentUser.getUid()).push().getKey();
                         BookReadData newBook = new BookReadData();
                         newBook.setId(book_id_extracted_from_DB);
                         newBook.setRead_month(month_aux);
                         newBook.setRead_year(year.getText().toString());
-                        mBooksPlannedDatabase.child(currentUser.getUid()).child(book_id).setValue(newBook);
-                    }
-                    else Toast.makeText(this, "The book already exists (you read it or you planned it)", Toast.LENGTH_LONG).show();
-
-                }
-                else{
-                    if(bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_read_list)
-                            && bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_planned_list)){
-                        BookReadData newBook = new BookReadData(authorName.getText().toString(), bookTitle.getText().toString(), month_aux, year.getText().toString());
-                        String book_id = mBooksPlannedDatabase.child(currentUser.getUid()).push().getKey();
+                        assert book_id != null;
                         mBooksPlannedDatabase.child(currentUser.getUid()).child(book_id).setValue(newBook);
                         Toast.makeText(this, "Book added successfully", Toast.LENGTH_SHORT).show();
-                    }
-                    else
+                    } else
                         Toast.makeText(this, "The book already exists (you read it or you planned it)", Toast.LENGTH_LONG).show();
                 }
             }
-            else Toast.makeText(getApplicationContext(), "Please go back to previous activity", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(getApplicationContext(), "This book cannot be added", Toast.LENGTH_SHORT).show();
         }
         else{
             if(genre.getText().toString().isEmpty()) {
@@ -386,6 +361,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
                 return;
             }
             if(bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_recommended_list)){
+                assert currentUser != null;
                 String book_id = mBooksRecommendedDatabase.child(currentUser.getUid()).push().getKey();
                 BookReadData newBook = new BookReadData(authorName.getText().toString(), bookTitle.getText().toString(), genre.getText().toString());
 
@@ -395,6 +371,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
                 if(!description.getText().toString().isEmpty())
                     newBook.setDescription(description.getText().toString());
 
+                assert book_id != null;
                 mBooksRecommendedDatabase.child(book_id).setValue(newBook);
                 Toast.makeText(this, "Book added successfully", Toast.LENGTH_SHORT).show();
             }
@@ -407,7 +384,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
 
     private boolean bookExistsById(String book_id, List<BookReadData> books) {
         for(BookReadData current_book : books){
-            if(book_id.equals(current_book.getId()))
+            if(book_id.equals(current_book.getId_from_big_db()))
                 return true;
         }
         return false;

@@ -64,7 +64,16 @@
         android:orientation="vertical">
 
         <ImageView
-            android:id="@+id/iv_heart_icon"
+            android:id="@+id/iv_heart_colored_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/heart_icon_selected"
+            android:layout_gravity="right"
+            android:layout_marginTop="5dp"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/iv_heart_discolored_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/heart_icon"
@@ -204,7 +213,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:textColor="#5E325A"
-            android:text="See quotes..."
+            android:text="See your quotes..."
             android:layout_gravity="center"
             android:textAlignment="center"
             android:visibility="gone"
@@ -234,20 +243,107 @@
             android:layout_marginBottom="10dp"
             android:visibility="gone"/>
 
-        <TextView
-            android:id="@+id/tv_watch_trailer"
-            android:layout_width="180dp"
+        <LinearLayout
+            android:id="@+id/layout_users_rating"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_marginBottom="10dp"
-            android:textColor="#5E325A"
-            android:text="Watch trailer"
-            android:paddingTop="2dp"
-            android:layout_gravity="center"
-            android:textAlignment="center"
-            android:visibility="gone"
-            android:textStyle="bold"
-            android:background="@drawable/watch_trailer_button"
-            />
+            android:gravity="center"
+            android:visibility="gone">
+            <ImageView
+                android:id="@+id/iv_users_rating_colored"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="3dp"
+                android:src="@drawable/star_icon"
+                app:tint="#F7DE13" />
+            <ImageView
+                android:id="@+id/iv_users_rating_discolored"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="3dp"
+                android:src="@drawable/star_border_icon"
+                app:tint="#C9C8C1" />
+            <TextView
+                android:id="@+id/tv_rating_mean_score"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:textSize="15sp"
+                android:text="No rating"
+                android:layout_marginRight="30dp"
+                android:textColor="@color/black"
+                android:paddingTop="2dp"
+                android:layout_marginTop="2dp"/>
+
+            <ImageView
+                android:id="@+id/iv_user_rating_colored"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="3dp"
+                android:src="@drawable/star_icon"
+                app:tint="#F7DE13" />
+            <ImageView
+                android:id="@+id/iv_user_rating_discolored"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="3dp"
+                android:src="@drawable/star_border_icon"
+                app:tint="#C9C8C1"/>
+            <TextView
+                android:id="@+id/tv_rating_user_score"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:textSize="15sp"
+                android:text="Rate"
+                android:layout_marginRight="20dp"
+                android:paddingTop="2dp"
+                android:textColor="@color/black"
+                android:layout_marginTop="2dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="15dp">
+
+            <TextView
+                android:id="@+id/tv_see_reviews"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:textColor="#5E325A"
+                android:text="See reviews"
+                android:padding="2dp"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:layout_marginRight="10dp"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:background="@drawable/watch_trailer_button"
+                />
+
+            <TextView
+                android:id="@+id/tv_watch_trailer"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:textColor="#5E325A"
+                android:text="Watch trailer"
+                android:padding="2dp"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:background="@drawable/watch_trailer_button"
+                />
+
+        </LinearLayout>
+
 
     <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
         android:id="@+id/youtube_player"

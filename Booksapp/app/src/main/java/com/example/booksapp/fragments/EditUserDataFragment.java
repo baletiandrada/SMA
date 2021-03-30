@@ -66,13 +66,12 @@ public class EditUserDataFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_edit_profile, container, false);
         initializeViews(root);
 
-        getDataFromRecommendedBooks();
-        getDataFromReadBooks();
         mFavouriteBooksDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(!(currentUser.getUid() == null))
+                if(!(currentUser == null)){
                     getData(dataSnapshot);
+                }
             }
 
             @Override
@@ -81,11 +80,23 @@ public class EditUserDataFragment extends Fragment {
             }
         });
 
+        getDataFromRecommendedBooks();
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if(!(currentUser ==null)){
-                    getDataByVariable(query);
+                if(!(currentUser == null)){
+                    mFavouriteBooksDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            getDataByVariable(dataSnapshot, query);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
                 return false;
             }
@@ -93,7 +104,17 @@ public class EditUserDataFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if(!(currentUser ==null)){
-                    getDataByVariable(newText);
+                    mFavouriteBooksDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            getDataByVariable(dataSnapshot, newText);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
                 return false;
             }
@@ -116,73 +137,69 @@ public class EditUserDataFragment extends Fragment {
         books.removeAll(books);
         for(DataSnapshot ds : dataSnapshot.getChildren()){
             String book_id = String.valueOf(ds.child("id").getValue());
-            String book_id_from_big_db;
-            for(BookReadData bookRead: books_read){
-                if(book_id.contains(bookRead.getId()) || bookRead.getId().contains(book_id)) {
-                    if (bookRead.getId_from_big_db() != "null") {
-                        book_id_from_big_db = bookRead.getId_from_big_db();
-                        for (BookReadData book : books_recommended) {
-                            if (book.getId().contains(book_id_from_big_db) || book_id_from_big_db.contains(book.getId()))
-                                books.add(book);
+
+            mBooksReadDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for(DataSnapshot ds : dataSnapshot.getChildren()){
+                        String book_id_foreign = String.valueOf(ds.getKey());
+                        if(book_id.equals(book_id_foreign)) {
+                            String book_id_from_big_db = String.valueOf(ds.child("id").getValue());
+                            for (BookReadData book : books_recommended) {
+                                if (book.getId().equals(book_id_from_big_db)){
+                                    books.add(book);
+                                    break;
+                                }
+                            }
                         }
                     }
-                    else{
-                        books.add(bookRead);
-                    }
-                    break;
                 }
-            }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+
         }
         setRecyclerView();
     }
 
-    private void getDataByVariable(String variable){
+    private void getDataByVariable(DataSnapshot dataSnapshot, String variable){
         String variable_lower_case = variable.toLowerCase();
-        ArrayList<BookReadData> books_aux = books;
         books.removeAll(books);
-
-        for(BookReadData book: books_aux){
-            if(book.getAuthor_name().toLowerCase().contains(variable_lower_case)
-                    || book.getTitle().toLowerCase().contains(variable_lower_case)){
-                books.add(book);
-                break;
-            }
+        for(DataSnapshot ds : dataSnapshot.getChildren()){
+            String book_id = String.valueOf(ds.child("id").getValue());
+            mBooksReadDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for(DataSnapshot ds : dataSnapshot.getChildren()){
+                        String book_id_foreign = String.valueOf(ds.getKey());
+                        if(book_id.equals(book_id_foreign)) {
+                            String book_id_from_big_db = String.valueOf(ds.child("id").getValue());
+                            for (BookReadData book : books_recommended) {
+                                if (book.getId().equals(book_id_from_big_db) &&
+                                        (book.getAuthor_name().toLowerCase().contains(variable_lower_case) ||
+                                                book.getTitle().toLowerCase().contains(variable_lower_case)) ){
+                                    books.add(book);
+                                    break;
+                                }
+                            }
+                        }
+                        setRecyclerView();
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
-        setRecyclerView();
     }
 
     public void setRecyclerView(){
         listExampleAdapterBooks = new FavouriteBooksAdapter(books);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(listExampleAdapterBooks);
-    }
-
-    public void getDataFromReadBooks(){
-        mBooksReadDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                books_read.removeAll(books_read);
-                for(DataSnapshot ds : dataSnapshot.getChildren()){
-                    BookReadData book_read = new BookReadData();
-                    book_read.setId(String.valueOf(ds.getKey()));
-                    String book_id=String.valueOf(ds.child("id").getValue());
-                    if(book_id!=null)
-                        book_read.setId_from_big_db(book_id);
-                    else{
-                        String author_name = String.valueOf(ds.child("author_name").getValue());
-                        String title = String.valueOf(ds.child("title").getValue());
-                        book_read.setAuthor_name(author_name);
-                        book_read.setTitle(title);
-                    }
-                    book_read.setId(String.valueOf(ds.getKey()));
-                    books_read.add(book_read);
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     public void getDataFromRecommendedBooks(){

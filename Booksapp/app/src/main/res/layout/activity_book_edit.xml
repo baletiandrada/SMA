@@ -16,7 +16,7 @@
         android:id="@+id/layout_edit_author_name"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:hint="New author name"
+        android:hint="Author name"
         android:textColorHint="#BFB5C1"
         android:layout_margin="10dp"
         android:layout_gravity="center"
@@ -33,14 +33,15 @@
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
         android:paddingBottom="10dp"
-        android:textSize="16sp"/>
+        android:textSize="16sp"
+        android:enabled="false"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layout_edit_book_title"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:hint="New book title"
+        android:hint="Book title"
         android:textColorHint="#BFB5C1"
         android:layout_margin="10dp"
         android:layout_gravity="center"
@@ -57,7 +58,8 @@
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
         android:paddingBottom="10dp"
-        android:textSize="16sp"/>
+        android:textSize="16sp"
+        android:enabled="false"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -69,11 +71,19 @@
         android:layout_margin="10dp"
         android:layout_gravity="center"
         app:boxBackgroundColor="@color/white">
-    <EditText
+    <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
         android:id="@+id/et_edit_read_month"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/black" />
+        android:textColor="@android:color/black"
+        android:completionThreshold="1"
+        android:popupBackground="#BFB5C1"
+        android:dropDownSelector="@color/purple_200"
+        android:paddingTop="27dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="10dp"
+        android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout

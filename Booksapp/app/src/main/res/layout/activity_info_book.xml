@@ -16,6 +16,20 @@
     android:layout_height="match_parent"
     tools:context=".InfoBookActivity">
 
+    <TextView
+        android:id="@+id/tv_quotes_info"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
+        android:textColor="#5E325A"
+        android:text="Quotes"
+        android:textAllCaps="false"
+        android:textSize="25dp"
+        android:layout_gravity="center"
+        android:textAlignment="center"/>
+
     <ImageView
         android:id="@+id/iv_quotes"
         android:layout_width="30dp"
@@ -23,21 +37,7 @@
         android:src="@drawable/quotes_icon"
         app:tint="#5E325A"
         android:layout_gravity="center"
-        android:layout_marginTop="20dp"/>
-
-    <TextView
-        android:id="@+id/tv_quotes_info"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="25dp"
-        android:textColor="#5E325A"
-        android:text="Quotes"
-        android:textAllCaps="false"
-        android:textSize="17dp"
-        android:layout_gravity="center"
-        android:textAlignment="center"/>
+        android:layout_marginBottom="20dp"/>
 
     <TextView
         android:id="@+id/tv_title_info"

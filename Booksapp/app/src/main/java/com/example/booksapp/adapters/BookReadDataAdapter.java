@@ -4,12 +4,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,10 +17,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.booksapp.AppConstants;
 import com.example.booksapp.BookEditActivity;
+import com.example.booksapp.SeeReviewsActivity;
 import com.example.booksapp.VideoPopUpActivity;
 import com.example.booksapp.dataModels.BookReadData;
+import com.example.booksapp.dataModels.QuoteModel;
+import com.example.booksapp.dataModels.ReviewModel;
 import com.example.booksapp.helpers.BookStorageHelper;
 import com.example.booksapp.R;
+import com.example.booksapp.helpers.ReviewStorageHelper;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -36,13 +40,16 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
-import static android.content.Context.MODE_PRIVATE;
-import static com.example.booksapp.AppConstants.MY_PREFS_NAME;
+import static com.example.booksapp.AppConstants.ADD_REVIEW_ENABLED;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mFavouriteBooksDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mQuotesDatabase;
+import static com.example.booksapp.helpers.FirebaseHelper.mRatingsDatabase;
 
 public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHolder>{
     private List<BookReadData> choicesList;
@@ -50,6 +57,9 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
     BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
+
+    ArrayList<ReviewModel> book_rating_list = new ArrayList<ReviewModel>();
+    String ratingMeanScore="0";
 
     public BookReadDataAdapter(List<BookReadData> bookList){
         this.choicesList = bookList;
@@ -72,30 +82,216 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
         holder.itemView.findViewById(R.id.tv_genre).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.layout_done_text).setVisibility(View.GONE);
 
-        holder.itemView.findViewById(R.id.iv_heart_icon).setVisibility(View.VISIBLE);
         if(AppConstants.BookExistsInFav.get(position).equals("Yes"))
-            ((ImageView) holder.itemView.findViewById(R.id.iv_heart_icon)).setImageDrawable(context.getResources().getDrawable(R.drawable.heart_icon_selected, context.getApplicationContext().getTheme()));
+            holder.itemView.findViewById(R.id.iv_heart_colored_icon).setVisibility(View.VISIBLE);
         else
-            ((ImageView) holder.itemView.findViewById(R.id.iv_heart_icon)).setImageDrawable(context.getResources().getDrawable(R.drawable.heart_icon, context.getApplicationContext().getTheme()));
+            holder.itemView.findViewById(R.id.iv_heart_discolored_icon).setVisibility(View.VISIBLE);
         holder.setValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getRead_month(), bookModel.getRead_year());
 
         if(!(bookModel.getUri()==null) && !bookModel.getUri().isEmpty() && !bookModel.getUri().equals("null"))
             Glide.with(context).load(bookModel.getUri()).placeholder(R.mipmap.ic_launcher).into(holder.iv_book_image);
-        /*else
-            holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
 
-        if(AppConstants.IMG_CAME_FROM.get(position).equals("Admin"))
-            holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
-
-        holder.itemView.findViewById(R.id.iv_delete_just_image).setOnClickListener(new View.OnClickListener() {
+        holder.itemView.findViewById(R.id.tv_see_reviews).setVisibility(View.VISIBLE);
+        holder.itemView.findViewById(R.id.tv_see_reviews).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mBooksReadDatabase.child(currentUser.getUid()).child(bookModel.getId()).child("uri").removeValue();
-                mFavouriteBooksDatabase.child(currentUser.getUid()).child(bookModel.getId()).child("uri").removeValue();
-                holder.itemView.findViewById(R.id.iv_delete_just_image).setBackgroundResource(R.drawable.default_book_image);
-                holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
+                Intent intent = new Intent(context, SeeReviewsActivity.class);
+                ReviewStorageHelper reviewStorageHelper = ReviewStorageHelper.getInstance();
+                reviewStorageHelper.setUser_id(currentUser.getUid());
+                reviewStorageHelper.setBook_id(bookModel.getId());
+                reviewStorageHelper.setAuthor_name(bookModel.getAuthor_name());
+                reviewStorageHelper.setBook_title(bookModel.getTitle());
+                intent.putExtra(ADD_REVIEW_ENABLED, "YES");
+                context.startActivity(intent);
             }
-        });*/
+        });
+
+        //rating UI
+        holder.itemView.findViewById(R.id.layout_users_rating).setVisibility(View.VISIBLE);
+        holder.itemView.findViewById(R.id.iv_user_rating_colored).setVisibility(View.GONE);
+        holder.itemView.findViewById(R.id.iv_users_rating_colored).setVisibility(View.GONE);
+
+
+        final String[] current_rating_id = {""};
+
+        mRatingsDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                book_rating_list.removeAll(book_rating_list);
+                for(DataSnapshot ds: snapshot.getChildren()){
+                    String book_id = String.valueOf(ds.child("book_id").getValue());
+                    String user_id = String.valueOf(ds.child("user_id").getValue());
+                    if(book_id.equals(bookModel.getId()) && user_id.equals(currentUser.getUid()))
+                        current_rating_id[0] = String.valueOf(ds.getKey());
+
+                    String rating = String.valueOf(ds.child("rating").getValue());
+                    ReviewModel ratingModel = new ReviewModel();
+                    ratingModel.setBook_id(book_id);
+                    ratingModel.setUser_id(user_id);
+                    ratingModel.setRating(rating);
+                    book_rating_list.add(ratingModel);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        holder.itemView.findViewById(R.id.iv_user_rating_discolored).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final TextInputEditText inputEditText;
+                TextInputLayout textInputLayout;
+                androidx.appcompat.app.AlertDialog.Builder alert = new androidx.appcompat.app.AlertDialog.Builder(context);
+                new androidx.appcompat.app.AlertDialog.Builder(context, R.style.InputDialogTheme);
+                View viewInflated = LayoutInflater.from(context).inflate(R.layout.view_input_dialog, (ViewGroup) holder.itemView.findViewById(R.id.et_input_dialog) , false);
+                inputEditText = viewInflated.findViewById(R.id.et_input_dialog);
+                textInputLayout = viewInflated.findViewById(R.id.til_input_dialog);
+                alert.setView(viewInflated);
+                alert.setTitle("Rate this book");
+                textInputLayout.setHint("From 1 to 5");
+
+                alert.setPositiveButton("Rate", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        if (inputEditText.getText() == null || inputEditText.getText().toString().isEmpty())
+                        {
+                            Toast.makeText(context, "Rating field is empty", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        String[] numbers=new String[]{"1", "2", "3", "4", "5"};
+                        List<String> list_of_numbers = Arrays.asList(numbers);
+                        if(!(list_of_numbers.contains(inputEditText.getText().toString()))){
+                            Toast.makeText(context, "You have to introduce a number between 1 and 5", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        holder.itemView.findViewById(R.id.iv_user_rating_discolored).setVisibility(View.GONE);
+                        holder.itemView.findViewById(R.id.iv_user_rating_colored).setVisibility(View.VISIBLE);
+                        holder.user_rating.setText(inputEditText.getText().toString());
+
+                        ReviewModel newRating = new ReviewModel();
+                        newRating.setBook_id(bookModel.getId());
+                        newRating.setUser_id(currentUser.getUid());
+                        newRating.setRating(inputEditText.getText().toString());
+                        String rating_id = mRatingsDatabase.push().getKey();
+                        mRatingsDatabase.child(rating_id).setValue(newRating);
+                        Toast.makeText(context, "Rating added successfully", Toast.LENGTH_SHORT).show();
+
+                        book_rating_list.add(newRating);
+                        computeMeanRating(bookModel.getId());
+                        if(!ratingMeanScore.equals("0")){
+                            holder.mean_rating.setText(ratingMeanScore + "/5");
+                        }
+                        holder.itemView.findViewById(R.id.iv_users_rating_discolored).setVisibility(View.GONE);
+                        holder.itemView.findViewById(R.id.iv_users_rating_colored).setVisibility(View.VISIBLE);
+                        ratingMeanScore="0";
+
+                    }
+                });
+
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                    }
+                });
+                alert.show();
+            }
+        });
+
+        if(!AppConstants.USER_RATING.get(position).equals("0")){
+            holder.user_rating.setText(String.valueOf(AppConstants.USER_RATING.get(position)));
+            holder.itemView.findViewById(R.id.iv_user_rating_discolored).setVisibility(View.GONE);
+            holder.itemView.findViewById(R.id.iv_user_rating_colored).setVisibility(View.VISIBLE);
+        }
+
+        if(!AppConstants.MEAN_RATING.get(position).equals("0")){
+            holder.mean_rating.setText(AppConstants.MEAN_RATING.get(position) + "/5");
+            holder.itemView.findViewById(R.id.iv_users_rating_discolored).setVisibility(View.GONE);
+            holder.itemView.findViewById(R.id.iv_users_rating_colored).setVisibility(View.VISIBLE);
+        }
+
+        holder.itemView.findViewById(R.id.iv_user_rating_colored).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final TextInputEditText inputEditText;
+                TextInputLayout textInputLayout;
+                androidx.appcompat.app.AlertDialog.Builder alert = new androidx.appcompat.app.AlertDialog.Builder(context);
+                new androidx.appcompat.app.AlertDialog.Builder(context, R.style.InputDialogTheme);
+                View viewInflated = LayoutInflater.from(context).inflate(R.layout.view_input_dialog, (ViewGroup) holder.itemView.findViewById(R.id.et_input_dialog) , false);
+                inputEditText = viewInflated.findViewById(R.id.et_input_dialog);
+                textInputLayout = viewInflated.findViewById(R.id.til_input_dialog);
+                alert.setView(viewInflated);
+                alert.setTitle("Edit rating");
+                textInputLayout.setHint("From 1 to 5");
+
+                alert.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        if (inputEditText.getText() == null || inputEditText.getText().toString().isEmpty())
+                        {
+                            Toast.makeText(context, "Rating field is empty", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        String[] numbers=new String[]{"1", "2", "3", "4", "5"};
+                        List<String> list_of_numbers = Arrays.asList(numbers);
+                        if(!(list_of_numbers.contains(inputEditText.getText().toString()))){
+                            Toast.makeText(context, "You have to introduce a number between 1 and 5", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        HashMap<String, Object> map = new HashMap<>();
+                        map.put("rating", inputEditText.getText().toString());
+                        mRatingsDatabase.child(current_rating_id[0]).updateChildren(map);
+                        Toast.makeText(context, "Rating updated successfully", Toast.LENGTH_SHORT).show();
+
+                        holder.user_rating.setText(inputEditText.getText().toString());
+
+                        for(ReviewModel model: book_rating_list){
+                            if(model.getBook_id().equals(bookModel.getId()) && model.getUser_id().equals(currentUser.getUid())){
+                                model.setRating(inputEditText.getText().toString());
+                                break;
+                            }
+                        }
+                        computeMeanRating(bookModel.getId());
+                        if(!ratingMeanScore.equals("0")){
+                            holder.mean_rating.setText(ratingMeanScore + "/5");
+                        }
+                        ratingMeanScore="0";
+
+                    }
+                });
+
+                alert.setNegativeButton("Delete rating", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        mRatingsDatabase.child(current_rating_id[0]).removeValue();
+                        holder.user_rating.setText("Rate");
+                        holder.itemView.findViewById(R.id.iv_user_rating_colored).setVisibility(View.GONE);
+                        holder.itemView.findViewById(R.id.iv_user_rating_discolored).setVisibility(View.VISIBLE);
+
+                        for(ReviewModel model: book_rating_list){
+                            if(model.getBook_id().equals(bookModel.getId()) && model.getUser_id().equals(currentUser.getUid())){
+                                book_rating_list.remove(model);
+                                break;
+                            }
+                        }
+
+                        computeMeanRating(bookModel.getId());
+                        if(!ratingMeanScore.equals("0")){
+                            holder.mean_rating.setText(ratingMeanScore + "/5");
+                        }
+                        else{
+                            holder.mean_rating.setText("No rating");
+                            holder.itemView.findViewById(R.id.iv_users_rating_colored).setVisibility(View.GONE);
+                            holder.itemView.findViewById(R.id.iv_users_rating_discolored).setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+                alert.show();
+            }
+        });
 
         holder.itemView.findViewById(R.id.iv_delete_image).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,22 +334,32 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
             }
         });
 
-        holder.itemView.findViewById(R.id.iv_heart_icon).setOnClickListener(new View.OnClickListener() {
+        getDataFromFavouriteBooks();
+
+        holder.itemView.findViewById(R.id.iv_heart_colored_icon).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(AppConstants.BookExistsInFav.get(position).equals("No")){
-                    String id = bookModel.getId();
-                    BookReadData newbook = new BookReadData(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getUri());
-                    mFavouriteBooksDatabase.child(currentUser.getUid()).child(id).setValue(newbook);
-                    ((ImageView) holder.itemView.findViewById(R.id.iv_heart_icon)).setImageDrawable(context.getResources().getDrawable(R.drawable.heart_icon_selected, context.getApplicationContext().getTheme()));
-                }
-                else if(AppConstants.BookExistsInFav.get(position).equals("Yes")){
-                    String id = bookModel.getId();
-                    mFavouriteBooksDatabase.child(currentUser.getUid()).child(id).removeValue();
-                    ((ImageView) holder.itemView.findViewById(R.id.iv_heart_icon)).setImageDrawable(context.getResources().getDrawable(R.drawable.heart_icon, context.getApplicationContext().getTheme()));
-                }
+                String book_id = bookModel.getId();
+                mFavouriteBooksDatabase.child(currentUser.getUid()).child(getFavBookKey(book_id)).removeValue();
+                holder.itemView.findViewById(R.id.iv_heart_colored_icon).setVisibility(View.GONE);
+                holder.itemView.findViewById(R.id.iv_heart_discolored_icon).setVisibility(View.VISIBLE);
             }
         });
+
+        holder.itemView.findViewById(R.id.iv_heart_discolored_icon).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String id = bookModel.getId();
+                BookReadData newbook = new BookReadData();
+                newbook.setId(id);
+                String entry_id = mFavouriteBooksDatabase.child(currentUser.getUid()).push().getKey();
+                mFavouriteBooksDatabase.child(currentUser.getUid()).child(entry_id).setValue(newbook);
+                Toast.makeText(context, "Book added to your favourite ones", Toast.LENGTH_SHORT).show();
+                holder.itemView.findViewById(R.id.iv_heart_discolored_icon).setVisibility(View.GONE);
+                holder.itemView.findViewById(R.id.iv_heart_colored_icon).setVisibility(View.VISIBLE);
+            }
+        });
+
 
         if(!(bookModel.getVideo_path()=="null" || bookModel.getVideo_path()=="" || bookModel.getVideo_path()==null))
         {
@@ -257,4 +463,69 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
     public int getItemCount() {
         return choicesList.size();
     }
+
+    private class BookIdAndKey{
+        private String id, key;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+    }
+
+    private ArrayList<BookIdAndKey> favourite_books = new ArrayList<BookIdAndKey>();
+
+    public void getDataFromFavouriteBooks(){
+        mFavouriteBooksDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                favourite_books.removeAll(favourite_books);
+                for(DataSnapshot ds : dataSnapshot.getChildren()){
+                    String book_id = String.valueOf(ds.child("id").getValue());
+                    String book_key = String.valueOf(ds.getKey());
+                    BookIdAndKey book_data = new BookIdAndKey();
+                    book_data.setId(book_id);
+                    book_data.setKey(book_key);
+                    favourite_books.add(book_data);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    public String getFavBookKey(String book_id){
+        for(BookIdAndKey id : favourite_books){
+            if(id.getId().equals(book_id))
+                return id.getKey();
+        }
+        return "";
+    }
+
+    public void computeMeanRating(String book_id){
+        if(book_rating_list.size()!=0){
+            int rating_sum=0;
+            for(ReviewModel model : book_rating_list){
+                if(model.getBook_id().equals(book_id))
+                    rating_sum+=Integer.parseInt(model.getRating());
+            }
+            if(rating_sum!=0){
+                double meanScore= (double)rating_sum/(book_rating_list.size());
+                ratingMeanScore=String.format("%.1f", meanScore);
+            }
+        }
+    }
+
 }

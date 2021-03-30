@@ -69,11 +69,19 @@
         android:layout_margin="10dp"
         android:layout_gravity="center"
         app:boxBackgroundColor="@color/white">
-        <EditText
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/et_add_month"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            android:completionThreshold="1"
+            android:popupBackground="#BFB5C1"
+            android:dropDownSelector="@color/purple_200"
+            android:paddingTop="27dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="10dp"
+            android:textSize="16sp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout

@@ -18,9 +18,9 @@ import com.google.android.youtube.player.YouTubePlayerFragment;
 import com.google.android.youtube.player.YouTubePlayerView;
 
 public class BookReadDataViewHolder extends RecyclerView.ViewHolder{
-    private TextView author_name, book_tile, read_year, read_month, genre, description;
+    public TextView author_name, book_tile, read_year, read_month, genre, description, user_rating, mean_rating;
     private ImageView iv_delete, iv_edit, iv_check_book, iv_show_desc;
-    public ImageView iv_book_image, heart_icon;
+    public ImageView iv_book_image;
     private Button play_trailer_button;
 
 
@@ -42,7 +42,8 @@ public class BookReadDataViewHolder extends RecyclerView.ViewHolder{
         iv_check_book = itemView.findViewById(R.id.iv_check_book_image);
         iv_book_image = itemView.findViewById(R.id.iv_book_image);
         iv_show_desc = itemView.findViewById(R.id.iv_for_description);
-        heart_icon = itemView.findViewById(R.id.iv_heart_icon);
+        user_rating = itemView.findViewById(R.id.tv_rating_user_score);
+        mean_rating = itemView.findViewById(R.id.tv_rating_mean_score);
     }
 
     public void setValues(String author_name, String book_title, String read_month, String read_year){
@@ -61,7 +62,4 @@ public class BookReadDataViewHolder extends RecyclerView.ViewHolder{
         this.description.setText(description);
     }
 
-    public ImageView getHeart_icon(){
-        return heart_icon;
-    }
 }

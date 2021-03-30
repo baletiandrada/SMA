@@ -1,5 +1,6 @@
 package com.example.booksapp.adapters;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,8 +19,10 @@ import com.example.booksapp.AppConstants;
 import com.example.booksapp.BookEditActivity;
 import com.example.booksapp.BottomNavigationActivity;
 import com.example.booksapp.R;
+import com.example.booksapp.SeeReviewsActivity;
 import com.example.booksapp.dataModels.BookReadData;
 import com.example.booksapp.helpers.BookStorageHelper;
+import com.example.booksapp.helpers.ReviewStorageHelper;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,6 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
+import static com.example.booksapp.AppConstants.ADD_REVIEW_ENABLED;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksPlannedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 
@@ -54,12 +58,28 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
     }
 
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull BookReadDataViewHolder holder, int position) {
         BookReadData bookModel = choicesList.get(position);
         holder.itemView.findViewById(R.id.tv_genre).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.GONE);
         holder.setValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getRead_month(), bookModel.getRead_year());
+
+        holder.itemView.findViewById(R.id.tv_see_reviews).setVisibility(View.VISIBLE);
+        holder.itemView.findViewById(R.id.tv_see_reviews).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, SeeReviewsActivity.class);
+                ReviewStorageHelper reviewStorageHelper = ReviewStorageHelper.getInstance();
+                reviewStorageHelper.setUser_id(currentUser.getUid());
+                reviewStorageHelper.setBook_id(bookModel.getId());
+                reviewStorageHelper.setAuthor_name(bookModel.getAuthor_name());
+                reviewStorageHelper.setBook_title(bookModel.getTitle());
+                intent.putExtra(ADD_REVIEW_ENABLED, "YES");
+                context.startActivity(intent);
+            }
+        });
 
         if(!(bookModel.getUri()==null) && !bookModel.getUri().isEmpty() && !bookModel.getUri().equals("null"))
             Glide.with(context).load(bookModel.getUri()).placeholder(R.mipmap.ic_launcher).into(holder.iv_book_image);
@@ -78,6 +98,19 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
             }
         });
         */
+
+        //rating UI
+        holder.itemView.findViewById(R.id.layout_users_rating).setVisibility(View.VISIBLE);
+        holder.itemView.findViewById(R.id.iv_user_rating_colored).setVisibility(View.GONE);
+        holder.itemView.findViewById(R.id.iv_user_rating_discolored).setVisibility(View.GONE);
+        holder.itemView.findViewById(R.id.tv_rating_user_score).setVisibility(View.GONE);
+        holder.itemView.findViewById(R.id.iv_users_rating_colored).setVisibility(View.GONE);
+        if(!AppConstants.MEAN_RATING_PLAN_FRAG.get(position).equals("0")){
+            holder.mean_rating.setText(AppConstants.MEAN_RATING_PLAN_FRAG.get(position) + "/5");
+            holder.itemView.findViewById(R.id.iv_users_rating_discolored).setVisibility(View.GONE);
+            holder.itemView.findViewById(R.id.iv_users_rating_colored).setVisibility(View.VISIBLE);
+        }
+
 
         holder.itemView.findViewById(R.id.iv_delete_image).setOnClickListener(new View.OnClickListener() {
             @Override

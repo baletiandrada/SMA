@@ -1,5 +1,6 @@
 package com.example.booksapp.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -34,6 +35,7 @@ import com.example.booksapp.MainActivity;
 import com.example.booksapp.R;
 import com.example.booksapp.adapters.BookReadDataAdapter;
 import com.example.booksapp.dataModels.BookReadData;
+import com.example.booksapp.dataModels.ReviewModel;
 import com.example.booksapp.helpers.BookListStorageHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -55,6 +57,7 @@ import static com.example.booksapp.helpers.FirebaseHelper.mBooksPlannedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mFavouriteBooksDatabase;
+import static com.example.booksapp.helpers.FirebaseHelper.mRatingsDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mUserDatabase;
 
 public class BooksMainViewFragment<_> extends Fragment {
@@ -78,6 +81,9 @@ public class BooksMainViewFragment<_> extends Fragment {
 
     SearchView searchView;
 
+    String ratingUserScore="0", ratingMeanScore="0";
+    ArrayList<ReviewModel> book_rating_list = new ArrayList<ReviewModel>();
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -90,6 +96,12 @@ public class BooksMainViewFragment<_> extends Fragment {
 
         initializeViews(root);
         searchView = root.findViewById(R.id.searchView_main);
+
+        getDataFromRecommendedBooks();
+
+        getDataFromFavouriteBooks();
+
+        getRatings();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -132,9 +144,6 @@ public class BooksMainViewFragment<_> extends Fragment {
         scaleUp = AnimationUtils.loadAnimation(getActivity(), R.anim.scale_up);
         scaleDown = AnimationUtils.loadAnimation(getActivity(), R.anim.scale_down);
 
-        getDataFromRecommendedBooks();
-
-        getDataFromFavouriteBooks();
         mBooksReadDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -242,7 +251,7 @@ public class BooksMainViewFragment<_> extends Fragment {
 
     public boolean favContainsBook(String book_id){
         for(String id : favourite_books){
-            if(id.contains(book_id))
+            if(id.equals(book_id))
                 return true;
         }
         return false;
@@ -250,15 +259,17 @@ public class BooksMainViewFragment<_> extends Fragment {
 
     private void getData(DataSnapshot dataSnapshot) {
         books.removeAll(books);
-        ArrayList<BookReadData> books_recommended_aux = books_recommended;
         AppConstants.BookExistsInFav.removeAll(AppConstants.BookExistsInFav);
+        AppConstants.USER_RATING.removeAll(AppConstants.USER_RATING);
+        AppConstants.MEAN_RATING.removeAll(AppConstants.MEAN_RATING);
         for(DataSnapshot ds : dataSnapshot.getChildren()){
 
-            String author_name = "", book_title = "", book_id=String.valueOf(ds.child("id").getValue());
+            String author_name = "", book_title = "";
+            String book_id=String.valueOf(ds.child("id").getValue());
             String uri="", video_path="";
             if(book_id!="null"){
-                for (BookReadData book : books_recommended_aux) {
-                    if (book_id.contains(book.getId())) {
+                for (BookReadData book : books_recommended) {
+                    if (book_id.equals(book.getId())) {
                         author_name = book.getAuthor_name();
                         book_title = book.getTitle();
                         uri = book.getUri();
@@ -266,10 +277,6 @@ public class BooksMainViewFragment<_> extends Fragment {
                         break;
                     }
                 }
-            }
-            else{
-                author_name = String.valueOf(ds.child("author_name").getValue());
-                book_title = String.valueOf(ds.child("title").getValue());
             }
 
             String year = String.valueOf(ds.child("read_year").getValue());
@@ -285,28 +292,45 @@ public class BooksMainViewFragment<_> extends Fragment {
                 newBook.setVideo_path(video_path);
 
             newBook.setId(String.valueOf(ds.getKey()));
+            newBook.setId_from_big_db(String.valueOf(ds.child("id").getValue()));
             books.add(newBook);
 
             if(favContainsBook(String.valueOf(ds.getKey())))
                 AppConstants.BookExistsInFav.add("Yes");
             else
                 AppConstants.BookExistsInFav.add("No");
+
+            getUserRating(String.valueOf(ds.getKey()));
+            if(!ratingUserScore.equals("0"))
+                AppConstants.USER_RATING.add(ratingUserScore);
+            else
+                AppConstants.USER_RATING.add("0");
+
+            computeMeanRating(String.valueOf(ds.getKey()));
+            if(!ratingMeanScore.equals("0"))
+                AppConstants.MEAN_RATING.add(ratingMeanScore);
+            else
+                AppConstants.MEAN_RATING.add("0");
+
+            ratingUserScore="0";
+            ratingMeanScore="0";
         }
             setRecyclerView();
     }
 
     private void getDataByVariable(DataSnapshot dataSnapshot, String variable) {
         books.removeAll(books);
-        ArrayList<BookReadData> books_recommended_aux = books_recommended;
-        //AppConstants.IMG_CAME_FROM.remove(AppConstants.IMG_CAME_FROM);
         AppConstants.BookExistsInFav.removeAll(AppConstants.BookExistsInFav);
+        AppConstants.USER_RATING.removeAll(AppConstants.USER_RATING);
+        AppConstants.MEAN_RATING.removeAll(AppConstants.MEAN_RATING);
         for (DataSnapshot ds : dataSnapshot.getChildren()) {
 
-            String author_name = "", book_title = "", book_id=String.valueOf(ds.child("id").getValue());
+            String author_name = "", book_title = "";
+            String book_id=String.valueOf(ds.child("id").getValue());
             String uri="", video_path="";
             if(book_id!="null") {
-                for (BookReadData book : books_recommended_aux) {
-                    if (book_id.contains(book.getId()) || book.getId().contains(book_id)) {
+                for (BookReadData book : books_recommended) {
+                    if (book_id.equals(book.getId())) {
                         author_name = book.getAuthor_name();
                         book_title = book.getTitle();
                         uri = book.getUri();
@@ -315,11 +339,6 @@ public class BooksMainViewFragment<_> extends Fragment {
                     }
                 }
             }
-            else{
-                author_name = String.valueOf(ds.child("author_name").getValue());
-                book_title = String.valueOf(ds.child("title").getValue());
-            }
-
                 String read_year = String.valueOf(ds.child("read_year").getValue());
                 String month = String.valueOf(ds.child("read_month").getValue());
                 if (month == null)
@@ -341,13 +360,27 @@ public class BooksMainViewFragment<_> extends Fragment {
                     newBook.setId(String.valueOf(ds.getKey()));
                     books.add(newBook);
 
-                    if (favContainsBook(book_id))
+                    if (favContainsBook(String.valueOf(ds.getKey())))
                         AppConstants.BookExistsInFav.add("Yes");
                     else
                         AppConstants.BookExistsInFav.add("No");
+
+                    getUserRating(String.valueOf(ds.getKey()));
+                    if(!ratingUserScore.equals("0"))
+                        AppConstants.USER_RATING.add(ratingUserScore);
+                    else
+                        AppConstants.USER_RATING.add("0");
+
+                    computeMeanRating(String.valueOf(ds.getKey()));
+                    if(!ratingMeanScore.equals("0"))
+                        AppConstants.MEAN_RATING.add(ratingMeanScore);
+                    else
+                        AppConstants.MEAN_RATING.add("0");
+
+                    ratingUserScore="0";
+                    ratingMeanScore="0";
                 }
         }
-        //if(!books.isEmpty())
         setRecyclerView();
     }
 
@@ -361,21 +394,18 @@ public class BooksMainViewFragment<_> extends Fragment {
                 for(DataSnapshot ds : dataSnapshot.getChildren()){
                     BookReadData newBook = new BookReadData();
                     newBook.setId(String.valueOf(ds.getKey()));
-                    if(String.valueOf(ds.child("id").getValue())!=null) {
-                        String book_id = String.valueOf(ds.child("id").getValue());
+                    String book_id = String.valueOf(ds.child("id").getValue());
+                    if(book_id!="null") {
                         for(BookReadData book: books_recommended){
-                            if(book_id.contains(book.getId()) || book.getId().contains(book_id)){
+                            if(book_id.equals(book.getId())){
                                 author = book.getAuthor_name();
                                 title = book.getTitle();
                             }
                         }
                     }
-                    else{
-                        author = String.valueOf(ds.child("author_name").getValue());
-                        title = String.valueOf(ds.child("title").getValue());
-                    }
                     newBook.setAuthor_name(author);
                     newBook.setTitle(title);
+                    newBook.setId_from_big_db(book_id);
                     books_planned.add(newBook);
                 }
             }
@@ -416,7 +446,7 @@ public class BooksMainViewFragment<_> extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 favourite_books.removeAll(favourite_books);
                 for(DataSnapshot ds : dataSnapshot.getChildren()){
-                    String book_id = String.valueOf(ds.getKey());
+                    String book_id = String.valueOf(ds.child("id").getValue());
                     favourite_books.add(book_id);
                 }
             }
@@ -425,6 +455,54 @@ public class BooksMainViewFragment<_> extends Fragment {
                 Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void getRatings(){
+        mRatingsDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                book_rating_list.removeAll(book_rating_list);
+                for(DataSnapshot ds: snapshot.getChildren()){
+                    String book_id = String.valueOf(ds.child("book_id").getValue());
+                    String user_id = String.valueOf(ds.child("user_id").getValue());
+                    String rating = String.valueOf(ds.child("rating").getValue());
+                    ReviewModel ratingData = new ReviewModel();
+                    ratingData.setUser_id(user_id);
+                    ratingData.setBook_id(book_id);
+                    ratingData.setRating(rating);
+                    book_rating_list.add(ratingData);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void getUserRating(String book_id){
+        if(book_rating_list.size()!=0){
+            for(ReviewModel model: book_rating_list){
+                if(model.getBook_id().equals(book_id) && model.getUser_id().equals(currentUser.getUid()))
+                    ratingUserScore=model.getRating();
+            }
+        }
+    }
+
+    @SuppressLint("DefaultLocale")
+    public void computeMeanRating(String book_id){
+        if(book_rating_list.size()!=0){
+            int rating_sum=0;
+            for(ReviewModel model : book_rating_list){
+                if(model.getBook_id().equals(book_id))
+                    rating_sum+=Integer.parseInt(model.getRating());
+            }
+            if(rating_sum!=0){
+                double meanScore= (double)rating_sum/(book_rating_list.size());
+                ratingMeanScore=String.format("%.1f", meanScore);
+            }
+        }
     }
 
     public void initializeViews(View root){

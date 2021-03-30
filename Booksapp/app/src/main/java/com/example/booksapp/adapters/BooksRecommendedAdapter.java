@@ -19,14 +19,17 @@ import com.bumptech.glide.Glide;
 import com.example.booksapp.AppConstants;
 import com.example.booksapp.BookEditActivity;
 import com.example.booksapp.R;
+import com.example.booksapp.SeeReviewsActivity;
 import com.example.booksapp.VideoPopUpActivity;
 import com.example.booksapp.dataModels.BookReadData;
 import com.example.booksapp.helpers.BookStorageHelper;
+import com.example.booksapp.helpers.ReviewStorageHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
+import static com.example.booksapp.AppConstants.ADD_REVIEW_ENABLED;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mFavouriteBooksDatabase;
 
@@ -81,6 +84,34 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
             holder.itemView.findViewById(R.id.iv_edit_icon).setVisibility(View.GONE);
             holder.itemView.findViewById(R.id.layout_edit_delete_icons).setVisibility(View.GONE);
         }
+
+        holder.itemView.findViewById(R.id.tv_see_reviews).setVisibility(View.VISIBLE);
+        holder.itemView.findViewById(R.id.tv_see_reviews).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, SeeReviewsActivity.class);
+                ReviewStorageHelper reviewStorageHelper = ReviewStorageHelper.getInstance();
+                reviewStorageHelper.setUser_id(currentUser.getUid());
+                reviewStorageHelper.setBook_id(bookModel.getId());
+                reviewStorageHelper.setAuthor_name(bookModel.getAuthor_name());
+                reviewStorageHelper.setBook_title(bookModel.getTitle());
+                intent.putExtra(ADD_REVIEW_ENABLED, "NO");
+                context.startActivity(intent);
+            }
+        });
+
+        //rating UI
+        holder.itemView.findViewById(R.id.layout_users_rating).setVisibility(View.VISIBLE);
+        holder.itemView.findViewById(R.id.iv_user_rating_colored).setVisibility(View.GONE);
+        holder.itemView.findViewById(R.id.iv_user_rating_discolored).setVisibility(View.GONE);
+        holder.itemView.findViewById(R.id.tv_rating_user_score).setVisibility(View.GONE);
+        holder.itemView.findViewById(R.id.iv_users_rating_colored).setVisibility(View.GONE);
+        if(!AppConstants.MEAN_RATING_RECOMM_FRAG.get(position).equals("0")){
+            holder.mean_rating.setText(AppConstants.MEAN_RATING_RECOMM_FRAG.get(position) + "/5");
+            holder.itemView.findViewById(R.id.iv_users_rating_discolored).setVisibility(View.GONE);
+            holder.itemView.findViewById(R.id.iv_users_rating_colored).setVisibility(View.VISIBLE);
+        }
+
 
         holder.itemView.findViewById(R.id.iv_delete_image).setOnClickListener(new View.OnClickListener() {
             @Override

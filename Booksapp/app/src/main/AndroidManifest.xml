@@ -16,7 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BooksApp">
-        <activity android:name=".AutoCompleteActivity"></activity>
+        <activity android:name=".SeeReviewsActivity"></activity>
+        <activity android:name=".AutoCompleteActivity" />
         <activity android:name=".InfoBookActivity" />
         <activity android:name=".AddBookActivity" />
         <activity android:name=".ChangePasswordActivity" />
