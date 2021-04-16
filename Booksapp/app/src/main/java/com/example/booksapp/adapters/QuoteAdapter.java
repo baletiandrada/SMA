@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,9 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.booksapp.R;
-import com.example.booksapp.dataModels.ImageUploadInfo;
 import com.example.booksapp.dataModels.QuoteModel;
 import com.example.booksapp.helpers.BookStorageHelper;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,7 +23,6 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mQuotesDatabase;
 
 public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.ViewHolder>{
@@ -46,7 +42,7 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.ViewHolder>{
     @NonNull
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         context = viewGroup.getContext();
-        View v = LayoutInflater.from(context).inflate(R.layout.row_quotes_data, viewGroup, false);
+        View v = LayoutInflater.from(context).inflate(R.layout.row_change_content, viewGroup, false);
         return new QuoteAdapter.ViewHolder(v);
     }
 
@@ -57,6 +53,8 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.ViewHolder>{
         viewHolder.itemView.findViewById(R.id.iv_arrow_up).setVisibility(View.GONE);
         viewHolder.itemView.findViewById(R.id.layout_edit_quote).setVisibility(View.GONE);
         viewHolder.itemView.findViewById(R.id.layout_close_edit).setVisibility(View.GONE);
+        viewHolder.itemView.findViewById(R.id.layout_like_icons).setVisibility(View.GONE);
+        viewHolder.itemView.findViewById(R.id.layout_text_likes).setVisibility(View.GONE);
         viewHolder.quoteText.setText(current_quote.getText_quote());
 
         viewHolder.itemView.findViewById(R.id.iv_arrow_down).setOnClickListener(new View.OnClickListener() {

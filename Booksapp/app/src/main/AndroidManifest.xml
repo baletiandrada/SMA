@@ -16,9 +16,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BooksApp">
-        <activity android:name=".SeeReviewsActivity"></activity>
-        <activity android:name=".AutoCompleteActivity" />
-        <activity android:name=".InfoBookActivity" />
+        <activity android:name=".BookReviewsActivity"></activity>
+        <activity android:name=".TryActivity">
+            <meta-data
+                android:name="com.google.mlkit.vision.DEPENDENCIES"
+                android:value="ocr" />
+        </activity>
+        <activity android:name=".BookQuotesActivity" />
         <activity android:name=".AddBookActivity" />
         <activity android:name=".ChangePasswordActivity" />
         <activity
@@ -28,7 +32,7 @@
         <activity android:name=".ImageGalleryActivity" />
         <activity android:name=".ImageActivity" />
         <activity android:name=".BottomNavigationActivity" />
-        <activity android:name=".BookEditActivity" />
+        <activity android:name=".EditBookActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

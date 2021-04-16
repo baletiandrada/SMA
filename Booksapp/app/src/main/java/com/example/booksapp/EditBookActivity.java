@@ -14,11 +14,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -56,7 +53,7 @@ import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mFavouriteBooksDatabase;
 
-public class BookEditActivity extends AppCompatActivity implements SelectPhotoDialog.OnPhotoSelectedListener{
+public class EditBookActivity extends AppCompatActivity implements SelectPhotoDialog.OnPhotoSelectedListener{
 
     private EditText read_year, genre, description;
     private MultiAutoCompleteTextView author_name, book_title, read_month;
@@ -131,8 +128,10 @@ public class BookEditActivity extends AppCompatActivity implements SelectPhotoDi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_book_edit);
+        setContentView(R.layout.activity_edit_book);
+
         initializeViews();
+        init();
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().hide();

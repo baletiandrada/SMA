@@ -1,7 +1,15 @@
 package com.example.booksapp.dataModels;
 
 public class UserDetailsModel {
-    private String username, age, email, password;
+    private String username, age, email, password, uid;
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
 
     public UserDetailsModel(){
 

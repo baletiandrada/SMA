@@ -8,7 +8,6 @@ import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,13 +16,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.booksapp.AppConstants;
-import com.example.booksapp.BookEditActivity;
+import com.example.booksapp.EditBookActivity;
 import com.example.booksapp.R;
-import com.example.booksapp.SeeReviewsActivity;
+import com.example.booksapp.BookReviewsActivity;
 import com.example.booksapp.VideoPopUpActivity;
 import com.example.booksapp.dataModels.BookReadData;
 import com.example.booksapp.helpers.BookStorageHelper;
-import com.example.booksapp.helpers.ReviewStorageHelper;
+import com.example.booksapp.helpers.AppreciateBookStorageHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -38,7 +37,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -59,7 +57,7 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
     public BookReadDataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View contactView = inflater. inflate(R.layout.row_book_read_data, parent, false);
+        View contactView = inflater. inflate(R.layout.row_book_data, parent, false);
         BookReadDataViewHolder viewHolder = new BookReadDataViewHolder(contactView);
         return viewHolder;
     }
@@ -89,12 +87,12 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
         holder.itemView.findViewById(R.id.tv_see_reviews).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, SeeReviewsActivity.class);
-                ReviewStorageHelper reviewStorageHelper = ReviewStorageHelper.getInstance();
-                reviewStorageHelper.setUser_id(currentUser.getUid());
-                reviewStorageHelper.setBook_id(bookModel.getId());
-                reviewStorageHelper.setAuthor_name(bookModel.getAuthor_name());
-                reviewStorageHelper.setBook_title(bookModel.getTitle());
+                Intent intent = new Intent(context, BookReviewsActivity.class);
+                AppreciateBookStorageHelper appreciateBookStorageHelper = AppreciateBookStorageHelper.getInstance();
+                appreciateBookStorageHelper.setUser_id(currentUser.getUid());
+                appreciateBookStorageHelper.setBook_id(bookModel.getId());
+                appreciateBookStorageHelper.setAuthor_name(bookModel.getAuthor_name());
+                appreciateBookStorageHelper.setBook_title(bookModel.getTitle());
                 intent.putExtra(ADD_REVIEW_ENABLED, "NO");
                 context.startActivity(intent);
             }
@@ -145,7 +143,7 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
                 Toast.makeText(context, bookStorageHelper.getId_book(), Toast.LENGTH_LONG).show();
                 bookStorageHelper.setId_book(bookModel.getId());
                 bookStorageHelper.setThreeValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getGenre());
-                Intent intent = new Intent(context, BookEditActivity.class);
+                Intent intent = new Intent(context, EditBookActivity.class);
                 String param_bookTable_value = "Recommended books";
                 //Toast.makeText(context, bookStorageHelper.getId_book(), Toast.LENGTH_LONG).show();
                 intent.putExtra(AppConstants.param_bookTable, param_bookTable_value);

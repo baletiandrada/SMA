@@ -16,7 +16,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.booksapp.dataModels.UserDetailsModel;
-import com.example.booksapp.helpers.StorageHelper;
+import com.example.booksapp.helpers.UserStorageHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -29,7 +29,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import static com.example.booksapp.helpers.FirebaseHelper.mUserDatabase;
 
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private TextInputLayout layout_email_login, layout_password_login, layout_username, layout_age, layout_email_register, layout_password_register;
     private TextInputLayout layout_confirm_password_register;
     private Button login_button, register_open_button, register_button, cancel_register_button, autoComplete_btn;
-    StorageHelper userData = StorageHelper.getInstance();
+    UserStorageHelper userData = UserStorageHelper.getInstance();
 
     Animation scaleUp, scaleDown;
 
@@ -194,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goToAutoCompleteActivity(){
-        Intent intent = new Intent(getApplicationContext(), AutoCompleteActivity.class);
+        Intent intent = new Intent(getApplicationContext(), TryActivity.class);
         startActivity(intent);
     }
 

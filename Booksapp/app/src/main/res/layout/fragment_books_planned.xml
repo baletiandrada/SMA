@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context=".fragments.PlanningBooksFragment">
+        tools:context=".fragments.BooksPlannedFragment">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_plan_seeAllBooks"

@@ -7,15 +7,15 @@
 
     <fragment
         android:id="@+id/navigation_books"
-        android:name="com.example.booksapp.fragments.BooksMainViewFragment"
+        android:name="com.example.booksapp.fragments.BooksReadFragment"
         android:label="View all books"
-        tools:layout="@layout/fragment_books" />
+        tools:layout="@layout/fragment_books_read" />
 
     <fragment
         android:id="@+id/navigation_planning_books"
-        android:name="com.example.booksapp.fragments.PlanningBooksFragment"
+        android:name="com.example.booksapp.fragments.BooksPlannedFragment"
         android:label="Planning books"
-        tools:layout="@layout/fragment_planning_books" />
+        tools:layout="@layout/fragment_books_planned" />
 
     <fragment
         android:id="@+id/navigation_books_recommended"
@@ -25,14 +25,14 @@
 
     <fragment
         android:id="@+id/navigation_edit_profile"
-        android:name="com.example.booksapp.fragments.EditUserDataFragment"
+        android:name="com.example.booksapp.fragments.FavouriteBooksFragment"
         android:label="Edit profile"
-        tools:layout="@layout/fragment_edit_profile" />
+        tools:layout="@layout/fragment_favourite_books" />
 
     <fragment
         android:id="@+id/navigation_more_actions"
-        android:name="com.example.booksapp.fragments.MoreActionsFragment"
+        android:name="com.example.booksapp.fragments.AccountSettingsFragment"
         android:label="More actions"
-        tools:layout="@layout/fragment_more_actions" />
+        tools:layout="@layout/fragment_account_settings" />
 
 </navigation>

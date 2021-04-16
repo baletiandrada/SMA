@@ -1,16 +1,16 @@
 package com.example.booksapp.helpers;
 
-public class StorageHelper {
-    private static StorageHelper single_instance;
+public class UserStorageHelper {
+    private static UserStorageHelper single_instance;
     public String idUserFirebase, email, age, username, password;
     public int id;
 
-    private StorageHelper(){
+    private UserStorageHelper(){
     }
 
-    public static StorageHelper getInstance(){
+    public static UserStorageHelper getInstance(){
         if(single_instance==null)
-            single_instance = new StorageHelper();
+            single_instance = new UserStorageHelper();
         return single_instance;
     }
 
@@ -32,7 +32,7 @@ public class StorageHelper {
     public void setPassword(String password){
         this.password=password;
     }
-    public StorageHelper getValues(){
+    public UserStorageHelper getValues(){
         return single_instance;
     }
     public String getUsername(){

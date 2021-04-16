@@ -2,11 +2,6 @@ package com.example.booksapp.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -14,12 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,12 +26,9 @@ import com.example.booksapp.MainActivity;
 import com.example.booksapp.R;
 import com.example.booksapp.adapters.BookReadDataAdapter;
 import com.example.booksapp.dataModels.BookReadData;
-import com.example.booksapp.dataModels.ReviewModel;
+import com.example.booksapp.dataModels.AppreciateBookModel;
 import com.example.booksapp.helpers.BookListStorageHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.youtube.player.YouTubePlayerFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -50,17 +38,14 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.content.Context.MODE_PRIVATE;
-import static android.graphics.Color.*;
-import static com.example.booksapp.AppConstants.MY_PREFS_NAME;
+import static com.example.booksapp.AppConstants.BOOK_ID_LIST_READ;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksPlannedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mFavouriteBooksDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mRatingsDatabase;
-import static com.example.booksapp.helpers.FirebaseHelper.mUserDatabase;
 
-public class BooksMainViewFragment<_> extends Fragment {
+public class BooksReadFragment<_> extends Fragment {
 
     private TextView seeAllBooks;
     private EditText searchForVariable_et;
@@ -82,12 +67,12 @@ public class BooksMainViewFragment<_> extends Fragment {
     SearchView searchView;
 
     String ratingUserScore="0", ratingMeanScore="0";
-    ArrayList<ReviewModel> book_rating_list = new ArrayList<ReviewModel>();
+    ArrayList<AppreciateBookModel> book_rating_list = new ArrayList<AppreciateBookModel>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.fragment_books, container, false);
+        View root = inflater.inflate(R.layout.fragment_books_read, container, false);
         /*if (currentUser == null) {
             addBook_buttonTop.setVisibility(View.GONE);
             recyclerView.setVisibility(View.GONE);
@@ -147,7 +132,7 @@ public class BooksMainViewFragment<_> extends Fragment {
         mBooksReadDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(!(currentUser.getUid() == null) && currentUser!=null){
+                if(currentUser.getUid() != null && currentUser.getUid()!=null){
                     getData(dataSnapshot);
                     if(books.isEmpty())
                         root.findViewById(R.id.noReadBooks).setVisibility(View.VISIBLE);
@@ -258,10 +243,11 @@ public class BooksMainViewFragment<_> extends Fragment {
     }
 
     private void getData(DataSnapshot dataSnapshot) {
-        books.removeAll(books);
-        AppConstants.BookExistsInFav.removeAll(AppConstants.BookExistsInFav);
-        AppConstants.USER_RATING.removeAll(AppConstants.USER_RATING);
-        AppConstants.MEAN_RATING.removeAll(AppConstants.MEAN_RATING);
+        books.clear();
+        AppConstants.BookExistsInFav.clear();
+        AppConstants.BOOK_ID_LIST_READ.clear();
+        AppConstants.USER_RATING.clear();
+        AppConstants.MEAN_RATING.clear();
         for(DataSnapshot ds : dataSnapshot.getChildren()){
 
             String author_name = "", book_title = "";
@@ -292,7 +278,7 @@ public class BooksMainViewFragment<_> extends Fragment {
                 newBook.setVideo_path(video_path);
 
             newBook.setId(String.valueOf(ds.getKey()));
-            newBook.setId_from_big_db(String.valueOf(ds.child("id").getValue()));
+            BOOK_ID_LIST_READ.add(String.valueOf(ds.child("id").getValue()));
             books.add(newBook);
 
             if(favContainsBook(String.valueOf(ds.getKey())))
@@ -300,13 +286,13 @@ public class BooksMainViewFragment<_> extends Fragment {
             else
                 AppConstants.BookExistsInFav.add("No");
 
-            getUserRating(String.valueOf(ds.getKey()));
+            getUserRating(book_id);
             if(!ratingUserScore.equals("0"))
                 AppConstants.USER_RATING.add(ratingUserScore);
             else
                 AppConstants.USER_RATING.add("0");
 
-            computeMeanRating(String.valueOf(ds.getKey()));
+            computeMeanRating(book_id);
             if(!ratingMeanScore.equals("0"))
                 AppConstants.MEAN_RATING.add(ratingMeanScore);
             else
@@ -319,10 +305,11 @@ public class BooksMainViewFragment<_> extends Fragment {
     }
 
     private void getDataByVariable(DataSnapshot dataSnapshot, String variable) {
-        books.removeAll(books);
-        AppConstants.BookExistsInFav.removeAll(AppConstants.BookExistsInFav);
-        AppConstants.USER_RATING.removeAll(AppConstants.USER_RATING);
-        AppConstants.MEAN_RATING.removeAll(AppConstants.MEAN_RATING);
+        books.clear();
+        AppConstants.BookExistsInFav.clear();
+        BOOK_ID_LIST_READ.clear();
+        AppConstants.USER_RATING.clear();
+        AppConstants.MEAN_RATING.clear();
         for (DataSnapshot ds : dataSnapshot.getChildren()) {
 
             String author_name = "", book_title = "";
@@ -358,6 +345,7 @@ public class BooksMainViewFragment<_> extends Fragment {
                         newBook.setVideo_path(video_path);
 
                     newBook.setId(String.valueOf(ds.getKey()));
+                    BOOK_ID_LIST_READ.add(String.valueOf(ds.child("id").getValue()));
                     books.add(newBook);
 
                     if (favContainsBook(String.valueOf(ds.getKey())))
@@ -365,13 +353,13 @@ public class BooksMainViewFragment<_> extends Fragment {
                     else
                         AppConstants.BookExistsInFav.add("No");
 
-                    getUserRating(String.valueOf(ds.getKey()));
+                    getUserRating(book_id);
                     if(!ratingUserScore.equals("0"))
                         AppConstants.USER_RATING.add(ratingUserScore);
                     else
                         AppConstants.USER_RATING.add("0");
 
-                    computeMeanRating(String.valueOf(ds.getKey()));
+                    computeMeanRating(book_id);
                     if(!ratingMeanScore.equals("0"))
                         AppConstants.MEAN_RATING.add(ratingMeanScore);
                     else
@@ -389,7 +377,7 @@ public class BooksMainViewFragment<_> extends Fragment {
         mBooksPlannedDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                books_planned.removeAll(books_planned);
+                books_planned.clear();
                 String author=null, title=null;
                 for(DataSnapshot ds : dataSnapshot.getChildren()){
                     BookReadData newBook = new BookReadData();
@@ -420,7 +408,7 @@ public class BooksMainViewFragment<_> extends Fragment {
         mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                books_recommended.removeAll(books_recommended);
+                books_recommended.clear();
                 for(DataSnapshot ds : dataSnapshot.getChildren()){
                     String author_name = String.valueOf(ds.child("author_name").getValue());
                     String book_title = String.valueOf(ds.child("title").getValue());
@@ -444,7 +432,7 @@ public class BooksMainViewFragment<_> extends Fragment {
         mFavouriteBooksDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                favourite_books.removeAll(favourite_books);
+                favourite_books.clear();
                 for(DataSnapshot ds : dataSnapshot.getChildren()){
                     String book_id = String.valueOf(ds.child("id").getValue());
                     favourite_books.add(book_id);
@@ -461,12 +449,12 @@ public class BooksMainViewFragment<_> extends Fragment {
         mRatingsDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                book_rating_list.removeAll(book_rating_list);
+                book_rating_list.clear();
                 for(DataSnapshot ds: snapshot.getChildren()){
                     String book_id = String.valueOf(ds.child("book_id").getValue());
                     String user_id = String.valueOf(ds.child("user_id").getValue());
                     String rating = String.valueOf(ds.child("rating").getValue());
-                    ReviewModel ratingData = new ReviewModel();
+                    AppreciateBookModel ratingData = new AppreciateBookModel();
                     ratingData.setUser_id(user_id);
                     ratingData.setBook_id(book_id);
                     ratingData.setRating(rating);
@@ -483,7 +471,7 @@ public class BooksMainViewFragment<_> extends Fragment {
 
     public void getUserRating(String book_id){
         if(book_rating_list.size()!=0){
-            for(ReviewModel model: book_rating_list){
+            for(AppreciateBookModel model: book_rating_list){
                 if(model.getBook_id().equals(book_id) && model.getUser_id().equals(currentUser.getUid()))
                     ratingUserScore=model.getRating();
             }
@@ -494,12 +482,16 @@ public class BooksMainViewFragment<_> extends Fragment {
     public void computeMeanRating(String book_id){
         if(book_rating_list.size()!=0){
             int rating_sum=0;
-            for(ReviewModel model : book_rating_list){
-                if(model.getBook_id().equals(book_id))
+            int number_of_ratings=0;
+            for(AppreciateBookModel model : book_rating_list){
+                if(model.getBook_id().equals(book_id)){
                     rating_sum+=Integer.parseInt(model.getRating());
+                    number_of_ratings++;
+                }
+
             }
             if(rating_sum!=0){
-                double meanScore= (double)rating_sum/(book_rating_list.size());
+                double meanScore= (double)rating_sum/number_of_ratings;
                 ratingMeanScore=String.format("%.1f", meanScore);
             }
         }

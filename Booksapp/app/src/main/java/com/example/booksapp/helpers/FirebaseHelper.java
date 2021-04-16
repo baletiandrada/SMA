@@ -14,4 +14,5 @@ public class FirebaseHelper {
     public static final DatabaseReference mImagesDatabase = FirebaseDatabase.getInstance().getReference().child("Images");
     public static final DatabaseReference mReviewsDatabase = FirebaseDatabase.getInstance().getReference().child("Reviews");
     public static final DatabaseReference mRatingsDatabase = FirebaseDatabase.getInstance().getReference().child("Ratings");
+    public static final DatabaseReference mLikesDatabase = FirebaseDatabase.getInstance().getReference().child("Likes");
 }

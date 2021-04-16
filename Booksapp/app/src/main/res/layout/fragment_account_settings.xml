@@ -15,7 +15,7 @@
         android:orientation="vertical"
         app:layout_anchor="@+id/relativeLayout"
         app:layout_anchorGravity="center"
-        tools:context=".fragments.MoreActionsFragment">
+        tools:context=".fragments.AccountSettingsFragment">
 
 
         <com.google.android.material.textfield.TextInputLayout

@@ -1,16 +1,11 @@
 package com.example.booksapp;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -19,21 +14,16 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.booksapp.helpers.FirebaseHelper;
-import com.example.booksapp.helpers.StorageHelper;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.textfield.TextInputLayout;
+import com.example.booksapp.helpers.UserStorageHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import java.util.HashMap;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
     private EditText old_password_et, new_password_et, confirm_new_password_et;
     private Button changePasswordBottom_button, cancelChangePassword_button;
 
-    StorageHelper userData = StorageHelper.getInstance();
+    UserStorageHelper userData = UserStorageHelper.getInstance();
 
     Animation scaleUp, scaleDown;
 

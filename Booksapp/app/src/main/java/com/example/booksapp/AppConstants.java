@@ -28,4 +28,12 @@ public class AppConstants {
     public static final ArrayList<String> USER_RATING=new ArrayList<String>(), MEAN_RATING=new ArrayList<String>(), MEAN_RATING_PLAN_FRAG=new ArrayList<String>();
     public static final ArrayList<String> MEAN_RATING_RECOMM_FRAG = new ArrayList<String>();
 
+    public static final ArrayList<String> BOOK_ID_LIST_READ = new ArrayList<>(), BOOK_ID_LIST_PLAN = new ArrayList<>();
+    public static final ArrayList<String> USER_GMAIL_LIST = new ArrayList<>();
+    public static final ArrayList<String> NUMBER_OF_LIKES = new ArrayList<>();
+    public static final ArrayList<String> NUMBER_OF_DISLIKES = new ArrayList<>();
+    public static final ArrayList<String> REVIEW_APPRECIATION_FROM_CURRENT_USER = new ArrayList<>();
+    public static final ArrayList<String> REVIEW_EXISTS_IN_LIKE_LIST = new ArrayList<>();
+    public static final ArrayList<String> ID_LIKE_FOR_CURRENT_USER = new ArrayList<>();
+
 }

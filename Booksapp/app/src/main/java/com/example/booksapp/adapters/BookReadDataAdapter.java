@@ -16,15 +16,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.booksapp.AppConstants;
-import com.example.booksapp.BookEditActivity;
-import com.example.booksapp.SeeReviewsActivity;
+import com.example.booksapp.EditBookActivity;
+import com.example.booksapp.BookReviewsActivity;
 import com.example.booksapp.VideoPopUpActivity;
 import com.example.booksapp.dataModels.BookReadData;
-import com.example.booksapp.dataModels.QuoteModel;
-import com.example.booksapp.dataModels.ReviewModel;
+import com.example.booksapp.dataModels.AppreciateBookModel;
 import com.example.booksapp.helpers.BookStorageHelper;
 import com.example.booksapp.R;
-import com.example.booksapp.helpers.ReviewStorageHelper;
+import com.example.booksapp.helpers.AppreciateBookStorageHelper;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.example.booksapp.AppConstants.ADD_REVIEW_ENABLED;
+import static com.example.booksapp.AppConstants.BOOK_ID_LIST_READ;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mFavouriteBooksDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mQuotesDatabase;
@@ -58,7 +58,7 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
     FirebaseUser currentUser = mAuth.getCurrentUser();
     BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
 
-    ArrayList<ReviewModel> book_rating_list = new ArrayList<ReviewModel>();
+    ArrayList<AppreciateBookModel> book_rating_list = new ArrayList<AppreciateBookModel>();
     String ratingMeanScore="0";
 
     public BookReadDataAdapter(List<BookReadData> bookList){
@@ -70,7 +70,7 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
     public BookReadDataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View contactView = inflater. inflate(R.layout.row_book_read_data, parent, false);
+        View contactView = inflater. inflate(R.layout.row_book_data, parent, false);
         BookReadDataViewHolder viewHolder = new BookReadDataViewHolder(contactView);
         return viewHolder;
     }
@@ -95,12 +95,12 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
         holder.itemView.findViewById(R.id.tv_see_reviews).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, SeeReviewsActivity.class);
-                ReviewStorageHelper reviewStorageHelper = ReviewStorageHelper.getInstance();
-                reviewStorageHelper.setUser_id(currentUser.getUid());
-                reviewStorageHelper.setBook_id(bookModel.getId());
-                reviewStorageHelper.setAuthor_name(bookModel.getAuthor_name());
-                reviewStorageHelper.setBook_title(bookModel.getTitle());
+                Intent intent = new Intent(context, BookReviewsActivity.class);
+                AppreciateBookStorageHelper appreciateBookStorageHelper = AppreciateBookStorageHelper.getInstance();
+                appreciateBookStorageHelper.setUser_id(currentUser.getUid());
+                appreciateBookStorageHelper.setBook_id(BOOK_ID_LIST_READ.get(position));
+                appreciateBookStorageHelper.setAuthor_name(bookModel.getAuthor_name());
+                appreciateBookStorageHelper.setBook_title(bookModel.getTitle());
                 intent.putExtra(ADD_REVIEW_ENABLED, "YES");
                 context.startActivity(intent);
             }
@@ -121,11 +121,11 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                 for(DataSnapshot ds: snapshot.getChildren()){
                     String book_id = String.valueOf(ds.child("book_id").getValue());
                     String user_id = String.valueOf(ds.child("user_id").getValue());
-                    if(book_id.equals(bookModel.getId()) && user_id.equals(currentUser.getUid()))
+                    if(book_id.equals(BOOK_ID_LIST_READ.get(position)) && user_id.equals(currentUser.getUid()))
                         current_rating_id[0] = String.valueOf(ds.getKey());
 
                     String rating = String.valueOf(ds.child("rating").getValue());
-                    ReviewModel ratingModel = new ReviewModel();
+                    AppreciateBookModel ratingModel = new AppreciateBookModel();
                     ratingModel.setBook_id(book_id);
                     ratingModel.setUser_id(user_id);
                     ratingModel.setRating(rating);
@@ -172,8 +172,8 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                         holder.itemView.findViewById(R.id.iv_user_rating_colored).setVisibility(View.VISIBLE);
                         holder.user_rating.setText(inputEditText.getText().toString());
 
-                        ReviewModel newRating = new ReviewModel();
-                        newRating.setBook_id(bookModel.getId());
+                        AppreciateBookModel newRating = new AppreciateBookModel();
+                        newRating.setBook_id(BOOK_ID_LIST_READ.get(position));
                         newRating.setUser_id(currentUser.getUid());
                         newRating.setRating(inputEditText.getText().toString());
                         String rating_id = mRatingsDatabase.push().getKey();
@@ -181,7 +181,7 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                         Toast.makeText(context, "Rating added successfully", Toast.LENGTH_SHORT).show();
 
                         book_rating_list.add(newRating);
-                        computeMeanRating(bookModel.getId());
+                        computeMeanRating(BOOK_ID_LIST_READ.get(position));
                         if(!ratingMeanScore.equals("0")){
                             holder.mean_rating.setText(ratingMeanScore + "/5");
                         }
@@ -242,25 +242,31 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                             return;
                         }
 
-                        HashMap<String, Object> map = new HashMap<>();
-                        map.put("rating", inputEditText.getText().toString());
-                        mRatingsDatabase.child(current_rating_id[0]).updateChildren(map);
-                        Toast.makeText(context, "Rating updated successfully", Toast.LENGTH_SHORT).show();
 
-                        holder.user_rating.setText(inputEditText.getText().toString());
+                        if(BOOK_ID_LIST_READ.get(position)!="null" && BOOK_ID_LIST_READ.get(position)!=null){
+                            HashMap<String, Object> map = new HashMap<>();
+                            map.put("book_id", BOOK_ID_LIST_READ.get(position));
+                            map.put("user_id", currentUser.getUid());
+                            map.put("rating", inputEditText.getText().toString());
+                            mRatingsDatabase.child(current_rating_id[0]).updateChildren(map);
+                            Toast.makeText(context, "Rating updated successfully", Toast.LENGTH_SHORT).show();
 
-                        for(ReviewModel model: book_rating_list){
-                            if(model.getBook_id().equals(bookModel.getId()) && model.getUser_id().equals(currentUser.getUid())){
-                                model.setRating(inputEditText.getText().toString());
-                                break;
+                            holder.user_rating.setText(inputEditText.getText().toString());
+
+                            for(AppreciateBookModel model: book_rating_list){
+                                if(model.getBook_id().equals(BOOK_ID_LIST_READ.get(position)) && model.getUser_id().equals(currentUser.getUid())){
+                                    model.setRating(inputEditText.getText().toString());
+                                    break;
+                                }
                             }
+                            computeMeanRating(BOOK_ID_LIST_READ.get(position));
+                            if(!ratingMeanScore.equals("0")){
+                                holder.mean_rating.setText(ratingMeanScore + "/5");
+                            }
+                            ratingMeanScore="0";
                         }
-                        computeMeanRating(bookModel.getId());
-                        if(!ratingMeanScore.equals("0")){
-                            holder.mean_rating.setText(ratingMeanScore + "/5");
-                        }
-                        ratingMeanScore="0";
-
+                        else
+                            Toast.makeText(context, "Books id is NULL", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -271,14 +277,14 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                         holder.itemView.findViewById(R.id.iv_user_rating_colored).setVisibility(View.GONE);
                         holder.itemView.findViewById(R.id.iv_user_rating_discolored).setVisibility(View.VISIBLE);
 
-                        for(ReviewModel model: book_rating_list){
-                            if(model.getBook_id().equals(bookModel.getId()) && model.getUser_id().equals(currentUser.getUid())){
+                        for(AppreciateBookModel model: book_rating_list){
+                            if(model.getBook_id().equals(BOOK_ID_LIST_READ.get(position)) && model.getUser_id().equals(currentUser.getUid())){
                                 book_rating_list.remove(model);
                                 break;
                             }
                         }
 
-                        computeMeanRating(bookModel.getId());
+                        computeMeanRating(BOOK_ID_LIST_READ.get(position));
                         if(!ratingMeanScore.equals("0")){
                             holder.mean_rating.setText(ratingMeanScore + "/5");
                         }
@@ -327,7 +333,7 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                 BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
                 bookStorageHelper.setValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getRead_month(), bookModel.getRead_year());
                 bookStorageHelper.setId_book(bookModel.getId());
-                Intent intent = new Intent(context, BookEditActivity.class);
+                Intent intent = new Intent(context, EditBookActivity.class);
                 String param_bookTable_value = "Read books";
                 intent.putExtra(AppConstants.param_bookTable, param_bookTable_value);
                 context.startActivity(intent);
@@ -517,12 +523,15 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
     public void computeMeanRating(String book_id){
         if(book_rating_list.size()!=0){
             int rating_sum=0;
-            for(ReviewModel model : book_rating_list){
-                if(model.getBook_id().equals(book_id))
+            int number_of_ratings=0;
+            for(AppreciateBookModel model : book_rating_list){
+                if(model.getBook_id()!="null" && model.getBook_id().equals(book_id)){
                     rating_sum+=Integer.parseInt(model.getRating());
+                    number_of_ratings++;
+                }
             }
             if(rating_sum!=0){
-                double meanScore= (double)rating_sum/(book_rating_list.size());
+                double meanScore= (double)rating_sum/number_of_ratings;
                 ratingMeanScore=String.format("%.1f", meanScore);
             }
         }

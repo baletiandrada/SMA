@@ -1,15 +1,15 @@
 package com.example.booksapp.helpers;
 
-public class ReviewStorageHelper {
+public class AppreciateBookStorageHelper {
     private String user_id, book_id, content, author_name, book_title, rating;
-    private static ReviewStorageHelper instance;
+    private static AppreciateBookStorageHelper instance;
 
-    private ReviewStorageHelper(){
+    private AppreciateBookStorageHelper(){
     }
 
-    public static ReviewStorageHelper getInstance(){
+    public static AppreciateBookStorageHelper getInstance(){
         if(instance==null)
-            instance = new ReviewStorageHelper();
+            instance = new AppreciateBookStorageHelper();
         return instance;
     }
 

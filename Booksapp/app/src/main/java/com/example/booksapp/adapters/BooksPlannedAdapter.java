@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,23 +15,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.booksapp.AppConstants;
-import com.example.booksapp.BookEditActivity;
-import com.example.booksapp.BottomNavigationActivity;
+import com.example.booksapp.EditBookActivity;
 import com.example.booksapp.R;
-import com.example.booksapp.SeeReviewsActivity;
+import com.example.booksapp.BookReviewsActivity;
 import com.example.booksapp.dataModels.BookReadData;
 import com.example.booksapp.helpers.BookStorageHelper;
-import com.example.booksapp.helpers.ReviewStorageHelper;
-import com.google.android.youtube.player.YouTubePlayer;
+import com.example.booksapp.helpers.AppreciateBookStorageHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
 import static com.example.booksapp.AppConstants.ADD_REVIEW_ENABLED;
+import static com.example.booksapp.AppConstants.BOOK_ID_LIST_PLAN;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksPlannedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 
@@ -52,7 +47,7 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
     public BookReadDataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View contactView = inflater. inflate(R.layout.row_book_read_data, parent, false);
+        View contactView = inflater. inflate(R.layout.row_book_data, parent, false);
         BookReadDataViewHolder viewHolder = new BookReadDataViewHolder(contactView);
         return viewHolder;
     }
@@ -70,12 +65,12 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
         holder.itemView.findViewById(R.id.tv_see_reviews).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, SeeReviewsActivity.class);
-                ReviewStorageHelper reviewStorageHelper = ReviewStorageHelper.getInstance();
-                reviewStorageHelper.setUser_id(currentUser.getUid());
-                reviewStorageHelper.setBook_id(bookModel.getId());
-                reviewStorageHelper.setAuthor_name(bookModel.getAuthor_name());
-                reviewStorageHelper.setBook_title(bookModel.getTitle());
+                Intent intent = new Intent(context, BookReviewsActivity.class);
+                AppreciateBookStorageHelper appreciateBookStorageHelper = AppreciateBookStorageHelper.getInstance();
+                appreciateBookStorageHelper.setUser_id(currentUser.getUid());
+                appreciateBookStorageHelper.setBook_id(BOOK_ID_LIST_PLAN.get(position));
+                appreciateBookStorageHelper.setAuthor_name(bookModel.getAuthor_name());
+                appreciateBookStorageHelper.setBook_title(bookModel.getTitle());
                 intent.putExtra(ADD_REVIEW_ENABLED, "YES");
                 context.startActivity(intent);
             }
@@ -144,7 +139,7 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                 BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
                 bookStorageHelper.setValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getRead_month(), bookModel.getRead_year());
                 bookStorageHelper.setId_book(bookModel.getId());
-                Intent intent = new Intent(context, BookEditActivity.class);
+                Intent intent = new Intent(context, EditBookActivity.class);
                 String param_bookTable_value = "Planned books";
                 intent.putExtra(AppConstants.param_bookTable, param_bookTable_value);
                 context.startActivity(intent);
@@ -161,11 +156,11 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                             public void onClick(DialogInterface dialog, int which) {
                                 if(currentUser!=null){
                                     String book_id = mBooksReadDatabase.child(currentUser.getUid()).push().getKey();
-                                    if(bookModel.getId_from_big_db()=="null")
+                                    if(BOOK_ID_LIST_PLAN.get(position)=="null")
                                         mBooksReadDatabase.child(currentUser.getUid()).child(book_id).setValue(bookModel);
                                     else{
                                         BookReadData book_aux = new BookReadData();
-                                        book_aux.setId(bookModel.getId_from_big_db());
+                                        book_aux.setId(BOOK_ID_LIST_PLAN.get(position));
                                         book_aux.setRead_month(bookModel.getRead_month());
                                         book_aux.setRead_year(bookModel.getRead_year());
                                         mBooksReadDatabase.child(currentUser.getUid()).child(book_id).setValue(book_aux);

@@ -142,6 +142,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
         setContentView(R.layout.activity_add_book);
 
         initializeViews();
+        init();
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().hide();

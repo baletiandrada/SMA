@@ -1,32 +1,21 @@
 package com.example.booksapp.adapters;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.booksapp.AppConstants;
-import com.example.booksapp.BookEditActivity;
-import com.example.booksapp.InfoBookActivity;
+import com.example.booksapp.BookQuotesActivity;
 import com.example.booksapp.R;
 import com.example.booksapp.dataModels.BookReadData;
 import com.example.booksapp.helpers.BookStorageHelper;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static com.example.booksapp.helpers.FirebaseHelper.mBooksPlannedDatabase;
-import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 
 public class FavouriteBooksAdapter extends RecyclerView.Adapter<BookReadDataViewHolder>{
     private List<BookReadData> choicesList;
@@ -43,7 +32,7 @@ public class FavouriteBooksAdapter extends RecyclerView.Adapter<BookReadDataView
     public BookReadDataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View contactView = inflater. inflate(R.layout.row_book_read_data, parent, false);
+        View contactView = inflater. inflate(R.layout.row_book_data, parent, false);
         BookReadDataViewHolder viewHolder = new BookReadDataViewHolder(contactView);
         return viewHolder;
     }
@@ -67,7 +56,7 @@ public class FavouriteBooksAdapter extends RecyclerView.Adapter<BookReadDataView
         holder.itemView.findViewById(R.id.tv_see_quotes).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, InfoBookActivity.class);
+                Intent intent = new Intent(context, BookQuotesActivity.class);
                 bookStorageHelper.setBook_title(bookModel.getTitle());
                 bookStorageHelper.setAuthor_name(bookModel.getAuthor_name());
                 bookStorageHelper.setId_book(bookModel.getId());

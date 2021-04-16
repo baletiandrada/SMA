@@ -14,11 +14,11 @@ import com.example.booksapp.fragments.*;
 
 public class BottomNavigationActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
-    private BooksMainViewFragment booksMainViewFragment;
-    private PlanningBooksFragment planningBooksFragment;
+    private BooksReadFragment booksReadFragment;
+    private BooksPlannedFragment booksPlannedFragment;
     private BooksRecommendedFragment booksRecommendedFragment;
-    private EditUserDataFragment editUserDataFragment;
-    private MoreActionsFragment moreActionsFragment;
+    private FavouriteBooksFragment favouriteBooksFragment;
+    private AccountSettingsFragment accountSettingsFragment;
 
     private BottomNavigationView navView;
 
@@ -41,12 +41,12 @@ public class BottomNavigationActivity extends AppCompatActivity implements Botto
     }
 
     private void initializeViews() {
-        booksMainViewFragment = new BooksMainViewFragment();
-        planningBooksFragment = new PlanningBooksFragment();
+        booksReadFragment = new BooksReadFragment();
+        booksPlannedFragment = new BooksPlannedFragment();
         booksRecommendedFragment = new BooksRecommendedFragment();
-        editUserDataFragment = new EditUserDataFragment();
-        moreActionsFragment = new MoreActionsFragment();
-        activeFragment = booksMainViewFragment;
+        favouriteBooksFragment = new FavouriteBooksFragment();
+        accountSettingsFragment = new AccountSettingsFragment();
+        activeFragment = booksReadFragment;
     }
 
     @Override
@@ -54,24 +54,24 @@ public class BottomNavigationActivity extends AppCompatActivity implements Botto
         switch ((item.getItemId()))
         {
             case R.id.navigation_books:
-                fragmentManager.beginTransaction().hide(activeFragment).show(booksMainViewFragment).detach(booksMainViewFragment).attach(booksMainViewFragment).commit();
-                activeFragment = booksMainViewFragment;
+                fragmentManager.beginTransaction().hide(activeFragment).show(booksReadFragment).detach(booksReadFragment).attach(booksReadFragment).commit();
+                activeFragment = booksReadFragment;
                 return true;
             case R.id.navigation_planning_books:
-                fragmentManager.beginTransaction().hide(activeFragment).show(planningBooksFragment).commit();
-                activeFragment = planningBooksFragment;
+                fragmentManager.beginTransaction().hide(activeFragment).show(booksPlannedFragment).commit();
+                activeFragment = booksPlannedFragment;
                 return true;
             case R.id.navigation_books_recommended:
                 fragmentManager.beginTransaction().hide(activeFragment).show(booksRecommendedFragment).commit();
                 activeFragment = booksRecommendedFragment;
                 return true;
             case R.id.navigation_edit_profile:
-                fragmentManager.beginTransaction().hide(activeFragment).show(editUserDataFragment).commit();
-                activeFragment = editUserDataFragment;
+                fragmentManager.beginTransaction().hide(activeFragment).show(favouriteBooksFragment).commit();
+                activeFragment = favouriteBooksFragment;
                 return true;
             case R.id.navigation_more_actions:
-                fragmentManager.beginTransaction().hide(activeFragment).show(moreActionsFragment).commit();
-                activeFragment = moreActionsFragment;
+                fragmentManager.beginTransaction().hide(activeFragment).show(accountSettingsFragment).commit();
+                activeFragment = accountSettingsFragment;
                 return true;
         }
         return false;
@@ -79,10 +79,10 @@ public class BottomNavigationActivity extends AppCompatActivity implements Botto
 
     public void loadFragments()
     {
-        fragmentManager.beginTransaction().add(R.id.nav_host_fragment, booksMainViewFragment, "1").commit();
-        fragmentManager.beginTransaction().add(R.id.nav_host_fragment, planningBooksFragment, "1").hide(planningBooksFragment).commit();
+        fragmentManager.beginTransaction().add(R.id.nav_host_fragment, booksReadFragment, "1").commit();
+        fragmentManager.beginTransaction().add(R.id.nav_host_fragment, booksPlannedFragment, "1").hide(booksPlannedFragment).commit();
         fragmentManager.beginTransaction().add(R.id.nav_host_fragment, booksRecommendedFragment, "1").hide(booksRecommendedFragment).commit();
-        fragmentManager.beginTransaction().add(R.id.nav_host_fragment, editUserDataFragment, "1").hide(editUserDataFragment).commit();
-        fragmentManager.beginTransaction().add(R.id.nav_host_fragment, moreActionsFragment, "1").hide(moreActionsFragment).commit();
+        fragmentManager.beginTransaction().add(R.id.nav_host_fragment, favouriteBooksFragment, "1").hide(favouriteBooksFragment).commit();
+        fragmentManager.beginTransaction().add(R.id.nav_host_fragment, accountSettingsFragment, "1").hide(accountSettingsFragment).commit();
     }
 }

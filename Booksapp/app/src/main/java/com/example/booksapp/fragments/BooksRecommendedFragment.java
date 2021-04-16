@@ -3,15 +3,12 @@ package com.example.booksapp.fragments;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -26,15 +23,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.booksapp.AddBookActivity;
 import com.example.booksapp.AppConstants;
+import com.example.booksapp.dataModels.BookRankingModel;
+import com.example.booksapp.ComputeUserBasedSimilarity;
 import com.example.booksapp.MainActivity;
 import com.example.booksapp.R;
 import com.example.booksapp.RecyclerItemCllickListener;
 import com.example.booksapp.adapters.BooksRecommendedAdapter;
 import com.example.booksapp.adapters.GenreModelAdapter;
-import com.example.booksapp.adapters.GenresAdapter;
 import com.example.booksapp.dataModels.BookReadData;
 import com.example.booksapp.dataModels.GenreModel;
-import com.example.booksapp.dataModels.ReviewModel;
+import com.example.booksapp.dataModels.AppreciateBookModel;
 import com.example.booksapp.helpers.BookListStorageHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,16 +42,16 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import static android.content.Context.MODE_PRIVATE;
 import static androidx.recyclerview.widget.LinearLayoutManager.*;
-import static com.example.booksapp.AppConstants.MY_PREFS_NAME;
 import static com.example.booksapp.helpers.FirebaseHelper.mBookGenresDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksPlannedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mRatingsDatabase;
+import static com.example.booksapp.helpers.FirebaseHelper.mUserDatabase;
 
 public class BooksRecommendedFragment extends Fragment {
     private Button seeAllRecommendedBooks_button;
@@ -74,6 +72,7 @@ public class BooksRecommendedFragment extends Fragment {
     FirebaseUser currentUser = mAuth.getCurrentUser();
 
     List<String> user_read_books = new ArrayList<String>(), user_planned_books = new ArrayList<String>();  //lista contine genurile din cartile citite si din cele planificate
+    List<String> user_list = new ArrayList<String>();
     ArrayList<String>  user_books = new ArrayList<String>();
     ArrayList<String> user_book_genres = new ArrayList<String>();
     
@@ -86,7 +85,7 @@ public class BooksRecommendedFragment extends Fragment {
     private Context activity;
 
     String ratingMeanScore="0";
-    ArrayList<ReviewModel> book_rating_list = new ArrayList<ReviewModel>();
+    ArrayList<AppreciateBookModel> book_rating_list = new ArrayList<AppreciateBookModel>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -98,7 +97,15 @@ public class BooksRecommendedFragment extends Fragment {
         scaleUp = AnimationUtils.loadAnimation(getActivity(), R.anim.scale_up);
         scaleDown = AnimationUtils.loadAnimation(getActivity(), R.anim.scale_down);
 
+        getRatings();
+
+        setUserList();
+
+        getTop5Ratings();
+        getAllBooksFromDB();
+
         getUserBooks();
+
         iv1 = root.findViewById(R.id.gone1);
         tv1 = root.findViewById(R.id.gone2);
         r1 = root.findViewById(R.id.gone3);
@@ -113,8 +120,6 @@ public class BooksRecommendedFragment extends Fragment {
             fab.setVisibility(View.VISIBLE);
         }
 
-        getRatings();
-
         tv_seeAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -123,7 +128,7 @@ public class BooksRecommendedFragment extends Fragment {
                     mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            books.removeAll(books);
+                            books.clear();
                             for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                 String author_name = String.valueOf(ds.child("author_name").getValue());
                                 String book_title = String.valueOf(ds.child("title").getValue());
@@ -141,7 +146,7 @@ public class BooksRecommendedFragment extends Fragment {
                                 books.add(newBook);
                             }
                             if (!books.isEmpty()){
-                                setRecyclerView();
+                                setRecyclerView(books);
                             }
 
                         }
@@ -162,18 +167,8 @@ public class BooksRecommendedFragment extends Fragment {
                     @Override
                     public void onItemClick(View view, int position) {
                         GenreModel genreModel = genres_from_DB.get(position);
-                        //Toast.makeText(getActivity(), genreModel.getName(), Toast.LENGTH_SHORT).show();
-                        mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if(!(currentUser.getUid() == null))
-                                    getDataByVariable(dataSnapshot, genreModel.getName());
-                            }
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-                                Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        if(!(currentUser.getUid() == null))
+                            getDataByVariable(genreModel.getName());
                     }
                 })
         );
@@ -182,7 +177,7 @@ public class BooksRecommendedFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 BookListStorageHelper bookListStorageHelper = BookListStorageHelper.getInstance();
-                getAllDataFromRecommendedDB();
+                getAllBooksFromDB();
                 bookListStorageHelper.setBooks_recommended_list(books);
                 Intent intent = new Intent(getContext(), AddBookActivity.class);
                 intent.putExtra(AppConstants.PARAM_ADD_BOOK_TABLE, "Recommended books");
@@ -260,38 +255,6 @@ public class BooksRecommendedFragment extends Fragment {
         });
     }
 
-    public void getAllDataFromRecommendedDB(){
-        mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(!(currentUser.getUid() == null))
-                    books.removeAll(books);
-                    for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                        String author_name = String.valueOf(ds.child("author_name").getValue());
-                        String book_title = String.valueOf(ds.child("title").getValue());
-                        String genre = String.valueOf(ds.child("genre").getValue()).toLowerCase();
-                        String video_path = String.valueOf(ds.child("video_path").getValue());
-                        BookReadData newBook = new BookReadData(author_name, book_title, genre);
-                        if (video_path != null)
-                            newBook.setVideo_path(video_path);
-                        newBook.setId(String.valueOf(ds.getKey()));
-                        books.add(newBook);
-                    }
-                /*if(!books.isEmpty())
-                    setRecyclerView();
-                else if(!toast_message){
-                    //Toast.makeText(getActivity(), "Sorry, there are no recommendations for you", Toast.LENGTH_SHORT).show();
-                    toast_message = true;
-                }*/
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     public void getUserBooks(){
         if(currentUser.getUid() != null){
             mBooksReadDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
@@ -321,8 +284,6 @@ public class BooksRecommendedFragment extends Fragment {
 
     public void updateBooks(){
         setUserBooks();
-        getGenreValuesSpinner();
-        getValuesFromGenresDB();
         getDataFromRecommendedDB();
     }
 
@@ -331,7 +292,7 @@ public class BooksRecommendedFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(!(currentUser == null)){
-                    genres_from_DB.removeAll(genres_from_DB);
+                    genres_from_DB.clear();
                     for(DataSnapshot ds : dataSnapshot.getChildren()){
                         String genre_name = String.valueOf(ds.child("name").getValue());
                         String genre_src = String.valueOf(ds.child("src").getValue());
@@ -379,13 +340,13 @@ public class BooksRecommendedFragment extends Fragment {
     }
 
     public void setUserBooks(){
-        user_books.removeAll(user_books);
+        user_books.clear();
         user_books.addAll(user_read_books);
         user_books.addAll(user_planned_books);
     }
 
     public void getReadBookGenres(DataSnapshot dataSnapshot){
-        user_read_books.removeAll(user_read_books);
+        user_read_books.clear();
         for(DataSnapshot ds : dataSnapshot.getChildren()){
             String book_id=String.valueOf(ds.child("id").getValue());
             if(book_id!="null")
@@ -394,7 +355,7 @@ public class BooksRecommendedFragment extends Fragment {
     }
 
     public void getPlannedBookGenres(DataSnapshot dataSnapshot){
-        user_planned_books.removeAll(user_planned_books);
+        user_planned_books.clear();
         for(DataSnapshot ds : dataSnapshot.getChildren()) {
             String book_id = String.valueOf(ds.child("id").getValue());
             if (book_id != "null")
@@ -402,28 +363,12 @@ public class BooksRecommendedFragment extends Fragment {
         }
     }
 
-    public void getGenreValuesSpinner(){
-        mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(!(currentUser.getUid() == null)){
-                    user_book_genres.removeAll(user_book_genres);
-                    for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                        for (String book_id : user_books) {
-                            if(book_id.equals(String.valueOf(ds.getKey())) )
-                                if (!user_book_genres.contains(String.valueOf(ds.child("genre").getValue())))
-                                    user_book_genres.add(String.valueOf(ds.child("genre").getValue()).toLowerCase());
-                        }
-                    }
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
-            }
-        });
+    public void getGenreValuesSpinner(List<BookReadData> book_list){
+        user_book_genres.clear();
+        for(BookReadData book: book_list){
+            if (!user_book_genres.contains(book.getGenre()))
+                user_book_genres.add(book.getGenre().toLowerCase());
+        }
     }
 
     public void goToLoginActivity(){
@@ -431,55 +376,216 @@ public class BooksRecommendedFragment extends Fragment {
         startActivity(intent);
     }
 
-    public void setRecyclerView(){
-        listExampleAdapterBooks = new BooksRecommendedAdapter(books);
+    public void setRecyclerView(List<BookReadData> book_list){
+        listExampleAdapterBooks = new BooksRecommendedAdapter(book_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(listExampleAdapterBooks);
     }
 
-    private void getData(DataSnapshot dataSnapshot) {
-        books.removeAll(books);
-        AppConstants.MEAN_RATING_RECOMM_FRAG.removeAll(AppConstants.MEAN_RATING_RECOMM_FRAG);
-        for(DataSnapshot ds : dataSnapshot.getChildren()){
-            String author_name = String.valueOf(ds.child("author_name").getValue());
-            String book_title = String.valueOf(ds.child("title").getValue());
-            String genre = String.valueOf(ds.child("genre").getValue()).toLowerCase();
-            String video_path = String.valueOf(ds.child("video_path").getValue());
-            BookReadData newBook = new BookReadData(author_name, book_title);
-            if(video_path!=null)
-                newBook.setVideo_path(video_path);
-
-            String uri = String.valueOf(ds.child("uri").getValue());
-            if(uri!=null)
-                newBook.setUri(uri);
-
-            String description = String.valueOf(ds.child("description").getValue());
-            if(description!="null")
-                newBook.setDescription(description);
-
-            boolean userBooksContainNewBook = false;
-            for(String book_id:user_books){
-                if(String.valueOf(ds.getKey()).equals(book_id) ){
-                    userBooksContainNewBook = true;
-                    break;
+    public void setUserList(){
+        mUserDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot ds : snapshot.getChildren()){
+                    user_list.add(String.valueOf(ds.getKey()));
                 }
             }
 
-            boolean genres_fit = false;
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-            for(String genre_item : user_book_genres)
-                if(genre.contains(genre_item) || genre_item.contains(genre)){
-                    genres_fit = true;
-                    break;
+            }
+        });
+    }
+
+    private boolean bookExistsInList(String book_id, List<BookReadData> book_list){
+        for(BookReadData book : book_list){
+            if(book.getId().equals(book_id))
+                return true;
+        }
+        return false;
+    }
+
+    private List<AppreciateBookModel> all_ratings_list = new ArrayList<>();
+    private void getTop5Ratings(){
+        mRatingsDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot ds: snapshot.getChildren()){
+                    String book_id = String.valueOf(ds.child("book_id").getValue());
+
+                    boolean bookExists = false;
+                    for(AppreciateBookModel rating: all_ratings_list){
+                        if(rating.getBook_id().equals(book_id))
+                            bookExists=true;
+                    }
+
+                    if(!bookExists && !String.valueOf(ds.child("user_id").getValue()).equals(currentUser.getUid())){
+                        String rating = String.valueOf(ds.child("rating").getValue());
+                        AppreciateBookModel newRatingData = new AppreciateBookModel();
+                        newRatingData.setBook_id(book_id);
+
+                        computeMeanRating(book_id);
+                        newRatingData.setRating(ratingMeanScore);
+                        ratingMeanScore="0";
+                        all_ratings_list.add(newRatingData);
+                        Collections.sort(all_ratings_list, Collections.reverseOrder());
+                    }
                 }
+            }
 
-            if( !userBooksContainNewBook && genres_fit )
-            {
-                newBook.setId(String.valueOf(ds.getKey()));
-                newBook.setGenre(ds.child("genre").getValue().toString());
-                books.add(newBook);
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
 
-                computeMeanRating(String.valueOf(ds.getKey()));
+    private List<BookReadData> all_books_from_DB = new ArrayList<>();
+    private void getAllBooksFromDB(){
+        mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                AppConstants.MEAN_RATING_RECOMM_FRAG.clear();
+                for(DataSnapshot ds: snapshot.getChildren()){
+                    String author_name = String.valueOf(ds.child("author_name").getValue());
+                    String book_title = String.valueOf(ds.child("title").getValue());
+                    String genre = String.valueOf(ds.child("genre").getValue()).toLowerCase();
+                    BookReadData newBook = new BookReadData(author_name, book_title);
+                    newBook.setGenre(genre);
+
+                    String video_path = String.valueOf(ds.child("video_path").getValue());
+                    if(video_path!=null)
+                        newBook.setVideo_path(video_path);
+
+                    String uri = String.valueOf(ds.child("uri").getValue());
+                    if(uri!=null)
+                        newBook.setUri(uri);
+
+                    String description = String.valueOf(ds.child("description").getValue());
+                    if(description!="null")
+                        newBook.setDescription(description);
+
+                    newBook.setId(String.valueOf(ds.getKey()));
+
+                    if(!bookExistsInList(ds.getKey(), all_books_from_DB))
+                        all_books_from_DB.add(newBook);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private List<BookReadData> top5Books = new ArrayList<>();
+    private void getTop5Books(){
+        List<BookReadData> aux_list = new ArrayList<>();
+
+        for(AppreciateBookModel rating: all_ratings_list){
+            for(BookReadData book : all_books_from_DB)
+                if(rating.getBook_id().equals(book.getId()))
+                    if(!bookExistsInList(book.getId(), aux_list)
+                    && !user_read_books.contains(book.getId())
+                            && !user_planned_books.contains(book.getId())){
+                        aux_list.add(book);
+                        computeMeanRating(book.getId());
+                        if(!ratingMeanScore.equals("0"))
+                            AppConstants.MEAN_RATING_RECOMM_FRAG.add(ratingMeanScore);
+                        else
+                            AppConstants.MEAN_RATING_RECOMM_FRAG.add("0");
+                        ratingMeanScore="0";
+                        break;
+                    }
+
+        }
+
+        if(aux_list.size()>5){
+            List<BookReadData> list = new ArrayList<>();
+            int i;
+            for(i=0;i<5;i++){
+                list.add(aux_list.get(i));
+            }
+        }
+
+        top5Books.clear();
+        top5Books.addAll(aux_list);
+    }
+
+    private void getData(DataSnapshot dataSnapshot) {
+        books.clear();
+        AppConstants.MEAN_RATING_RECOMM_FRAG.clear();
+
+        ArrayList<BookRankingModel> rankings = ComputeUserBasedSimilarity.getRecommandations(currentUser.getUid(), user_list, user_books, book_rating_list);
+        if(rankings!=null){
+            for(BookRankingModel ranking : rankings){
+
+                for(DataSnapshot ds : dataSnapshot.getChildren()){
+
+                    if(ranking.getBook_id().equals(String.valueOf(ds.getKey()))){
+
+                        String author_name = String.valueOf(ds.child("author_name").getValue());
+                        String book_title = String.valueOf(ds.child("title").getValue());
+                        String genre = String.valueOf(ds.child("genre").getValue()).toLowerCase();
+                        String video_path = String.valueOf(ds.child("video_path").getValue());
+                        BookReadData newBook = new BookReadData(author_name, book_title);
+                        if(video_path!=null)
+                            newBook.setVideo_path(video_path);
+                        String uri = String.valueOf(ds.child("uri").getValue());
+                        if(uri!=null)
+                            newBook.setUri(uri);
+                        String description = String.valueOf(ds.child("description").getValue());
+                        if(description!="null")
+                            newBook.setDescription(description);
+                        newBook.setId(String.valueOf(ds.getKey()));
+                        newBook.setGenre(genre);
+                        books.add(newBook);
+
+                        computeMeanRating(String.valueOf(ds.getKey()));
+                        if(!ratingMeanScore.equals("0"))
+                            AppConstants.MEAN_RATING_RECOMM_FRAG.add(ratingMeanScore);
+                        else
+                            AppConstants.MEAN_RATING_RECOMM_FRAG.add("0");
+                        ratingMeanScore="0";
+                    }
+
+                }
+            }
+        }
+
+        else{
+            getTop5Books();
+            books.clear();
+            books.addAll(top5Books);
+            int i=0;
+        }
+
+        if(!books.isEmpty()){
+            setRecyclerView(books);
+
+            getGenreValuesSpinner(books);
+            getValuesFromGenresDB();
+
+        }
+
+        else if(!toast_message){
+            toast_message = true;
+        }
+
+    }
+
+    private void getDataByVariable(String genre_variable){
+        List<BookReadData> aux_book_list = new ArrayList<>();
+        AppConstants.MEAN_RATING_RECOMM_FRAG.clear();
+
+        for(BookReadData book : books){
+            if(book.getGenre().toLowerCase().contains(genre_variable.toLowerCase())){
+
+                aux_book_list.add(book);
+
+                computeMeanRating(String.valueOf(book.getId()));
                 if(!ratingMeanScore.equals("0"))
                     AppConstants.MEAN_RATING_RECOMM_FRAG.add(ratingMeanScore);
                 else
@@ -487,56 +593,9 @@ public class BooksRecommendedFragment extends Fragment {
                 ratingMeanScore="0";
             }
         }
-        if(!books.isEmpty())
-            setRecyclerView();
-        else if(!toast_message){
-            toast_message = true;
-        }
 
-    }
-
-    private void getDataByVariable(DataSnapshot dataSnapshot, String genre_variable){
-        books.removeAll(books);
-        AppConstants.MEAN_RATING_RECOMM_FRAG.removeAll(AppConstants.MEAN_RATING_RECOMM_FRAG);
-        for(DataSnapshot ds : dataSnapshot.getChildren()){
-            String variable_lower_case = genre_variable.toLowerCase();
-            if(String.valueOf(ds.child("genre").getValue()).toLowerCase().contains(variable_lower_case)){
-                String author_name = String.valueOf(ds.child("author_name").getValue());
-                String book_title = String.valueOf(ds.child("title").getValue());
-                String video_path = String.valueOf(ds.child("video_path").getValue());
-                BookReadData newBook = new BookReadData(author_name, book_title);
-                if(video_path!=null)
-                    newBook.setVideo_path(video_path);
-                String uri = String.valueOf(ds.child("uri").getValue());
-                if(uri!=null)
-                    newBook.setUri(uri);
-                String description = String.valueOf(ds.child("description").getValue());
-                if(description!="null")
-                    newBook.setDescription(description);
-                boolean userBooksContainNewBook = false;
-                for(String book_id :user_books){
-                    if( book_id.equals(String.valueOf(ds.getKey())) ){
-                        userBooksContainNewBook = true;
-                        break;
-                    }
-                }
-
-                if(!userBooksContainNewBook){
-                    newBook.setId(String.valueOf(ds.getKey()));
-                    newBook.setGenre(ds.child("genre").getValue().toString());
-                    books.add(newBook);
-
-                    computeMeanRating(String.valueOf(ds.getKey()));
-                    if(!ratingMeanScore.equals("0"))
-                        AppConstants.MEAN_RATING_RECOMM_FRAG.add(ratingMeanScore);
-                    else
-                        AppConstants.MEAN_RATING_RECOMM_FRAG.add("0");
-                    ratingMeanScore="0";
-                }
-            }
-        }
-        if(!books.isEmpty())
-            setRecyclerView();
+        if(!aux_book_list.isEmpty())
+            setRecyclerView(aux_book_list);
         else
             Toast.makeText(getActivity(), "No results", Toast.LENGTH_SHORT).show();
     }
@@ -545,12 +604,12 @@ public class BooksRecommendedFragment extends Fragment {
         mRatingsDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                book_rating_list.removeAll(book_rating_list);
+                book_rating_list.clear();
                 for(DataSnapshot ds: snapshot.getChildren()){
                     String book_id = String.valueOf(ds.child("book_id").getValue());
                     String user_id = String.valueOf(ds.child("user_id").getValue());
                     String rating = String.valueOf(ds.child("rating").getValue());
-                    ReviewModel ratingData = new ReviewModel();
+                    AppreciateBookModel ratingData = new AppreciateBookModel();
                     ratingData.setUser_id(user_id);
                     ratingData.setBook_id(book_id);
                     ratingData.setRating(rating);
@@ -569,12 +628,16 @@ public class BooksRecommendedFragment extends Fragment {
     public void computeMeanRating(String book_id){
         if(book_rating_list.size()!=0){
             int rating_sum=0;
-            for(ReviewModel model : book_rating_list){
-                if(model.getBook_id().equals(book_id))
+            int number_of_ratings=0;
+            for(AppreciateBookModel model : book_rating_list){
+                if(model.getBook_id().equals(book_id)){
                     rating_sum+=Integer.parseInt(model.getRating());
+                    number_of_ratings++;
+                }
+
             }
             if(rating_sum!=0){
-                double meanScore= (double)rating_sum/(book_rating_list.size());
+                double meanScore= (double)rating_sum/number_of_ratings;
                 ratingMeanScore=String.format("%.1f", meanScore);
             }
         }

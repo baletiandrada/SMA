@@ -43,7 +43,8 @@
             android:textStyle="italic"
             android:layout_gravity="center"
             android:textAlignment="center"
-            tools:ignore="RtlCompat" />
+            tools:ignore="RtlCompat"
+            android:layout_marginBottom="10dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layout_edit_quote"
@@ -126,6 +127,78 @@
         android:layout_gravity="center"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="10dp"/>
+
+    <LinearLayout
+        android:id="@+id/layout_like_icons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/iv_like_discolored_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/like_discolored_icon"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="70dp"
+            app:tint="#2E6B79"/>
+        <ImageView
+            android:id="@+id/iv_like_colored_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/like_colored_icon"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="70dp"
+            app:tint="#2E6B79"
+            android:layout_marginBottom="5dp"
+            android:visibility="gone"/>
+        <ImageView
+            android:id="@+id/iv_dislike_discolored_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/dislike_discolored_icon"
+            android:layout_marginTop="5dp"
+            app:tint="#2E6B79"
+            android:layout_marginBottom="5dp"/>
+        <ImageView
+            android:id="@+id/iv_dislike_colored_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/dislike_colored_icon"
+            android:layout_marginTop="5dp"
+            app:tint="#2E6B79"
+            android:layout_marginBottom="5dp"
+            android:visibility="gone"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout_text_likes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="15dp">
+
+        <TextView
+            android:id="@+id/tv_number_of_likes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="no of likes"
+            android:textColor="#2E6B79"
+            android:textStyle="bold"
+            android:textSize="13dp"
+            android:layout_marginRight="50dp"
+            android:layout_marginLeft="10dp"/>
+        <TextView
+            android:id="@+id/tv_number_of_dislikes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#2E6B79"
+            android:textStyle="bold"
+            android:textSize="13dp"
+            android:text="no of dislikes"/>
+    </LinearLayout>
 
 
 </LinearLayout>

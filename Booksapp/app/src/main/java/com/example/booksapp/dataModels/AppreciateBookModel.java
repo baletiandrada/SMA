@@ -1,15 +1,13 @@
 package com.example.booksapp.dataModels;
 
-import java.util.ArrayList;
-
-public class ReviewModel {
+public class AppreciateBookModel implements Comparable<AppreciateBookModel>{
     private String user_id, book_id, content, id, rating;
 
-    public ReviewModel(){
+    public AppreciateBookModel(){
 
     }
 
-    public ReviewModel(String user_id, String book_id, String content) {
+    public AppreciateBookModel(String user_id, String book_id, String content) {
         this.user_id = user_id;
         this.book_id = book_id;
         this.content = content;
@@ -53,5 +51,10 @@ public class ReviewModel {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    @Override
+    public int compareTo(AppreciateBookModel o) {
+        return this.getRating().compareTo(o.getRating());
     }
 }

@@ -20,21 +20,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.booksapp.AddBookActivity;
 import com.example.booksapp.AppConstants;
 import com.example.booksapp.ChangePasswordActivity;
 import com.example.booksapp.MainActivity;
 import com.example.booksapp.R;
-import com.example.booksapp.dataModels.BookReadData;
-import com.example.booksapp.helpers.BookListStorageHelper;
 import com.example.booksapp.helpers.FirebaseHelper;
-import com.example.booksapp.helpers.StorageHelper;
+import com.example.booksapp.helpers.UserStorageHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.youtube.player.YouTubePlayerFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -48,12 +43,11 @@ import java.util.List;
 import static android.content.Context.MODE_PRIVATE;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksPlannedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
-import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mFavouriteBooksDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mQuotesDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mUserDatabase;
 
-public class MoreActionsFragment extends Fragment {
+public class AccountSettingsFragment extends Fragment {
     private Button logout_button, delete_account_button;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
@@ -63,7 +57,7 @@ public class MoreActionsFragment extends Fragment {
 
     private EditText username_et, age_et, email_et;
     private Button updateUserData_button, changePasswordTop_button;
-    StorageHelper userData = StorageHelper.getInstance();
+    UserStorageHelper userData = UserStorageHelper.getInstance();
 
     List<String> favourite_books = new ArrayList<String>();
 
@@ -74,7 +68,7 @@ public class MoreActionsFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_more_actions, container, false);
+        View root = inflater.inflate(R.layout.fragment_account_settings, container, false);
         initializeViews(root);
 
         scaleUp = AnimationUtils.loadAnimation(getActivity(), R.anim.scale_up);
@@ -167,41 +161,6 @@ public class MoreActionsFragment extends Fragment {
                 return true;
             }
         });
-
-
-        /*logout_button.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction()==MotionEvent.ACTION_DOWN){
-                    logout_button.startAnimation(scaleUp);
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setMessage("Are you sure you want to log out?")
-                            .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                                    final FirebaseUser currentUser = mAuth.getCurrentUser();
-
-                                    SharedPreferences.Editor editor = getActivity().getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE).edit();
-                                    editor.putString(AppConstants.EMAIL, currentUser.getEmail());
-                                    editor.apply();
-
-                                    mAuth.signOut();
-                                    goToLoginActivity();
-                                    Toast.makeText( getActivity() , "Log out successfully", Toast.LENGTH_SHORT).show();
-                                }
-                            }).setNegativeButton("CANCEL", null);
-
-                    AlertDialog alert = builder.create();
-                    alert.show();
-                }
-                else if(event.getAction()==MotionEvent.ACTION_UP){
-                    logout_button.startAnimation(scaleDown);
-                }
-                return true;
-            }
-        });*/
-
 
         delete_account_button.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -336,7 +295,7 @@ public class MoreActionsFragment extends Fragment {
                     mFavouriteBooksDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            favourite_books.removeAll(favourite_books);
+                            favourite_books.clear();
                             for(DataSnapshot ds : dataSnapshot.getChildren()){
                                 favourite_books.add(ds.getKey());
                             }

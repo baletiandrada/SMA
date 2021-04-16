@@ -10,7 +10,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:layout_gravity="center"
-    tools:context=".BookEditActivity">
+    tools:context=".EditBookActivity">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layout_edit_author_name"

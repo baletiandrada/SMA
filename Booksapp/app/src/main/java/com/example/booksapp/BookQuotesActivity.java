@@ -6,27 +6,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.LightingColorFilter;
 import android.os.Bundle;
-import android.text.Editable;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.booksapp.adapters.BookReadDataAdapter;
 import com.example.booksapp.adapters.QuoteAdapter;
-import com.example.booksapp.dataModels.BookReadData;
 import com.example.booksapp.dataModels.QuoteModel;
-import com.example.booksapp.helpers.BookListStorageHelper;
 import com.example.booksapp.helpers.BookStorageHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -37,14 +28,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mQuotesDatabase;
 
-public class InfoBookActivity extends AppCompatActivity {
+public class BookQuotesActivity extends AppCompatActivity {
 
     private TextView title, author;
     private RecyclerView recyclerView;
@@ -59,7 +49,7 @@ public class InfoBookActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_info_book);
+        setContentView(R.layout.activity_book_quotes);
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().hide();
