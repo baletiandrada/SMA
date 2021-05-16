@@ -25,7 +25,6 @@
             android:layout_marginTop="15dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginBottom="5dp"
             android:textColor="@color/black"
             android:textSize="15dp"
             android:textStyle="bold"
@@ -36,6 +35,7 @@
             android:id="@+id/tv_text_quote"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:textColor="@color/black"
@@ -43,8 +43,7 @@
             android:textStyle="italic"
             android:layout_gravity="center"
             android:textAlignment="center"
-            tools:ignore="RtlCompat"
-            android:layout_marginBottom="10dp"/>
+            tools:ignore="RtlCompat" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layout_edit_quote"
@@ -55,12 +54,29 @@
         android:layout_margin="10dp"
         android:layout_gravity="center"
         app:boxBackgroundColor="@color/white">
-        <EditText
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/et_edit_quote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            android:completionThreshold="1"
+            android:popupBackground="#BFB5C1"
+            android:dropDownSelector="@color/purple_200"
+            android:paddingTop="27dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="10dp"
+            android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <ListView
+        android:id="@+id/words_for_edit_review_lv"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="#BFB5C1"
+        android:visibility="gone"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"/>
 
     <ImageView
         android:id="@+id/iv_arrow_down"
@@ -137,40 +153,41 @@
 
         <ImageView
             android:id="@+id/iv_like_discolored_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:src="@drawable/like_discolored_icon"
             android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="2dp"
             android:layout_marginRight="70dp"
             app:tint="#2E6B79"/>
         <ImageView
             android:id="@+id/iv_like_colored_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:src="@drawable/like_colored_icon"
             android:layout_marginTop="5dp"
             android:layout_marginRight="70dp"
             app:tint="#2E6B79"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="2dp"
             android:visibility="gone"/>
         <ImageView
             android:id="@+id/iv_dislike_discolored_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:src="@drawable/dislike_discolored_icon"
             android:layout_marginTop="5dp"
             app:tint="#2E6B79"
-            android:layout_marginBottom="5dp"/>
+            android:layout_marginBottom="2dp"/>
         <ImageView
             android:id="@+id/iv_dislike_colored_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:src="@drawable/dislike_colored_icon"
             android:layout_marginTop="5dp"
             app:tint="#2E6B79"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="2dp"
             android:visibility="gone"/>
+
     </LinearLayout>
     <LinearLayout
         android:id="@+id/layout_text_likes"
@@ -187,19 +204,30 @@
             android:text="no of likes"
             android:textColor="#2E6B79"
             android:textStyle="bold"
-            android:textSize="13dp"
-            android:layout_marginRight="50dp"
-            android:layout_marginLeft="10dp"/>
+            android:textSize="12dp"
+            android:layout_marginRight="55dp"
+            android:layout_marginLeft="0dp"/>
         <TextView
             android:id="@+id/tv_number_of_dislikes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#2E6B79"
             android:textStyle="bold"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:text="no of dislikes"/>
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tv_see_replies"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="See replies (x)"
+        android:textColor="#5E325A"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        android:padding="5dp"
+        android:layout_marginBottom="15dp"/>
 
 </LinearLayout>
 </androidx.cardview.widget.CardView>

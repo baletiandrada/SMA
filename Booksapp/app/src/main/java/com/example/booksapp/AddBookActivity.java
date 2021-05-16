@@ -7,21 +7,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -32,10 +26,8 @@ import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.booksapp.dataModels.BookReadData;
-import com.example.booksapp.dataModels.ImageUploadInfo;
+import com.example.booksapp.dataModels.BookData;
 import com.example.booksapp.helpers.BookListStorageHelper;
-import com.example.booksapp.helpers.BookStorageHelper;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -45,7 +37,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -54,13 +45,11 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksPlannedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
-import static com.example.booksapp.helpers.FirebaseHelper.mImagesDatabase;
 
 public class AddBookActivity extends AppCompatActivity implements SelectPhotoDialog.OnPhotoSelectedListener {
 
@@ -76,7 +65,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
     ArrayList<String> authorNames = new ArrayList<String>();
     ArrayList<String> bookTitles = new ArrayList<String>();
 
-    List<BookReadData> books_from_DB = new ArrayList<BookReadData>();
+    List<BookData> books_from_DB = new ArrayList<BookData>();
 
     private String storagePath = "Book Images/";
     private StorageReference storageReference;
@@ -101,7 +90,8 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
         //choosedImg.setImageBitmap(bitmap);
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(getApplicationContext().getContentResolver(), bitmap, "val", null);
+        String path = MediaStore.Images.Media.insertImage(getApplicationContext().getContentResolver(),
+                bitmap, "val", null);
         Uri uri = Uri.parse(path);
         Glide.with(this).load(uri).placeholder(R.mipmap.ic_launcher).into(choosedImg);
         filePath = uri;
@@ -214,7 +204,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
                     if(!bookTitles.contains(book_title))
                         bookTitles.add(book_title);
 
-                    BookReadData newBook = new BookReadData();
+                    BookData newBook = new BookData();
                     newBook.setAuthor_name(author_name);
                     newBook.setTitle(book_title);
                     newBook.setId(String.valueOf(ds.getKey()));
@@ -279,9 +269,9 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
 
     public void addBookInFirebase(){
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        List<BookReadData> books_read_list = bookListStorageHelper.getBooks_read_list();
-        List<BookReadData> books_planned_list = bookListStorageHelper.getBooks_planned_list();
-        List<BookReadData> books_recommended_list = bookListStorageHelper.getBooks_recommended_list();
+        List<BookData> books_read_list = bookListStorageHelper.getBooks_read_list();
+        List<BookData> books_planned_list = bookListStorageHelper.getBooks_planned_list();
+        List<BookData> books_recommended_list = bookListStorageHelper.getBooks_recommended_list();
 
         if(authorName.getText().toString().isEmpty()){
             Toast.makeText( getApplicationContext() , "Please enter the author name", Toast.LENGTH_SHORT).show();
@@ -293,7 +283,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
         }
 
         Intent intent = getIntent();
-        String param_bookTable = intent.getStringExtra(AppConstants.param_bookTable);
+        String param_bookTable = intent.getStringExtra(AppConstants.PARAM_EDIT_BOOK_TABLE);
 
         if(param_bookTable.isEmpty()){
             Toast.makeText( getApplicationContext() , "Something went worng. Please login again", Toast.LENGTH_SHORT).show();
@@ -304,6 +294,12 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
 
             if(year.getText().toString().isEmpty()) {
                 Toast.makeText(getApplicationContext(), "Please enter the year", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String year_4digits="[1-9][0-9]{3}";
+            if(!year.getText().toString().matches(year_4digits)) {
+                Toast.makeText(getApplicationContext(), "Please enter a valid year", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -324,12 +320,12 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
 
             String book_id_extracted_from_DB = getBookId(authorName.getText().toString(), bookTitle.getText().toString());
 
-            if(!book_id_extracted_from_DB.equals("null")) {
+            if(book_id_extracted_from_DB!=null) {
                 if (param_bookTable.equals("Read books")) {
                     if (!bookExistsById(book_id_extracted_from_DB, books_read_list) && !bookExistsById(book_id_extracted_from_DB, books_planned_list)) {
                         assert currentUser != null;
                         String book_id = mBooksReadDatabase.child(currentUser.getUid()).push().getKey();
-                        BookReadData newBook = new BookReadData();
+                        BookData newBook = new BookData();
                         newBook.setId(book_id_extracted_from_DB);
                         newBook.setRead_month(month_aux);
                         newBook.setRead_year(year.getText().toString());
@@ -342,7 +338,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
                     if (!bookExistsById(book_id_extracted_from_DB, books_planned_list) && !bookExistsById(book_id_extracted_from_DB, books_read_list)) {
                         assert currentUser != null;
                         String book_id = mBooksPlannedDatabase.child(currentUser.getUid()).push().getKey();
-                        BookReadData newBook = new BookReadData();
+                        BookData newBook = new BookData();
                         newBook.setId(book_id_extracted_from_DB);
                         newBook.setRead_month(month_aux);
                         newBook.setRead_year(year.getText().toString());
@@ -353,8 +349,11 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
                         Toast.makeText(this, "The book already exists (you read it or you planned it)", Toast.LENGTH_LONG).show();
                 }
             }
-            else
-                Toast.makeText(getApplicationContext(), "This book cannot be added", Toast.LENGTH_SHORT).show();
+            else{
+                Toast.makeText(this, "The author and the book don't match", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Please enter other values", Toast.LENGTH_LONG).show();
+                return;
+            }
         }
         else{
             if(genre.getText().toString().isEmpty()) {
@@ -364,7 +363,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
             if(bookNotExistsInDBBooks(authorName.getText().toString(), bookTitle.getText().toString(), books_recommended_list)){
                 assert currentUser != null;
                 String book_id = mBooksRecommendedDatabase.child(currentUser.getUid()).push().getKey();
-                BookReadData newBook = new BookReadData(authorName.getText().toString(), bookTitle.getText().toString(), genre.getText().toString());
+                BookData newBook = new BookData(authorName.getText().toString(), bookTitle.getText().toString(), genre.getText().toString());
 
                 if(!(mUri==null) && !mUri.isEmpty())
                     newBook.setUri(mUri);
@@ -383,8 +382,8 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
         goToPreviousActivity();
     }
 
-    private boolean bookExistsById(String book_id, List<BookReadData> books) {
-        for(BookReadData current_book : books){
+    private boolean bookExistsById(String book_id, List<BookData> books) {
+        for(BookData current_book : books){
             if(book_id.equals(current_book.getId_from_big_db()))
                 return true;
         }
@@ -392,7 +391,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
     }
 
     public String getBookId(String author_name, String book_title){
-        for(BookReadData book: books_from_DB){
+        for(BookData book: books_from_DB){
             if(author_name.toLowerCase().contains(book.getAuthor_name().toLowerCase())
             && book_title.toLowerCase().contains(book.getTitle().toLowerCase())){
                 return book.getId();
@@ -401,8 +400,8 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
         return null;
     }
 
-    public boolean bookNotExistsInDBBooks(String author, String title, List<BookReadData> books_list){
-        for(BookReadData current_book : books_list){
+    public boolean bookNotExistsInDBBooks(String author, String title, List<BookData> books_list){
+        for(BookData current_book : books_list){
             if(( current_book.getAuthor_name().toLowerCase().contains(author.toLowerCase())
                     ||author.toLowerCase().contains(current_book.getAuthor_name().toLowerCase()) )
                     &&( current_book.getTitle().toLowerCase().contains(title.toLowerCase())

@@ -22,7 +22,7 @@ import com.example.booksapp.AppConstants;
 import com.example.booksapp.MainActivity;
 import com.example.booksapp.R;
 import com.example.booksapp.adapters.BooksPlannedAdapter;
-import com.example.booksapp.dataModels.BookReadData;
+import com.example.booksapp.dataModels.BookData;
 import com.example.booksapp.dataModels.AppreciateBookModel;
 import com.example.booksapp.helpers.BookListStorageHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -45,13 +45,13 @@ public class BooksPlannedFragment extends Fragment {
     private TextView seeAllBooks;
 
     private RecyclerView recyclerView;
-    private ArrayList<BookReadData> books = new ArrayList<BookReadData>(), books_recommended= new ArrayList<BookReadData>();
+    private ArrayList<BookData> books = new ArrayList<BookData>(), books_recommended= new ArrayList<BookData>();
     BooksPlannedAdapter listExampleAdapterBooks;
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
 
-    ArrayList<BookReadData> books_read = new ArrayList<BookReadData>();
+    ArrayList<BookData> books_read = new ArrayList<BookData>();
 
     Animation scaleUp, scaleDown;
     private FloatingActionButton fab;
@@ -180,7 +180,7 @@ public class BooksPlannedFragment extends Fragment {
                     String author_name = String.valueOf(ds.child("author_name").getValue());
                     String book_title = String.valueOf(ds.child("title").getValue());
                     String uri = String.valueOf(ds.child("uri").getValue());
-                    BookReadData newBook = new BookReadData(author_name, book_title);
+                    BookData newBook = new BookData(author_name, book_title);
                     newBook.setUri(uri);
                     newBook.setId(String.valueOf(ds.getKey()));
                     books_recommended.add(newBook);
@@ -206,7 +206,7 @@ public class BooksPlannedFragment extends Fragment {
 
     private void getData(DataSnapshot dataSnapshot) {
         books.clear();
-        ArrayList<BookReadData> books_recommended_aux = books_recommended;
+        ArrayList<BookData> books_recommended_aux = books_recommended;
         AppConstants.MEAN_RATING_PLAN_FRAG.clear();
         BOOK_ID_LIST_PLAN.clear();
         for(DataSnapshot ds : dataSnapshot.getChildren()){
@@ -215,7 +215,7 @@ public class BooksPlannedFragment extends Fragment {
             String book_id=String.valueOf(ds.child("id").getValue());
             String uri="";
             if(book_id!="null"){
-                for (BookReadData book : books_recommended_aux) {
+                for (BookData book : books_recommended_aux) {
                     if (book_id.equals(book.getId())) {
                         author_name = book.getAuthor_name();
                         book_title = book.getTitle();
@@ -230,7 +230,7 @@ public class BooksPlannedFragment extends Fragment {
             if(month == null)
                 month = "";
 
-            BookReadData newBook = new BookReadData(author_name, book_title, month, year);
+            BookData newBook = new BookData(author_name, book_title, month, year);
             if (!uri.isEmpty())
                 newBook.setUri(uri);
 
@@ -251,7 +251,7 @@ public class BooksPlannedFragment extends Fragment {
 
     private void getDataByVariable(DataSnapshot dataSnapshot, String variable){
         books.clear();
-        ArrayList<BookReadData> books_recommended_aux = books_recommended;
+        ArrayList<BookData> books_recommended_aux = books_recommended;
         AppConstants.MEAN_RATING_PLAN_FRAG.clear();
         AppConstants.BOOK_ID_LIST_PLAN.clear();
         for(DataSnapshot ds : dataSnapshot.getChildren()){
@@ -260,7 +260,7 @@ public class BooksPlannedFragment extends Fragment {
             String book_id=String.valueOf(ds.child("id").getValue());
             String uri="";
             if(book_id!="null") {
-                for (BookReadData book : books_recommended_aux) {
+                for (BookData book : books_recommended_aux) {
                     if (book.getId().equals(book_id)) {
                         author_name = book.getAuthor_name();
                         book_title = book.getTitle();
@@ -280,7 +280,7 @@ public class BooksPlannedFragment extends Fragment {
                     || book_title.toLowerCase().contains(variable_lower_case)
                     || read_year.equals(variable)) {
 
-                BookReadData newBook = new BookReadData(author_name, book_title, month, read_year);
+                BookData newBook = new BookData(author_name, book_title, month, read_year);
 
                 if (!uri.isEmpty())
                     newBook.setUri(uri);
@@ -307,12 +307,12 @@ public class BooksPlannedFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 books_read.clear();
                 for(DataSnapshot ds : dataSnapshot.getChildren()){
-                    BookReadData newBook = new BookReadData();
+                    BookData newBook = new BookData();
                     newBook.setId(String.valueOf(ds.getKey()));
                     String author=null, title=null;
                     String book_id = String.valueOf(ds.child("id").getValue());
                     if(book_id!="null") {
-                        for(BookReadData book: books_recommended){
+                        for(BookData book: books_recommended){
                             if(book_id.equals(book.getId())){
                                 author = book.getAuthor_name();
                                 title = book.getTitle();

@@ -19,11 +19,12 @@ public class BottomNavigationActivity extends AppCompatActivity implements Botto
     private BooksRecommendedFragment booksRecommendedFragment;
     private FavouriteBooksFragment favouriteBooksFragment;
     private AccountSettingsFragment accountSettingsFragment;
+    final FragmentManager fragmentManager = getSupportFragmentManager();
 
     private BottomNavigationView navView;
 
     private Fragment activeFragment;
-    final FragmentManager fragmentManager = getSupportFragmentManager();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,8 @@ public class BottomNavigationActivity extends AppCompatActivity implements Botto
         switch ((item.getItemId()))
         {
             case R.id.navigation_books:
-                fragmentManager.beginTransaction().hide(activeFragment).show(booksReadFragment).detach(booksReadFragment).attach(booksReadFragment).commit();
+                fragmentManager.beginTransaction().hide(activeFragment).show(booksReadFragment)
+                        .detach(booksReadFragment).attach(booksReadFragment).commit();
                 activeFragment = booksReadFragment;
                 return true;
             case R.id.navigation_planning_books:

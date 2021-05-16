@@ -75,7 +75,7 @@ public class ComputeUserBasedSimilarity {
 
     public static double sim_euclidean(String user1_id, String user2_id, List<AppreciateBookModel> books_ratings){
         ArrayList<SharedBooks> shared_book_list = new ArrayList<>();
-        final long[] sum_of_squares = {0};
+        final double[] sum_of_squares = {0};
 
         for(AppreciateBookModel book_rating_first : books_ratings){
             if(user1_id.equals(book_rating_first.getUser_id())){
@@ -95,7 +95,7 @@ public class ComputeUserBasedSimilarity {
         if(shared_book_list.size()==0)
             return 0;
         else
-            return (double) 1/(1+sum_of_squares[0]);
+            return (double) 1/(1+Math.sqrt(sum_of_squares[0]));
     }
 
 

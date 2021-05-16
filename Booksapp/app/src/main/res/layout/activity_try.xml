@@ -61,4 +61,21 @@
         android:layout_height="wrap_content"
         android:text="Detect text"/>
 
+    <MultiAutoCompleteTextView
+        android:id="@+id/text_multi_autocomplete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Type your text here"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
+        android:popupBackground="#BFB5C1"/>
+    <ListView
+        android:id="@+id/words_lv"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="#BFB5C1"
+        android:visibility="gone"/>
+
+
+
 </LinearLayout>

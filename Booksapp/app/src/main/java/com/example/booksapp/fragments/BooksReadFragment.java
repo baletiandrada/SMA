@@ -25,7 +25,7 @@ import com.example.booksapp.AppConstants;
 import com.example.booksapp.MainActivity;
 import com.example.booksapp.R;
 import com.example.booksapp.adapters.BookReadDataAdapter;
-import com.example.booksapp.dataModels.BookReadData;
+import com.example.booksapp.dataModels.BookData;
 import com.example.booksapp.dataModels.AppreciateBookModel;
 import com.example.booksapp.helpers.BookListStorageHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -53,13 +53,13 @@ public class BooksReadFragment<_> extends Fragment {
     private FloatingActionButton fab;
 
     private RecyclerView recyclerView;
-    private List<BookReadData> books = new ArrayList<BookReadData>();
+    private List<BookData> books = new ArrayList<BookData>();
     BookReadDataAdapter listExampleAdapterBooks;
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
 
-    ArrayList<BookReadData> books_planned = new ArrayList<BookReadData>(), books_recommended= new ArrayList<BookReadData>();
+    ArrayList<BookData> books_planned = new ArrayList<BookData>(), books_recommended= new ArrayList<BookData>();
     List<String> favourite_books = new ArrayList<String>();
 
     Animation scaleUp, scaleDown;
@@ -92,21 +92,21 @@ public class BooksReadFragment<_> extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if(!(currentUser ==null)){
-                    mBooksReadDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+                    mBooksReadDatabase.child(currentUser.getUid())
+                            .addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             getDataByVariable(dataSnapshot, query);
                         }
-
                         @Override
                         public void onCancelled(@NonNull DatabaseError databaseError) {
-                            Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), databaseError.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
                 if(!(currentUser ==null)){
@@ -115,7 +115,6 @@ public class BooksReadFragment<_> extends Fragment {
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             getDataByVariable(dataSnapshot, newText);
                         }
-
                         @Override
                         public void onCancelled(@NonNull DatabaseError databaseError) {
                             Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
@@ -254,7 +253,7 @@ public class BooksReadFragment<_> extends Fragment {
             String book_id=String.valueOf(ds.child("id").getValue());
             String uri="", video_path="";
             if(book_id!="null"){
-                for (BookReadData book : books_recommended) {
+                for (BookData book : books_recommended) {
                     if (book_id.equals(book.getId())) {
                         author_name = book.getAuthor_name();
                         book_title = book.getTitle();
@@ -270,7 +269,7 @@ public class BooksReadFragment<_> extends Fragment {
             if(month == null)
                 month = "";
 
-            BookReadData newBook = new BookReadData(author_name, book_title, month, year);
+            BookData newBook = new BookData(author_name, book_title, month, year);
             if (!uri.isEmpty())
                 newBook.setUri(uri);
 
@@ -316,7 +315,7 @@ public class BooksReadFragment<_> extends Fragment {
             String book_id=String.valueOf(ds.child("id").getValue());
             String uri="", video_path="";
             if(book_id!="null") {
-                for (BookReadData book : books_recommended) {
+                for (BookData book : books_recommended) {
                     if (book_id.equals(book.getId())) {
                         author_name = book.getAuthor_name();
                         book_title = book.getTitle();
@@ -336,7 +335,7 @@ public class BooksReadFragment<_> extends Fragment {
                         || book_title.toLowerCase().contains(variable_lower_case)
                         || read_year.equals(variable)) {
 
-                    BookReadData newBook = new BookReadData(author_name, book_title, month, read_year);
+                    BookData newBook = new BookData(author_name, book_title, month, read_year);
 
                     if (!uri.isEmpty())
                         newBook.setUri(uri);
@@ -380,11 +379,11 @@ public class BooksReadFragment<_> extends Fragment {
                 books_planned.clear();
                 String author=null, title=null;
                 for(DataSnapshot ds : dataSnapshot.getChildren()){
-                    BookReadData newBook = new BookReadData();
+                    BookData newBook = new BookData();
                     newBook.setId(String.valueOf(ds.getKey()));
                     String book_id = String.valueOf(ds.child("id").getValue());
                     if(book_id!="null") {
-                        for(BookReadData book: books_recommended){
+                        for(BookData book: books_recommended){
                             if(book_id.equals(book.getId())){
                                 author = book.getAuthor_name();
                                 title = book.getTitle();
@@ -414,7 +413,7 @@ public class BooksReadFragment<_> extends Fragment {
                     String book_title = String.valueOf(ds.child("title").getValue());
                     String uri = String.valueOf(ds.child("uri").getValue());
                     String video_path = String.valueOf(ds.child("video_path").getValue());
-                    BookReadData newBook = new BookReadData(author_name, book_title);
+                    BookData newBook = new BookData(author_name, book_title);
                     newBook.setUri(uri);
                     newBook.setVideo_path(video_path);
                     newBook.setId(String.valueOf(ds.getKey()));

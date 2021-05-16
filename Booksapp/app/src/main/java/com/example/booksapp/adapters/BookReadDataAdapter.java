@@ -19,7 +19,7 @@ import com.example.booksapp.AppConstants;
 import com.example.booksapp.EditBookActivity;
 import com.example.booksapp.BookReviewsActivity;
 import com.example.booksapp.VideoPopUpActivity;
-import com.example.booksapp.dataModels.BookReadData;
+import com.example.booksapp.dataModels.BookData;
 import com.example.booksapp.dataModels.AppreciateBookModel;
 import com.example.booksapp.helpers.BookStorageHelper;
 import com.example.booksapp.R;
@@ -52,7 +52,7 @@ import static com.example.booksapp.helpers.FirebaseHelper.mQuotesDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mRatingsDatabase;
 
 public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHolder>{
-    private List<BookReadData> choicesList;
+    private List<BookData> choicesList;
     private Context context;
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -61,7 +61,7 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
     ArrayList<AppreciateBookModel> book_rating_list = new ArrayList<AppreciateBookModel>();
     String ratingMeanScore="0";
 
-    public BookReadDataAdapter(List<BookReadData> bookList){
+    public BookReadDataAdapter(List<BookData> bookList){
         this.choicesList = bookList;
     }
 
@@ -78,7 +78,7 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
 
     @Override
     public void onBindViewHolder(@NonNull BookReadDataViewHolder holder, int position) {
-        BookReadData bookModel = choicesList.get(position);
+        BookData bookModel = choicesList.get(position);
         holder.itemView.findViewById(R.id.tv_genre).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.layout_done_text).setVisibility(View.GONE);
 
@@ -335,7 +335,7 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                 bookStorageHelper.setId_book(bookModel.getId());
                 Intent intent = new Intent(context, EditBookActivity.class);
                 String param_bookTable_value = "Read books";
-                intent.putExtra(AppConstants.param_bookTable, param_bookTable_value);
+                intent.putExtra(AppConstants.PARAM_EDIT_BOOK_TABLE, param_bookTable_value);
                 context.startActivity(intent);
             }
         });
@@ -356,7 +356,7 @@ public class BookReadDataAdapter extends RecyclerView.Adapter<BookReadDataViewHo
             @Override
             public void onClick(View v) {
                 String id = bookModel.getId();
-                BookReadData newbook = new BookReadData();
+                BookData newbook = new BookData();
                 newbook.setId(id);
                 String entry_id = mFavouriteBooksDatabase.child(currentUser.getUid()).push().getKey();
                 mFavouriteBooksDatabase.child(currentUser.getUid()).child(entry_id).setValue(newbook);

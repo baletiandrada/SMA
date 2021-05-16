@@ -18,7 +18,7 @@ import com.example.booksapp.AppConstants;
 import com.example.booksapp.EditBookActivity;
 import com.example.booksapp.R;
 import com.example.booksapp.BookReviewsActivity;
-import com.example.booksapp.dataModels.BookReadData;
+import com.example.booksapp.dataModels.BookData;
 import com.example.booksapp.helpers.BookStorageHelper;
 import com.example.booksapp.helpers.AppreciateBookStorageHelper;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,12 +33,12 @@ import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 
 public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHolder>{
 
-    private List<BookReadData> choicesList;
+    private List<BookData> choicesList;
     private Context context;
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
 
-    public BooksPlannedAdapter(List<BookReadData> bookList){
+    public BooksPlannedAdapter(List<BookData> bookList){
         this.choicesList = bookList;
     }
 
@@ -56,7 +56,7 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull BookReadDataViewHolder holder, int position) {
-        BookReadData bookModel = choicesList.get(position);
+        BookData bookModel = choicesList.get(position);
         holder.itemView.findViewById(R.id.tv_genre).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.GONE);
         holder.setValues(bookModel.getAuthor_name(), bookModel.getTitle(), bookModel.getRead_month(), bookModel.getRead_year());
@@ -141,7 +141,7 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                 bookStorageHelper.setId_book(bookModel.getId());
                 Intent intent = new Intent(context, EditBookActivity.class);
                 String param_bookTable_value = "Planned books";
-                intent.putExtra(AppConstants.param_bookTable, param_bookTable_value);
+                intent.putExtra(AppConstants.PARAM_EDIT_BOOK_TABLE, param_bookTable_value);
                 context.startActivity(intent);
             }
         });
@@ -159,7 +159,7 @@ public class BooksPlannedAdapter extends RecyclerView.Adapter<BookReadDataViewHo
                                     if(BOOK_ID_LIST_PLAN.get(position)=="null")
                                         mBooksReadDatabase.child(currentUser.getUid()).child(book_id).setValue(bookModel);
                                     else{
-                                        BookReadData book_aux = new BookReadData();
+                                        BookData book_aux = new BookData();
                                         book_aux.setId(BOOK_ID_LIST_PLAN.get(position));
                                         book_aux.setRead_month(bookModel.getRead_month());
                                         book_aux.setRead_year(bookModel.getRead_year());

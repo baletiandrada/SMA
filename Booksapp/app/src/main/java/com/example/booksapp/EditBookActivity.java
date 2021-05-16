@@ -26,7 +26,7 @@ import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.booksapp.dataModels.BookReadData;
+import com.example.booksapp.dataModels.BookData;
 import com.example.booksapp.helpers.BookStorageHelper;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -63,7 +63,7 @@ public class EditBookActivity extends AppCompatActivity implements SelectPhotoDi
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
 
-    private List<BookReadData> fav_books = new ArrayList<BookReadData>();
+    private List<BookData> fav_books = new ArrayList<BookData>();
 
     ArrayList<String> authorNames = new ArrayList<String>();
     ArrayList<String> bookTitles = new ArrayList<String>();
@@ -268,7 +268,7 @@ public class EditBookActivity extends AppCompatActivity implements SelectPhotoDi
         }
 
         Intent intent = getIntent();
-        String param_bookTable = intent.getStringExtra(AppConstants.param_bookTable);
+        String param_bookTable = intent.getStringExtra(AppConstants.PARAM_EDIT_BOOK_TABLE);
 
         if(param_bookTable.isEmpty()){
             Toast.makeText( getApplicationContext() , "Something went worng. Please login again", Toast.LENGTH_SHORT).show();
@@ -277,10 +277,15 @@ public class EditBookActivity extends AppCompatActivity implements SelectPhotoDi
 
         if( ! param_bookTable.equals("Recommended books") ){
 
-                if(read_year.getText().toString().isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "Please enter the year", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+            if(read_year.getText().toString().isEmpty()) {
+                Toast.makeText(getApplicationContext(), "Please enter the year", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String year_4digits="[1-9][0-9]{3}";
+            if(!read_year.getText().toString().matches(year_4digits)) {
+                Toast.makeText(getApplicationContext(), "Please enter a valid year", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             String month = "";
             if(read_month.getText().toString().isEmpty()){
@@ -342,7 +347,7 @@ public class EditBookActivity extends AppCompatActivity implements SelectPhotoDi
                 for(DataSnapshot ds : dataSnapshot.getChildren()){
                     String author_name = String.valueOf(ds.child("author_name").getValue());
                     String book_title = String.valueOf(ds.child("title").getValue());
-                    BookReadData newBook = new BookReadData(author_name, book_title);
+                    BookData newBook = new BookData(author_name, book_title);
                     newBook.setId(String.valueOf(ds.getKey()));
                     fav_books.add(newBook);
                 }
@@ -355,7 +360,7 @@ public class EditBookActivity extends AppCompatActivity implements SelectPhotoDi
     }
 
     public boolean favouriteDBContainsBook(String author, String title){
-        for(BookReadData current_book : fav_books){
+        for(BookData current_book : fav_books){
             if(current_book.getAuthor_name().toLowerCase().equals(author.toLowerCase())
                     && current_book.getTitle().toLowerCase().equals(title.toLowerCase()))
                 return true;
@@ -385,7 +390,7 @@ public class EditBookActivity extends AppCompatActivity implements SelectPhotoDi
         cardViewImg.setVisibility(View.GONE);
 
         Intent intent = getIntent();
-        String param_bookTable = intent.getStringExtra(AppConstants.param_bookTable);
+        String param_bookTable = intent.getStringExtra(AppConstants.PARAM_EDIT_BOOK_TABLE);
 
         if( ! param_bookTable.equals("Recommended books") ){
             layout_genre.setVisibility(View.GONE);

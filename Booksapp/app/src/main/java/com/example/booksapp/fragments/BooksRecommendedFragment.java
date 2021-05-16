@@ -30,7 +30,7 @@ import com.example.booksapp.R;
 import com.example.booksapp.RecyclerItemCllickListener;
 import com.example.booksapp.adapters.BooksRecommendedAdapter;
 import com.example.booksapp.adapters.GenreModelAdapter;
-import com.example.booksapp.dataModels.BookReadData;
+import com.example.booksapp.dataModels.BookData;
 import com.example.booksapp.dataModels.GenreModel;
 import com.example.booksapp.dataModels.AppreciateBookModel;
 import com.example.booksapp.helpers.BookListStorageHelper;
@@ -63,7 +63,7 @@ public class BooksRecommendedFragment extends Fragment {
     private ImageView iv1;
     private RelativeLayout r1;
 
-    private List<BookReadData> books = new ArrayList<BookReadData>();
+    private List<BookData> books = new ArrayList<BookData>();
     private BooksRecommendedAdapter listExampleAdapterBooks;
 
     private static boolean toast_message;
@@ -133,7 +133,7 @@ public class BooksRecommendedFragment extends Fragment {
                                 String author_name = String.valueOf(ds.child("author_name").getValue());
                                 String book_title = String.valueOf(ds.child("title").getValue());
                                 String genre = String.valueOf(ds.child("genre").getValue()).toLowerCase();
-                                BookReadData newBook = new BookReadData(author_name, book_title, genre);
+                                BookData newBook = new BookData(author_name, book_title, genre);
                                 String video_path = String.valueOf(ds.child("video_path").getValue());
                                 if (video_path != null)
                                     newBook.setVideo_path(video_path);
@@ -363,9 +363,9 @@ public class BooksRecommendedFragment extends Fragment {
         }
     }
 
-    public void getGenreValuesSpinner(List<BookReadData> book_list){
+    public void getGenreValuesSpinner(List<BookData> book_list){
         user_book_genres.clear();
-        for(BookReadData book: book_list){
+        for(BookData book: book_list){
             if (!user_book_genres.contains(book.getGenre()))
                 user_book_genres.add(book.getGenre().toLowerCase());
         }
@@ -376,7 +376,7 @@ public class BooksRecommendedFragment extends Fragment {
         startActivity(intent);
     }
 
-    public void setRecyclerView(List<BookReadData> book_list){
+    public void setRecyclerView(List<BookData> book_list){
         listExampleAdapterBooks = new BooksRecommendedAdapter(book_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(listExampleAdapterBooks);
@@ -398,8 +398,8 @@ public class BooksRecommendedFragment extends Fragment {
         });
     }
 
-    private boolean bookExistsInList(String book_id, List<BookReadData> book_list){
-        for(BookReadData book : book_list){
+    private boolean bookExistsInList(String book_id, List<BookData> book_list){
+        for(BookData book : book_list){
             if(book.getId().equals(book_id))
                 return true;
         }
@@ -440,7 +440,7 @@ public class BooksRecommendedFragment extends Fragment {
         });
     }
 
-    private List<BookReadData> all_books_from_DB = new ArrayList<>();
+    private List<BookData> all_books_from_DB = new ArrayList<>();
     private void getAllBooksFromDB(){
         mBooksRecommendedDatabase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -450,7 +450,7 @@ public class BooksRecommendedFragment extends Fragment {
                     String author_name = String.valueOf(ds.child("author_name").getValue());
                     String book_title = String.valueOf(ds.child("title").getValue());
                     String genre = String.valueOf(ds.child("genre").getValue()).toLowerCase();
-                    BookReadData newBook = new BookReadData(author_name, book_title);
+                    BookData newBook = new BookData(author_name, book_title);
                     newBook.setGenre(genre);
 
                     String video_path = String.valueOf(ds.child("video_path").getValue());
@@ -480,12 +480,12 @@ public class BooksRecommendedFragment extends Fragment {
         });
     }
 
-    private List<BookReadData> top5Books = new ArrayList<>();
+    private List<BookData> top5Books = new ArrayList<>();
     private void getTop5Books(){
-        List<BookReadData> aux_list = new ArrayList<>();
+        List<BookData> aux_list = new ArrayList<>();
 
         for(AppreciateBookModel rating: all_ratings_list){
-            for(BookReadData book : all_books_from_DB)
+            for(BookData book : all_books_from_DB)
                 if(rating.getBook_id().equals(book.getId()))
                     if(!bookExistsInList(book.getId(), aux_list)
                     && !user_read_books.contains(book.getId())
@@ -503,7 +503,7 @@ public class BooksRecommendedFragment extends Fragment {
         }
 
         if(aux_list.size()>5){
-            List<BookReadData> list = new ArrayList<>();
+            List<BookData> list = new ArrayList<>();
             int i;
             for(i=0;i<5;i++){
                 list.add(aux_list.get(i));
@@ -530,7 +530,7 @@ public class BooksRecommendedFragment extends Fragment {
                         String book_title = String.valueOf(ds.child("title").getValue());
                         String genre = String.valueOf(ds.child("genre").getValue()).toLowerCase();
                         String video_path = String.valueOf(ds.child("video_path").getValue());
-                        BookReadData newBook = new BookReadData(author_name, book_title);
+                        BookData newBook = new BookData(author_name, book_title);
                         if(video_path!=null)
                             newBook.setVideo_path(video_path);
                         String uri = String.valueOf(ds.child("uri").getValue());
@@ -577,10 +577,10 @@ public class BooksRecommendedFragment extends Fragment {
     }
 
     private void getDataByVariable(String genre_variable){
-        List<BookReadData> aux_book_list = new ArrayList<>();
+        List<BookData> aux_book_list = new ArrayList<>();
         AppConstants.MEAN_RATING_RECOMM_FRAG.clear();
 
-        for(BookReadData book : books){
+        for(BookData book : books){
             if(book.getGenre().toLowerCase().contains(genre_variable.toLowerCase())){
 
                 aux_book_list.add(book);

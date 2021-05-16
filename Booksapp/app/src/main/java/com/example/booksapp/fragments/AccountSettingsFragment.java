@@ -288,7 +288,6 @@ public class AccountSettingsFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    mUserDatabase.child(uid).removeValue();
                     mBooksReadDatabase.child(uid).removeValue();
                     mBooksPlannedDatabase.child(uid).removeValue();
 
@@ -310,8 +309,20 @@ public class AccountSettingsFragment extends Fragment {
                     }
 
                     mFavouriteBooksDatabase.child(uid).removeValue();
+                    mUserDatabase.child(uid).removeValue();
 
                     mAuth.signOut();
+
+                    currentUser.delete()
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "User account deleted.", Toast.LENGTH_SHORT);
+                                    }
+                                }
+                            });
+
                     SharedPreferences.Editor editor = getActivity().getSharedPreferences(AppConstants.MY_PREFS_NAME, MODE_PRIVATE).edit();
                     editor.putString(AppConstants.EMAIL, "");
                     editor.apply();

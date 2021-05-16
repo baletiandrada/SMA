@@ -20,7 +20,7 @@ import com.example.booksapp.EditBookActivity;
 import com.example.booksapp.R;
 import com.example.booksapp.BookReviewsActivity;
 import com.example.booksapp.VideoPopUpActivity;
-import com.example.booksapp.dataModels.BookReadData;
+import com.example.booksapp.dataModels.BookData;
 import com.example.booksapp.helpers.BookStorageHelper;
 import com.example.booksapp.helpers.AppreciateBookStorageHelper;
 import com.google.firebase.auth.FirebaseAuth;
@@ -41,14 +41,14 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 import org.jetbrains.annotations.NotNull;
 
 public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataViewHolder>{
-    private List<BookReadData> choicesList;
+    private List<BookData> choicesList;
     private Context context;
 
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
     BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
 
-    public BooksRecommendedAdapter(List<BookReadData> bookList){
+    public BooksRecommendedAdapter(List<BookData> bookList){
         this.choicesList = bookList;
     }
 
@@ -65,7 +65,7 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
 
     @Override
     public void onBindViewHolder(@NonNull BookReadDataViewHolder holder, int position) {
-        BookReadData bookModel = choicesList.get(position);
+        BookData bookModel = choicesList.get(position);
         holder.itemView.findViewById(R.id.tv_row_read_month).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.tv_row_read_year).setVisibility(View.GONE);
         //holder.itemView.findViewById(R.id.iv_delete_just_image).setVisibility(View.GONE);
@@ -146,7 +146,7 @@ public class BooksRecommendedAdapter extends RecyclerView.Adapter<BookReadDataVi
                 Intent intent = new Intent(context, EditBookActivity.class);
                 String param_bookTable_value = "Recommended books";
                 //Toast.makeText(context, bookStorageHelper.getId_book(), Toast.LENGTH_LONG).show();
-                intent.putExtra(AppConstants.param_bookTable, param_bookTable_value);
+                intent.putExtra(AppConstants.PARAM_EDIT_BOOK_TABLE, param_bookTable_value);
                 context.startActivity(intent);
             }
         });

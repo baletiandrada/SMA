@@ -1,9 +1,25 @@
 package com.example.booksapp.dataModels;
 
 public class ReviewLikeModel implements Comparable<ReviewLikeModel>{
-    private String review_id, appreciation, id, user_id, like_score;
+    private String review_id, appreciation, id, user_id, like_score, reply_id, no_of_replies;
 
     public ReviewLikeModel() {
+    }
+
+    public String getReply_id() {
+        return reply_id;
+    }
+
+    public String getNo_of_replies() {
+        return no_of_replies;
+    }
+
+    public void setNo_of_replies(String no_of_replies) {
+        this.no_of_replies = no_of_replies;
+    }
+
+    public void setReply_id(String reply_id) {
+        this.reply_id = reply_id;
     }
 
     public ReviewLikeModel(String review_id, String appreciation) {

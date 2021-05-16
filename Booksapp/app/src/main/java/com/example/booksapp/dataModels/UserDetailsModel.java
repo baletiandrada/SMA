@@ -15,11 +15,11 @@ public class UserDetailsModel {
 
     }
 
-    public UserDetailsModel(String username, String age, String email, String password) {
+    public UserDetailsModel(String username, String age, String email) {
         this.username = username;
         this.age = age;
         this.email = email;
-        this.password = password;
+      //  this.password = password;
     }
 
     public String getUsername() {

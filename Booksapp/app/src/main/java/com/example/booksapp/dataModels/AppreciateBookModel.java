@@ -1,7 +1,7 @@
 package com.example.booksapp.dataModels;
 
 public class AppreciateBookModel implements Comparable<AppreciateBookModel>{
-    private String user_id, book_id, content, id, rating;
+    private String user_id, book_id, content, id, rating, review_id;
 
     public AppreciateBookModel(){
 
@@ -11,6 +11,14 @@ public class AppreciateBookModel implements Comparable<AppreciateBookModel>{
         this.user_id = user_id;
         this.book_id = book_id;
         this.content = content;
+    }
+
+    public String getReview_id() {
+        return review_id;
+    }
+
+    public void setReview_id(String review_id) {
+        this.review_id = review_id;
     }
 
     public String getRating() {

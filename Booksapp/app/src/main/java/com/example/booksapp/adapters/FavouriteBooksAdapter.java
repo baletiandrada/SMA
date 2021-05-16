@@ -12,18 +12,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.booksapp.BookQuotesActivity;
 import com.example.booksapp.R;
-import com.example.booksapp.dataModels.BookReadData;
+import com.example.booksapp.dataModels.BookData;
 import com.example.booksapp.helpers.BookStorageHelper;
 
 import java.util.List;
 
 public class FavouriteBooksAdapter extends RecyclerView.Adapter<BookReadDataViewHolder>{
-    private List<BookReadData> choicesList;
+    private List<BookData> choicesList;
     private Context context;
 
     BookStorageHelper bookStorageHelper = BookStorageHelper.getInstance();
 
-    public FavouriteBooksAdapter(List<BookReadData> bookList){
+    public FavouriteBooksAdapter(List<BookData> bookList){
         this.choicesList = bookList;
     }
 
@@ -40,7 +40,7 @@ public class FavouriteBooksAdapter extends RecyclerView.Adapter<BookReadDataView
 
     @Override
     public void onBindViewHolder(@NonNull BookReadDataViewHolder holder, int position) {
-        BookReadData bookModel = choicesList.get(position);
+        BookData bookModel = choicesList.get(position);
         holder.itemView.findViewById(R.id.tv_genre).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.youtube_player).setVisibility(View.GONE);
         holder.itemView.findViewById(R.id.layout_edit_delete_icons).setVisibility(View.GONE);

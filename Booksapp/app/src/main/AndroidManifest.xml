@@ -16,7 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BooksApp">
-        <activity android:name=".BookReviewsActivity"></activity>
+        <activity android:name=".RepliesActivity"></activity>
+        <activity android:name=".BookReviewsActivity" />
         <activity android:name=".TryActivity">
             <meta-data
                 android:name="com.google.mlkit.vision.DEPENDENCIES"

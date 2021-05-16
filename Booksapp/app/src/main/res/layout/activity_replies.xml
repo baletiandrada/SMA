@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F7F7F7">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/reply_activ_nested_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".RepliesActivity">
+
+            <androidx.cardview.widget.CardView
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="62dp"
+                card_view:cardBackgroundColor="@color/white"
+                card_view:cardCornerRadius="10dp"
+                card_view:cardElevation="5dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="5dp">
+                <TextView
+                    android:id="@+id/tv_email_from_review"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="10dp"/>
+                <TextView
+                    android:id="@+id/tv_review_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#5E325A"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginLeft="30dp"
+                    android:textSize="15dp"
+                    android:layout_marginBottom="5dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_text_likes_reply"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:id="@+id/tv_number_of_likes_review_in_replies"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="no of likes"
+                        android:textColor="#5E325A"
+                        android:textStyle="bold"
+                        android:textSize="14dp"
+                        android:layout_marginRight="55dp"
+                        android:layout_marginLeft="15dp"
+                        />
+                    <TextView
+                        android:id="@+id/tv_number_of_dislikes_review_in_replies"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#5E325A"
+                        android:textStyle="bold"
+                        android:textSize="14dp"
+                        android:text="no of dislikes"/>
+                </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_replies_activ"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="35dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="35dp" />
+
+            <ListView
+                android:id="@+id/words_for_add_reply_lv"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:background="#BFB5C1"
+                android:visibility="gone"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"/>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_view_add_reply"
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                card_view:cardBackgroundColor="@color/white"
+                card_view:cardCornerRadius="10dp"
+                card_view:cardElevation="5dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="20dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_reply_et"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Your reply"
+                        android:textColorHint="#BFB5C1"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        app:boxBackgroundColor="@color/white"
+                        android:layout_marginTop="5dp">
+                        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
+                            android:id="@+id/et_add_reply"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@android:color/black"
+                            android:completionThreshold="1"
+                            android:popupBackground="#BFB5C1"
+                            android:dropDownSelector="@color/purple_200"
+                            android:paddingTop="27dp"
+                            android:paddingLeft="12dp"
+                            android:paddingRight="12dp"
+                            android:paddingBottom="10dp"
+                            android:textSize="16sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_reply_ivs"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="10dp">
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/iv_save_reply"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_margin="2dp"
+                            android:src="@drawable/ic_check_book"
+                            android:tint="#2E6B79"/>
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/iv_cancel_add_reply"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginBottom="2dp"
+                            android:layout_marginLeft="10dp"
+                            android:src="@drawable/ic_close"
+                            android:tint="#2E6B79"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_extended_add_reply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:scaleType="center"
+        android:elevation="15dp"
+        app:fabSize="normal"
+        android:backgroundTint="#2E6B79"
+        android:text="Add reply"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:gravity="center"
+        app:borderWidth="0dp"
+        android:typeface="sans">
+    </com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_extended_close_replies"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        android:layout_marginTop="5dp"
+        android:elevation="15dp"
+        app:fabSize="normal"
+        android:backgroundTint="#A2A4A8"
+        android:text="Close replies X"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:gravity="center"
+        app:borderWidth="0dp"
+        android:typeface="sans">
+    </com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.booksapp.MainActivity;
 import com.example.booksapp.R;
 import com.example.booksapp.adapters.FavouriteBooksAdapter;
-import com.example.booksapp.dataModels.BookReadData;
+import com.example.booksapp.dataModels.BookData;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,8 +35,8 @@ public class FavouriteBooksFragment extends Fragment {
     FirebaseUser currentUser = mAuth.getCurrentUser();
 
     private RecyclerView recyclerView;
-    private ArrayList<BookReadData> books = new ArrayList<BookReadData>(), books_recommended= new ArrayList<BookReadData>();
-    private ArrayList<BookReadData> books_read = new ArrayList<BookReadData>();
+    private ArrayList<BookData> books = new ArrayList<BookData>(), books_recommended= new ArrayList<BookData>();
+    private ArrayList<BookData> books_read = new ArrayList<BookData>();
     FavouriteBooksAdapter listExampleAdapterBooks;
     private SearchView searchView;
 
@@ -125,7 +125,7 @@ public class FavouriteBooksFragment extends Fragment {
                         String book_id_foreign = String.valueOf(ds.getKey());
                         if(book_id.equals(book_id_foreign)) {
                             String book_id_from_big_db = String.valueOf(ds.child("id").getValue());
-                            for (BookReadData book : books_recommended) {
+                            for (BookData book : books_recommended) {
                                 if (book.getId().equals(book_id_from_big_db)){
                                     books.add(book);
                                     break;
@@ -156,7 +156,7 @@ public class FavouriteBooksFragment extends Fragment {
                         String book_id_foreign = String.valueOf(ds.getKey());
                         if(book_id.equals(book_id_foreign)) {
                             String book_id_from_big_db = String.valueOf(ds.child("id").getValue());
-                            for (BookReadData book : books_recommended) {
+                            for (BookData book : books_recommended) {
                                 if (book.getId().equals(book_id_from_big_db) &&
                                         (book.getAuthor_name().toLowerCase().contains(variable_lower_case) ||
                                                 book.getTitle().toLowerCase().contains(variable_lower_case)) ){
@@ -191,7 +191,7 @@ public class FavouriteBooksFragment extends Fragment {
                     String author_name = String.valueOf(ds.child("author_name").getValue());
                     String book_title = String.valueOf(ds.child("title").getValue());
                     String uri = String.valueOf(ds.child("uri").getValue());
-                    BookReadData newBook = new BookReadData(author_name,book_title);
+                    BookData newBook = new BookData(author_name,book_title);
                     newBook.setUri(uri);
                     newBook.setId(String.valueOf(ds.getKey()));
                     books_recommended.add(newBook);

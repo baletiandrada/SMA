@@ -2,11 +2,11 @@ package com.example.booksapp.dataModels;
 
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
-public class BookReadData {
+public class BookData {
     private String author_name, title, read_month, read_year, id, genre, video_path, uri, description, id_from_big_db;
     private YouTubePlayerView youTubePlayer;
 
-    public BookReadData(){
+    public BookData(){
 
     }
 
@@ -26,14 +26,14 @@ public class BookReadData {
         this.description = description;
     }
 
-    public BookReadData(String author_name, String title, String read_month, String read_year) {
+    public BookData(String author_name, String title, String read_month, String read_year) {
         this.author_name = author_name;
         this.title = title;
         this.read_month = read_month;
         this.read_year = read_year;
     }
 
-    public BookReadData(String author_name, String title, String read_month, String read_year, String uri) {
+    public BookData(String author_name, String title, String read_month, String read_year, String uri) {
         this.author_name = author_name;
         this.title = title;
         this.read_month = read_month;
@@ -41,12 +41,12 @@ public class BookReadData {
         this.uri = uri;
     }
 
-    public BookReadData(String author_name, String title) {
+    public BookData(String author_name, String title) {
         this.author_name = author_name;
         this.title = title;
     }
 
-    public BookReadData(String author_name, String title, String genre) {
+    public BookData(String author_name, String title, String genre) {
         this.author_name = author_name;
         this.title = title;
         this.genre = genre;
