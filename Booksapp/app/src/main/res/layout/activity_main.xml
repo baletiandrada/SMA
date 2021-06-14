@@ -26,6 +26,17 @@
         android:textColor="@android:color/black" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:id="@+id/welcome_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Welcome to Books World!"
+        android:gravity="center"
+        android:textColor="@color/purple_200"
+        android:textStyle="bold"
+        android:textSize="19dp"
+        android:visibility="gone"/>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layout_login_passwd"
         android:layout_width="300dp"
@@ -72,7 +83,8 @@
         android:background="@drawable/custom_button_2"
         android:text="Auto complete activity"
         android:textColor="@color/white"
-        android:layout_margin="15dp"/>
+        android:layout_margin="15dp"
+        android:visibility="gone"/>
 
 
     <com.google.android.material.textfield.TextInputLayout

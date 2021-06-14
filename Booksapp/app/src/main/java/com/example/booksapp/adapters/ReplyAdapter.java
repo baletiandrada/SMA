@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.example.booksapp.AppConstants.ADD_REPLY_ENABLED;
 import static com.example.booksapp.AppConstants.NUMBER_OF_DISLIKES;
 import static com.example.booksapp.AppConstants.NUMBER_OF_LIKES;
 import static com.example.booksapp.AppConstants.USER_GMAIL_LIST;
@@ -284,8 +285,8 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ViewHolder>{
         else s1="likes";
         int no_of_dislikes = Integer.valueOf(NUMBER_OF_DISLIKES.get(i));
         if(no_of_dislikes==1)
-            s2="like";
-        else s2="likes";
+            s2="dislike";
+        else s2="dislikes";
 
         viewHolder.number_of_likes.setText(AppConstants.NUMBER_OF_LIKES.get(i) + " " + s1);
         viewHolder.number_of_dislikes.setText(AppConstants.NUMBER_OF_DISLIKES.get(i) + " " + s2);
@@ -298,6 +299,13 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ViewHolder>{
         if(AppConstants.REPLY_APPRECIATION_FROM_CURRENT_USER.get(i).equals("dislike")){
             viewHolder.itemView.findViewById(R.id.iv_dislike_discolored_icon_reply).setVisibility(View.GONE);
             viewHolder.itemView.findViewById(R.id.iv_dislike_colored_icon_reply).setVisibility(View.VISIBLE);
+        }
+
+        if(ADD_REPLY_ENABLED.get(0).equals("NO")){
+            viewHolder.itemView.findViewById(R.id.iv_like_discolored_icon_reply).setVisibility(View.GONE);
+            viewHolder.itemView.findViewById(R.id.iv_dislike_discolored_icon_reply).setVisibility(View.GONE);
+            //viewHolder.itemView.findViewById(R.id.iv_like_colored_icon_reply).setVisibility(View.GONE);
+            //viewHolder.itemView.findViewById(R.id.iv_dislike_colored_icon_reply).setVisibility(View.GONE);
         }
 
         viewHolder.itemView.findViewById(R.id.iv_like_discolored_icon_reply).setOnClickListener(new View.OnClickListener() {

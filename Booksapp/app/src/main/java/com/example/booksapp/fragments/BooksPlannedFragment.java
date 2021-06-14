@@ -302,34 +302,45 @@ public class BooksPlannedFragment extends Fragment {
     }
 
     public void getDataFromReadBooks(){
-        mBooksReadDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                books_read.clear();
-                for(DataSnapshot ds : dataSnapshot.getChildren()){
-                    BookData newBook = new BookData();
-                    newBook.setId(String.valueOf(ds.getKey()));
-                    String author=null, title=null;
-                    String book_id = String.valueOf(ds.child("id").getValue());
-                    if(book_id!="null") {
-                        for(BookData book: books_recommended){
-                            if(book_id.equals(book.getId())){
-                                author = book.getAuthor_name();
-                                title = book.getTitle();
+        if(currentUser.getUid()!=null){
+            mBooksReadDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    books_read.clear();
+                    for(DataSnapshot ds : dataSnapshot.getChildren()){
+                        BookData newBook = new BookData();
+                        newBook.setId(String.valueOf(ds.getKey()));
+                        String author=null, title=null;
+                        String book_id = String.valueOf(ds.child("id").getValue());
+                        if(book_id!="null") {
+                            for(BookData book: books_recommended){
+                                if(book_id.equals(book.getId())){
+                                    author = book.getAuthor_name();
+                                    title = book.getTitle();
+                                }
                             }
                         }
+                        newBook.setAuthor_name(author);
+                        newBook.setTitle(title);
+                        newBook.setId_from_big_db(book_id);
+                        books_read.add(newBook);
                     }
-                    newBook.setAuthor_name(author);
-                    newBook.setTitle(title);
-                    newBook.setId_from_big_db(book_id);
-                    books_read.add(newBook);
                 }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        else{
+            Toast.makeText(getContext(), "Please login again",Toast.LENGTH_LONG).show();
+            mAuth.signOut();
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            startActivity(intent);
+        }
+
+
+
     }
 
     public void getRatings(){

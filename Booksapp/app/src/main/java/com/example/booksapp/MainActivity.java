@@ -178,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
             email_login.setText(mail);
         }
         else{
+            findViewById(R.id.welcome_tv).setVisibility(View.VISIBLE);
             setGone2();
             mUserDatabase.addValueEventListener(new ValueEventListener() {
                 @Override
@@ -397,6 +398,8 @@ public class MainActivity extends AppCompatActivity {
         layout_confirm_password_register = findViewById(R.id.layout_confirm_register_passwd);
 
         login_button = findViewById(R.id.login_firebase_button);
+
+
         register_open_button = findViewById(R.id.register_open_button);
         register_button = findViewById(R.id.register_firebase_button);
         cancel_register_button = findViewById(R.id.cancel_register_button);

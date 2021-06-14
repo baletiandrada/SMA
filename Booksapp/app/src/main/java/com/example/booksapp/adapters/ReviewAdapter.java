@@ -20,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.booksapp.AppConstants;
@@ -29,11 +28,8 @@ import com.example.booksapp.R;
 import com.example.booksapp.RepliesActivity;
 import com.example.booksapp.SpaceTokenizer;
 import com.example.booksapp.dataModels.AppreciateBookModel;
-import com.example.booksapp.dataModels.BookData;
-import com.example.booksapp.dataModels.QuoteModel;
 import com.example.booksapp.dataModels.ReviewLikeModel;
 import com.example.booksapp.dataModels.UserDetailsModel;
-import com.example.booksapp.helpers.BookStorageHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -42,19 +38,16 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.booksapp.AppConstants.INDEX_FOR_GETTING_NO_OF_LIKES;
+import static com.example.booksapp.AppConstants.ADD_REVIEW_EN;
 import static com.example.booksapp.AppConstants.NUMBER_OF_DISLIKES;
 import static com.example.booksapp.AppConstants.NUMBER_OF_LIKES;
 import static com.example.booksapp.AppConstants.NUMBER_OF_REPLIES;
 import static com.example.booksapp.AppConstants.USER_GMAIL_LIST;
-import static com.example.booksapp.helpers.FirebaseHelper.mBooksReadDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mBooksRecommendedDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mLikesDatabase;
-import static com.example.booksapp.helpers.FirebaseHelper.mRepliesDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mReviewsDatabase;
 import static com.example.booksapp.helpers.FirebaseHelper.mUserDatabase;
 
@@ -108,8 +101,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         else s1="likes";
         int no_of_dislikes = Integer.valueOf(NUMBER_OF_DISLIKES.get(i));
         if(no_of_dislikes==1)
-            s2="like";
-        else s2="likes";
+            s2="dislike";
+        else s2="dislikes";
 
         viewHolder.number_of_likes.setText(AppConstants.NUMBER_OF_LIKES.get(i) + " " + s1);
         viewHolder.number_of_dislikes.setText(AppConstants.NUMBER_OF_DISLIKES.get(i) + " " + s2);
@@ -273,9 +266,18 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("content", viewHolder.editReview.getText().toString());
                 mReviewsDatabase.child(current_review.getId()).updateChildren(map);
+                notifyItemChanged(i);
                 Toast.makeText(context, "Review updated successfully", Toast.LENGTH_SHORT).show();
             }
         });
+
+
+        if(ADD_REVIEW_EN.get(0).equals("NO")){
+            viewHolder.itemView.findViewById(R.id.iv_like_discolored_icon).setVisibility(View.GONE);
+            viewHolder.itemView.findViewById(R.id.iv_dislike_discolored_icon).setVisibility(View.GONE);
+            //viewHolder.itemView.findViewById(R.id.iv_like_colored_icon).setVisibility(View.GONE);
+            //viewHolder.itemView.findViewById(R.id.iv_dislike_colored_icon).setVisibility(View.GONE);
+        }
 
         viewHolder.itemView.findViewById(R.id.iv_like_discolored_icon).setOnClickListener(new View.OnClickListener() {
             @Override

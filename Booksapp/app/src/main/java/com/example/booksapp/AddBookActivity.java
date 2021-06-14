@@ -313,7 +313,7 @@ public class AddBookActivity extends AppCompatActivity implements SelectPhotoDia
                 if (list.contains(month_entered)) {
                     month_aux = month_entered.substring(0, 3);
                 } else {
-                    Toast.makeText(this, "Please enter a valid month (not a number)", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please enter a valid month", Toast.LENGTH_SHORT).show();
                     return;
                 }
             }

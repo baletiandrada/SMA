@@ -25,6 +25,7 @@ public class AppConstants {
     };
 
     public static final String ADD_REVIEW_ENABLED="add_review";
+    public static ArrayList<String> ADD_REPLY_ENABLED=new ArrayList<>(), ADD_REVIEW_EN=new ArrayList<>();
     public static final ArrayList<String> USER_RATING=new ArrayList<String>(), MEAN_RATING=new ArrayList<String>(), MEAN_RATING_PLAN_FRAG=new ArrayList<String>();
     public static final ArrayList<String> MEAN_RATING_RECOMM_FRAG = new ArrayList<String>();
 

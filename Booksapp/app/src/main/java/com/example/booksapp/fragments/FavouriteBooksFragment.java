@@ -117,7 +117,6 @@ public class FavouriteBooksFragment extends Fragment {
         books.clear();
         for(DataSnapshot ds : dataSnapshot.getChildren()){
             String book_id = String.valueOf(ds.child("id").getValue());
-
             mBooksReadDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -126,7 +125,7 @@ public class FavouriteBooksFragment extends Fragment {
                         if(book_id.equals(book_id_foreign)) {
                             String book_id_from_big_db = String.valueOf(ds.child("id").getValue());
                             for (BookData book : books_recommended) {
-                                if (book.getId().equals(book_id_from_big_db)){
+                                if (book.getId().equals(book_id_from_big_db) && !books.contains(book)){
                                     books.add(book);
                                     break;
                                 }

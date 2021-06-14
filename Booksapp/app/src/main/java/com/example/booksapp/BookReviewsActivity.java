@@ -48,6 +48,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.example.booksapp.AppConstants.ADD_REPLY_ENABLED;
+import static com.example.booksapp.AppConstants.ADD_REVIEW_EN;
+import static com.example.booksapp.AppConstants.ADD_REVIEW_ENABLED;
 import static com.example.booksapp.AppConstants.ID_LIKE_FOR_CURRENT_USER;
 import static com.example.booksapp.AppConstants.NUMBER_OF_DISLIKES;
 import static com.example.booksapp.AppConstants.NUMBER_OF_LIKES;
@@ -95,6 +98,7 @@ public class BookReviewsActivity extends AppCompatActivity {
         mReviewsDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                list_review_ids.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren()){
                     list_review_ids.add(dataSnapshot.getKey());
                 }
@@ -117,6 +121,10 @@ public class BookReviewsActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         add_review_enabled = intent.getStringExtra(AppConstants.ADD_REVIEW_ENABLED);
+        ADD_REPLY_ENABLED.clear();
+        AppConstants.ADD_REPLY_ENABLED.add(add_review_enabled);
+        ADD_REVIEW_EN.clear();
+        ADD_REVIEW_EN.add(add_review_enabled);
         AppConstants.enable_add_review = add_review_enabled;
 
         initializeViews();
@@ -392,24 +400,22 @@ public class BookReviewsActivity extends AppCompatActivity {
             for(ReviewLikeModel reviewLikeModel : like_score_list){
                 for(AppreciateBookModel appreciateBookModel : aux_list){
                     if(reviewLikeModel.getReview_id().equals(appreciateBookModel.getId())){
-
-                        USER_GMAIL_LIST.add(getUserEmail(appreciateBookModel.getUser_id()));
-                        NUMBER_OF_LIKES.add(getNumberOfAppreciations(appreciateBookModel.getId(), "like"));
-                        NUMBER_OF_DISLIKES.add(getNumberOfAppreciations(appreciateBookModel.getId(), "dislike"));
-                        REVIEW_APPRECIATION_FROM_CURRENT_USER.add(getAppreciationFromCurrentUser(appreciateBookModel.getId(), currentUser.getUid()));
-
-                        NUMBER_OF_REPLIES.add(getNumberOfReplies(appreciateBookModel.getId()));
-                        if(likeListContainsReview(appreciateBookModel.getId(), currentUser.getUid(), like_list)){
-                            ID_LIKE_FOR_CURRENT_USER.add(getLikeId(appreciateBookModel.getId(), currentUser.getUid()));
-                            REVIEW_EXISTS_IN_LIKE_LIST.add("Yes");
+                        if(!reviews_list.contains(appreciateBookModel)){
+                            USER_GMAIL_LIST.add(getUserEmail(appreciateBookModel.getUser_id()));
+                            NUMBER_OF_LIKES.add(getNumberOfAppreciations(appreciateBookModel.getId(), "like"));
+                            NUMBER_OF_DISLIKES.add(getNumberOfAppreciations(appreciateBookModel.getId(), "dislike"));
+                            REVIEW_APPRECIATION_FROM_CURRENT_USER.add(getAppreciationFromCurrentUser(appreciateBookModel.getId(), currentUser.getUid()));
+                            NUMBER_OF_REPLIES.add(getNumberOfReplies(appreciateBookModel.getId()));
+                            if(likeListContainsReview(appreciateBookModel.getId(), currentUser.getUid(), like_list)){
+                                ID_LIKE_FOR_CURRENT_USER.add(getLikeId(appreciateBookModel.getId(), currentUser.getUid()));
+                                REVIEW_EXISTS_IN_LIKE_LIST.add("Yes");
+                            }
+                            else {
+                                REVIEW_EXISTS_IN_LIKE_LIST.add("No");
+                                ID_LIKE_FOR_CURRENT_USER.add("none");
+                            }
+                            reviews_list.add(appreciateBookModel);
                         }
-                        else {
-                            REVIEW_EXISTS_IN_LIKE_LIST.add("No");
-                            ID_LIKE_FOR_CURRENT_USER.add("none");
-                        }
-
-                        reviews_list.add(appreciateBookModel);
-                        mRepliesDatabase.getDatabase();
                     }
                 }
             }
@@ -469,6 +475,9 @@ public class BookReviewsActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "Review added successfully", Toast.LENGTH_SHORT).show();
         add_review_text.setText(null);
         findViewById(R.id.card_view_add_review).setVisibility(View.GONE);
+        //Intent intent = new Intent(this, BookReviewsActivity.class);
+        //intent.putExtra(ADD_REVIEW_ENABLED, "YES");
+        //startActivity(intent);
     }
 
     private List<UserDetailsModel> user_email_list = new ArrayList<>();
@@ -593,6 +602,7 @@ public class BookReviewsActivity extends AppCompatActivity {
         mLikesDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                like_list.clear();
                 for(DataSnapshot ds : snapshot.getChildren()){
                     if(!Objects.equals(ds.getKey(), "replies")){
                         String review_id= String.valueOf(ds.child("review_id").getValue());

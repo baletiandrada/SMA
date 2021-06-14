@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:iconifiedByDefault="false"
-        android:queryHint="Search for author/title/year"
+        android:queryHint="Search for author/title"
         android:layout_gravity="center"
         app:theme="@style/AppSearchView"
         android:layout_marginBottom="5dp">

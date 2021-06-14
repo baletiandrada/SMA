@@ -1,5 +1,6 @@
 package com.example.booksapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -15,6 +16,9 @@ import android.widget.Toast;
 
 import com.example.booksapp.helpers.FirebaseHelper;
 import com.example.booksapp.helpers.UserStorageHelper;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -45,7 +49,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 if(event.getAction()==MotionEvent.ACTION_DOWN){
                     changePasswordBottom_button.startAnimation(scaleUp);
                     changePassword();
-                    goToBottomNavigationActivity();
 
                 }
                 else if(event.getAction()==MotionEvent.ACTION_UP){
@@ -119,14 +122,25 @@ public class ChangePasswordActivity extends AppCompatActivity {
             return;
         }
 
+        if(userData.password.equals(new_password_et.getText().toString())){
+            Toast.makeText(getApplicationContext(), "Please enter a password you didn't use before", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         if(old_password_et.getText().toString().equals(userData.password)){
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
             FirebaseUser user = mAuth.getCurrentUser();
             if (new_password_et.getText().toString().equals(confirm_new_password_et.getText().toString())){
                 if(new_password_et.getText().toString().length()>=6){
+                    if(user==null){
+                        Toast.makeText(getApplicationContext(), "Please login again", Toast.LENGTH_SHORT).show();
+                        goToLoginActivity();
+                    }
+                    assert user != null;
                     user.updatePassword(new_password_et.getText().toString());
                     FirebaseHelper.mUserDatabase.child(user.getUid()).child("password").setValue(new_password_et.getText().toString());
-                    Toast.makeText(this, "Your password updated successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Your password updated successfully", Toast.LENGTH_SHORT).show();
+                    goToBottomNavigationActivity();
                 }
                 else{
                     Toast.makeText(this, "Your password must be at least 6 characters", Toast.LENGTH_SHORT).show();

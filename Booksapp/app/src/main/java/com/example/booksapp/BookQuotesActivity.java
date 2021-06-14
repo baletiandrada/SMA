@@ -317,7 +317,7 @@ public class BookQuotesActivity extends AppCompatActivity {
     public void addToDatabase(View view) {
         if (add_quote_text.getText() == null || add_quote_text.getText().toString().isEmpty())
         {
-            Toast.makeText(getApplicationContext(), "Review field is empty", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Quote field is empty", Toast.LENGTH_SHORT).show();
             return;
         }
 

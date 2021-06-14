@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.example.booksapp.AppConstants.ADD_REPLY_ENABLED;
 import static com.example.booksapp.AppConstants.ID_LIKE_FOR_CURRENT_USER;
 import static com.example.booksapp.AppConstants.INDEX_FOR_GETTING_NO_OF_LIKES;
 import static com.example.booksapp.AppConstants.NUMBER_OF_DISLIKES;
@@ -57,7 +58,7 @@ import static com.example.booksapp.helpers.FirebaseHelper.mUserDatabase;
 public class RepliesActivity extends AppCompatActivity {
 
     private TextView email_review, content_review, no_of_likes_tv, no_of_dislikes_tv;;
-    private ExtendedFloatingActionButton cancel_replies_fab, add_reply_fab;
+    private ExtendedFloatingActionButton add_reply_fab;
     private RecyclerView recyclerView;
     private ReplyAdapter replyAdapter;
     private MultiAutoCompleteTextView et_add_reply;
@@ -70,6 +71,8 @@ public class RepliesActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
+
+    String add_review_enabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,8 +93,8 @@ public class RepliesActivity extends AppCompatActivity {
         else s1="likes";
         int no_of_dislikes = Integer.valueOf(NUMBER_OF_DISLIKES.get(INDEX_FOR_GETTING_NO_OF_LIKES));
         if(no_of_dislikes==1)
-            s2="like";
-        else s2="likes";
+            s2="dislike";
+        else s2="dislikes";
         no_of_likes_tv.setText(NUMBER_OF_LIKES.get(INDEX_FOR_GETTING_NO_OF_LIKES) + " " + s1);
         no_of_dislikes_tv.setText(NUMBER_OF_DISLIKES.get(INDEX_FOR_GETTING_NO_OF_LIKES) + " " + s2);
 
@@ -226,15 +229,6 @@ public class RepliesActivity extends AppCompatActivity {
                 listView.setVisibility(View.GONE);
                 add_reply_fab.setVisibility(View.VISIBLE);
                 et_add_reply.setText(null);
-            }
-        });
-
-        cancel_replies_fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), BookReviewsActivity.class);
-                intent.putExtra(AppConstants.ADD_REVIEW_ENABLED, enable_add_review);
-                startActivity(intent);
             }
         });
 
@@ -460,7 +454,6 @@ public class RepliesActivity extends AppCompatActivity {
     }
 
     public void initializeViews(){
-        cancel_replies_fab = findViewById(R.id.fab_extended_close_replies);
         add_reply_fab = findViewById(R.id.fab_extended_add_reply);
         recyclerView = findViewById(R.id.rv_replies_activ);
         et_add_reply = findViewById(R.id.et_add_reply);
@@ -469,5 +462,8 @@ public class RepliesActivity extends AppCompatActivity {
         email_review = findViewById(R.id.tv_email_from_review);
         content_review = findViewById(R.id.tv_review_content);
         listView = findViewById(R.id.words_for_add_reply_lv);
+
+        if(ADD_REPLY_ENABLED.get(0).equals("NO"))
+            add_reply_fab.setVisibility(View.GONE);
     }
 }
